@@ -3,16 +3,16 @@ import json
 import uinput
 
 controller = uinput.Device([
-        uinput.KEY_A,
-        uinput.KEY_S,
-        uinput.KEY_D,
-        uinput.KEY_Z,
-        uinput.KEY_X,
-        uinput.KEY_C,
-        uinput.KEY_UP,
-        uinput.KEY_DOWN,
-        uinput.KEY_LEFT,
-        uinput.KEY_RIGHT,
+        uinput.BTN_A,
+        uinput.BTN_B,
+        uinput.BTN_TL,
+        uinput.BTN_TR,
+        uinput.BTN_START,
+        uinput.BTN_SELECT,
+        uinput.BTN_DPAD_UP,
+        uinput.BTN_DPAD_DOWN,
+        uinput.BTN_DPAD_LEFT,
+        uinput.BTN_DPAD_RIGHT,
         ])
 
 app = Flask(__name__)
@@ -29,14 +29,18 @@ def ProcessUserInput(dainput):
     match dainput:
         case "A":
             print("GB L")
-            controller.emit(uinput.KEY_A, 1)
-            controller.emit(uinput.KEY_A, 0)
+            controller.emit(uinput.BTN_TL, 1)
+            controller.emit(uinput.BTN_TL, 0)
         case "S":
-            print("GB R") 
-            controller.emit(uinput.KEY_S, 1)
+            print("GB R")
+            controller.emit(uinput.BTN_TR, 1)
+            controller.emit(uinput.BTN_TR, 0)
+
         case "D":
             print("GB START")
-            controller.emit(uinput.KEY_D)controller.emit(uinput.KEY_X, 1)
+            controller.emit(uinput.BTN_START, 1)
+            controller.emit(uinput.BTN_START, 0)
+
         case "Z":
             print("GB A")
             controller.emit(uinput.KEY_Z, 1)
@@ -47,19 +51,25 @@ def ProcessUserInput(dainput):
             controller.emit(uinput.KEY_X, 0)
         case "C":
             print("GB SELECT")
-            controller.emit(uinput.KEY_C)
+            controller.emit(uinput.BTN_SELECT, 1)
+            controller.emit(uinput.BTN_SELECT, 0)
+
         case "&":
             print("GB UP")
-            controller.emit(uinput.KEY_UP)
+            controller.emit(uinput.BTN_DPAD_UP, 1)
+            controller.emit(uinput.BTN_DPAD_UP, 0)
         case "(":
             print("GB DOWN")
-            controller.emit(uinput.KEY_DOWN)
+            controller.emit(uinput.BTN_DPAD_DOWN, 1)
+            controller.emit(uinput.BTN_DPAD_DOWN, 0)
         case "%":
             print("GB LEFT")
-            controller.emit(uinput.KEY_LEFT)
+            controller.emit(uinput.BTN_DPAD_LEFT, 1)
+            controller.emit(uinput.BTN_DPAD_LEFT, 0)
         case "'":
             print("GB RIGHT")
-            controller.emit(uinput.KEY_RIGHT)
+            controller.emit(uinput.BTN_DPAD_RIGHT, 1)
+            controller.emit(uinput.BTN_DPAD_RIGHT, 0)
 
         case _:
             pass
