@@ -1,1 +1,1 @@
-flask --app controller run
+flask --app controller run --host=0.0.0.0
