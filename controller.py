@@ -32,7 +32,7 @@ def ProcessUserInput(dainput):
             controller.emit(uinput.KEY_A, 1)
             controller.emit(uinput.KEY_A, 0)
         case "S":
-            print("GB R")
+            print("GB R") 
             controller.emit(uinput.KEY_S, 1)
         case "D":
             print("GB START")
