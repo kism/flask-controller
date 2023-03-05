@@ -4,8 +4,8 @@ import uinput
 import time
 
 controller = uinput.Device([
-        uinput.BTN_A,
-        uinput.BTN_B,
+        uinput.BTN_0,
+        uinput.BTN_1,
         uinput.BTN_TL,
         uinput.BTN_TR,
         uinput.BTN_START,
@@ -45,14 +45,14 @@ def ProcessUserInput(dainput):
             controller.emit(uinput.BTN_START, 0)
         case "Z":
             print("GB A")
-            controller.emit(uinput.BTN_A, 1)
+            controller.emit(uinput.BTN_0, 1)
             time.sleep(0.1)
-            controller.emit(uinput.BTN_A, 0)
+            controller.emit(uinput.BTN_0, 0)
         case "X":
             print("GB B")
-            controller.emit(uinput.BTN_B, 1)
+            controller.emit(uinput.BTN_1, 1)
             time.sleep(0.1)
-            controller.emit(uinput.BTN_B, 0)
+            controller.emit(uinput.BTN_1, 0)
         case "C":
             print("GB SELECT")
             controller.emit(uinput.BTN_SELECT, 1)
