@@ -1,4 +1,4 @@
-### ENABLE UINPUT IN LINUX LMAO
+### Flask to MGBA LUA
 
 ## First time setup
 
@@ -11,7 +11,7 @@ pip install -r requirements.txt
 ```
 source env/bin/activate
 export FLASK_APP=controller
-export FLASK_DEBUG=development
+export FLASK_DEBUG=1
 ```
 
 ## Run App

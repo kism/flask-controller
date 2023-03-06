@@ -1,89 +1,106 @@
 from flask import Flask, render_template
 import json
-import uinput
 import time
-
-controller = uinput.Device([
-        uinput.BTN_0,
-        uinput.BTN_1,
-        uinput.BTN_TL,
-        uinput.BTN_TR,
-        uinput.BTN_START,
-        uinput.BTN_SELECT,
-        uinput.BTN_DPAD_UP,
-        uinput.BTN_DPAD_DOWN,
-        uinput.BTN_DPAD_LEFT,
-        uinput.BTN_DPAD_RIGHT,
-        ])
-
-app = Flask(__name__)
+import socket
+import threading
 
 
+app = Flask(__name__)       # flask app
+nextinput = ""              # global nextinput
+
+
+def socketHandler():
+    print("Attempting to open a socket")
+    HOST = "127.0.0.1"
+    PORT = 5001
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        s.bind((HOST, PORT))
+        s.listen()
+        s.settimeout(1)
+        print("Looking for socket connection, in theory on: " + HOST + ":" + str(PORT))
+
+        while True:
+            try:
+                conn, addr = s.accept()
+            except socket.timeout:
+                continue
+            print("Connection from", addr[0])
+
+            print("Starting connected loop")
+            with conn:
+                print(f"Connected by {addr}")
+                conn.sendall("hello its me".encode())
+                time.sleep(1)
+
+
+# Flask
 @app.route('/')
 def home():
     return render_template('home.html')
 
+
 @app.route('/ProcessUserInput/<string:dainput>', methods=['POST'])
 def ProcessUserInput(dainput):
+    global nextinput
     dainput = json.loads(dainput)
-    #print(dainput)
+    message = ""
+    # print(dainput)
     match dainput:
         case "A":
             print("GB L")
-            controller.emit(uinput.BTN_TL, 1)
-            time.sleep(0.1)
-            controller.emit(uinput.BTN_TL, 0)
         case "S":
             print("GB R")
-            controller.emit(uinput.BTN_TR, 1)
-            time.sleep(0.1)
-            controller.emit(uinput.BTN_TR, 0)
         case "D":
             print("GB START")
-            controller.emit(uinput.BTN_START, 1)
-            time.sleep(0.1)
-            controller.emit(uinput.BTN_START, 0)
         case "Z":
             print("GB A")
-            controller.emit(uinput.BTN_0, 1)
-            time.sleep(0.1)
-            controller.emit(uinput.BTN_0, 0)
         case "X":
             print("GB B")
-            controller.emit(uinput.BTN_1, 1)
-            time.sleep(0.1)
-            controller.emit(uinput.BTN_1, 0)
         case "C":
             print("GB SELECT")
-            controller.emit(uinput.BTN_SELECT, 1)
-            time.sleep(0.1)
-            controller.emit(uinput.BTN_SELECT, 0)
         case "&":
             print("GB UP")
-            controller.emit(uinput.BTN_DPAD_UP, 1)
-            time.sleep(0.1)
-            controller.emit(uinput.BTN_DPAD_UP, 0)
         case "(":
             print("GB DOWN")
-            controller.emit(uinput.BTN_DPAD_DOWN, 1)
-            time.sleep(0.1)
-            controller.emit(uinput.BTN_DPAD_DOWN, 0)
         case "%":
             print("GB LEFT")
-            controller.emit(uinput.BTN_DPAD_LEFT, 1)
-            time.sleep(0.1)
-            controller.emit(uinput.BTN_DPAD_LEFT, 0)
         case "'":
             print("GB RIGHT")
-            controller.emit(uinput.BTN_DPAD_RIGHT, 1)
-            time.sleep(0.1)
-            controller.emit(uinput.BTN_DPAD_RIGHT, 0)
-
         case _:
-            pass
+            message = "INVALID KEYPRESS, DROPPING"
+            print(message)
+            dainput = ""
 
-    return ""
+    nextinput = dainput
+
+    return "Sent " + dainput + " " + message
+
+
+# @app.route('/GetUserInput', methods=['GET'])
+# def GetUserInput():
+#     global nextinput
+#     tosend = nextinput
+#     nextinput = ""
+#     print("sending " + tosend + " via http")
+#     return tosend
+
+# thread = threading.Thread(target=socketHandler)
+# thread.daemon = True
+# thread.start()
+
+def main():
+    print("hello 1")
+    thread = threading.Thread(target=socketHandler)
+    print("hello 2")
+    thread.start()
+    print("hello 3")
+    print("hello 4")
+    app.run()
+    print("hello 5")
+    thread.join()
+    print("hello 6")
 
 
 if __name__ == '__main__':
-    app.run()
+    main()
