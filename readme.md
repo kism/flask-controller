@@ -31,5 +31,6 @@ god knows
 * visual feedback in front end
 * connection status in frontend
 * clean up lua
+* separate out vars nicely
 * up and down press events
 * buffer (if I cant implement up and down presses)

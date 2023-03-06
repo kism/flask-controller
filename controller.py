@@ -94,21 +94,8 @@ def ProcessUserInput(dainput):
             print(message)
             nextinput = ""
 
-
     return "Sent " + dainput + " " + message
 
-
-# @app.route('/GetUserInput', methods=['GET'])
-# def GetUserInput():
-#     global nextinput
-#     tosend = nextinput
-#     nextinput = ""
-#     print("sending " + tosend + " via http")
-#     return tosend
-
-# thread = threading.Thread(target=socketHandler)
-# thread.daemon = True
-# thread.start()
 
 def main():
     print("hello 1")
