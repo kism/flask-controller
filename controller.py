@@ -10,6 +10,7 @@ nextinput = ""              # global nextinput
 
 
 def socketSender():
+    global nextinput
     print("Attempting to open a socket")
     HOST = "127.0.0.1"
     PORT = 5001
@@ -30,11 +31,14 @@ def socketSender():
                         time.sleep(1)
 
                 while connected:
-                    time.sleep(1)
+                    time.sleep(1/60)
                     try:
-                        message = "hello its me, your webapp"
-                        print("Sending to socket: " + message)
-                        s.sendall(message.encode('utf-8'))
+                        # message = "hello its me, your webapp"
+                        # print("Sending to socket: " + message)
+                        if nextinput != "":
+                            s.sendall(nextinput.encode('utf-8'))
+                            nextinput = ""
+
                     except BrokenPipeError:
                         print("Disconnected from socket, cringe")
                         connected = False
@@ -56,31 +60,40 @@ def ProcessUserInput(dainput):
     # print(dainput)
     match dainput:
         case "A":
-            print("GB L")
+            print("GBA L")
+            nextinput = "GBA_KEY_L"
         case "S":
-            print("GB R")
+            print("GBA R")
+            nextinput = "GBA_KEY_R"
         case "D":
-            print("GB START")
+            print("GBA START")
+            nextinput = "GBA_KEY_START"
         case "Z":
-            print("GB A")
+            print("GBA B")
+            nextinput = "GBA_KEY_B"
         case "X":
-            print("GB B")
+            print("GBA A")
+            nextinput = "GBA_KEY_A"
         case "C":
-            print("GB SELECT")
+            print("GBA SELECT")
+            nextinput = "GBA_KEY_SELECT"
         case "&":
-            print("GB UP")
+            print("GBA UP")
+            nextinput = "GBA_KEY_UP"
         case "(":
-            print("GB DOWN")
+            print("GBA DOWN")
+            nextinput = "GBA_KEY_DOWN"
         case "%":
-            print("GB LEFT")
+            print("GBA LEFT")
+            nextinput = "GBA_KEY_LEFT"
         case "'":
-            print("GB RIGHT")
+            print("GBA RIGHT")
+            nextinput = "GBA_KEY_RIGHT"
         case _:
             message = "INVALID KEYPRESS, DROPPING"
             print(message)
-            dainput = ""
+            nextinput = ""
 
-    nextinput = dainput
 
     return "Sent " + dainput + " " + message
 
@@ -104,7 +117,7 @@ def main():
     thread.start()
     print("hello 3")
     print("hello 4")
-    app.run()
+    app.run(host="0.0.0.0")
     print("hello 5")
     thread.join()
     print("hello 6")

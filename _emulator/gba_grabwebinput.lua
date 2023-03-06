@@ -3,6 +3,8 @@ server = nil
 ST_sockets = {}
 nextID = 1
 
+framedelay = 0
+
 local KEY_NAMES = { "A", "B", "s", "S", "<", ">", "^", "v", "R", "L" }
 
 function ST_stop(id)
@@ -33,6 +35,31 @@ function ST_received(id)
 		local p, err = sock:receive(1024)
 		if p then
 			console:log(ST_format(id, p:match("^(.-)%s*$")))
+			-- console.log(string(tonumber(p)))
+			-- emu:setKey(tonumber(p))
+			-- emu:setKey(1 << int(p))
+			framedelay = 3
+			if p == "GBA_KEY_A" then
+				emu:addKey(0)
+			elseif p == "GBA_KEY_B" then
+				emu:addKey(1)
+			elseif p == "GBA_KEY_L" then
+				emu:addKey(9)
+			elseif p == "GBA_KEY_R" then
+				emu:addKey(8)
+			elseif p == "GBA_KEY_START" then
+				emu:addKey(3)
+			elseif p == "GBA_KEY_SELECT" then
+				emu:addKey(2)
+			elseif p == "GBA_KEY_UP" then
+				emu:addKey(6)
+			elseif p == "GBA_KEY_DOWN" then
+				emu:addKey(7)
+			elseif p == "GBA_KEY_LEFT" then
+				emu:addKey(5)
+			elseif p == "GBA_KEY_RIGHT" then
+				emu:addKey(4)
+			end
 		else
 			if err ~= socket.ERRORS.AGAIN then
 				console:error(ST_format(id, err, true))
@@ -76,8 +103,19 @@ function ST_accept()
 	console:log(ST_format(id, "Connected"))
 end
 
-callbacks:add("keysRead", ST_scankeys)
 
+function resetKeys()
+	if framedelay > 0 then
+		framedelay = framedelay -1
+	else
+		emu:setKeys(0)
+	end
+end
+
+callbacks:add("keysRead", ST_scankeys)
+callbacks:add("frame", resetKeys) -- Runs activeHunt() every frame
+
+-- Main
 local port = 5001
 server = nil
 while not server do
