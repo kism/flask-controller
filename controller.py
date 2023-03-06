@@ -9,30 +9,37 @@ app = Flask(__name__)       # flask app
 nextinput = ""              # global nextinput
 
 
-def socketHandler():
+def socketSender():
     print("Attempting to open a socket")
     HOST = "127.0.0.1"
     PORT = 5001
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        s.bind((HOST, PORT))
-        s.listen()
-        s.settimeout(1)
-        print("Looking for socket connection, in theory on: " +
-              HOST + ":" + str(PORT))
+    connected = False
+    while True:
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-        while True:
-            try:
-                conn, addr = s.accept()
-            except socket.timeout:
-                continue
-            print("Connection from", addr[0])
+                connected = False
+                while not connected:
+                    print("Connecting to socket: " + HOST + ":" + str(PORT))
+                    try:
+                        s.connect((HOST, PORT))
+                        connected = True
+                        print("Connected to socket!")
+                    except ConnectionRefusedError:
+                        time.sleep(1)
 
-            print("Starting connected loop")
-            with conn:
-                print(f"Connected by {addr}")
-                conn.sendall("hello its me".encode())
-                time.sleep(1)
+                while connected:
+                    time.sleep(1)
+                    try:
+                        message = "hello its me, your webapp"
+                        print("Sending to socket: " + message)
+                        s.sendall(message.encode('utf-8'))
+                    except BrokenPipeError:
+                        print("Disconnected from socket, cringe")
+                        connected = False
+        except OSError:
+            s = None
 
 
 # Flask
@@ -92,7 +99,7 @@ def ProcessUserInput(dainput):
 
 def main():
     print("hello 1")
-    thread = threading.Thread(target=socketHandler)
+    thread = threading.Thread(target=socketSender)
     print("hello 2")
     thread.start()
     print("hello 3")
