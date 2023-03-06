@@ -1,15 +1,16 @@
-lastkeys = nil
-server = nil
-ST_sockets = {}
-nextID = 1
+-- Sockets related
+SERVER     = nil
+ST_SOCKETS = {}
+NEXTID     = 1
+local port = 5001
 
-framedelay = 0
 
-local KEY_NAMES = { "A", "B", "s", "S", "<", ">", "^", "v", "R", "L" }
+-- Input Related
+FRAMEDELAY = 0
 
 function ST_stop(id)
-	local sock = ST_sockets[id]
-	ST_sockets[id] = nil
+	local sock = ST_SOCKETS[id]
+	ST_SOCKETS[id] = nil
 	sock:close()
 end
 
@@ -29,7 +30,7 @@ function ST_error(id, err)
 end
 
 function ST_received(id)
-	local sock = ST_sockets[id]
+	local sock = ST_SOCKETS[id]
 	if not sock then return end
 	while true do
 		local p, err = sock:receive(1024)
@@ -38,7 +39,7 @@ function ST_received(id)
 			-- console.log(string(tonumber(p)))
 			-- emu:setKey(tonumber(p))
 			-- emu:setKey(1 << int(p))
-			framedelay = 3
+			FRAMEDELAY = 3
 			if p == "GBA_KEY_A" then
 				emu:addKey(0)
 			elseif p == "GBA_KEY_B" then
@@ -70,72 +71,50 @@ function ST_received(id)
 	end
 end
 
-function ST_scankeys()
-	local keys = emu:getKeys()
-	if keys ~= lastkeys then
-		lastkeys = keys
-		local msg = "["
-		for i, k in ipairs(KEY_NAMES) do
-			if (keys & (1 << (i - 1))) == 0 then
-				msg = msg .. " "
-			else
-				msg = msg .. k;
-			end
-		end
-		msg = msg .. "]\n"
-		for id, sock in pairs(ST_sockets) do
-			if sock then sock:send(msg) end
-		end
-	end
-end
-
 function ST_accept()
-	local sock, err = server:accept()
+	local sock, err = SERVER:accept()
 	if err then
 		console:error(ST_format("Accept", err, true))
 		return
 	end
-	local id = nextID
-	nextID = id + 1
-	ST_sockets[id] = sock
+	local id = NEXTID
+	NEXTID = id + 1
+	ST_SOCKETS[id] = sock
 	sock:add("received", function() ST_received(id) end)
 	sock:add("error", function() ST_error(id) end)
 	console:log(ST_format(id, "Connected"))
 end
 
-
-function resetKeys()
-	if framedelay > 0 then
-		framedelay = framedelay -1
+function ResetKeys()
+	if FRAMEDELAY > 0 then
+		FRAMEDELAY = FRAMEDELAY - 1
 	else
 		emu:setKeys(0)
 	end
 end
 
-callbacks:add("keysRead", ST_scankeys)
-callbacks:add("frame", resetKeys) -- Runs activeHunt() every frame
+callbacks:add("frame", ResetKeys) -- Runs activeHunt() every frame
 
 -- Main
-local port = 5001
-server = nil
-while not server do
-	server, err = socket.bind(nil, port)
+while not SERVER do
+	local err
+	SERVER, err = socket.bind(nil, port)
 	if err then
 		if err == socket.ERRORS.ADDRESS_IN_USE then
-			port = port + 1
+			console.log("Address in use")
 		else
 			console:error(ST_format("Bind", err, true))
 			break
 		end
 	else
 		local ok
-		ok, err = server:listen()
+		ok, err = SERVER:listen()
 		if err then
-			server:close()
+			SERVER:close()
 			console:error(ST_format("Listen", err, true))
 		else
-			console:log("Socket Server Test: Listening on port " .. port)
-			server:add("received", ST_accept)
+			console:log("Socket SERVER Test: Listening on port " .. port)
+			SERVER:add("received", ST_accept)
 		end
 	end
 end

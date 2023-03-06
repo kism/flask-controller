@@ -98,16 +98,10 @@ def ProcessUserInput(dainput):
 
 
 def main():
-    print("hello 1")
     thread = threading.Thread(target=socketSender)
-    print("hello 2")
     thread.start()
-    print("hello 3")
-    print("hello 4")
     app.run(host="0.0.0.0")
-    print("hello 5")
     thread.join()
-    print("hello 6")
 
 
 if __name__ == '__main__':

@@ -294,11 +294,12 @@
 
   table {
     margin-bottom: 16px;
+    background: #222222;
   }
 
   thead tr {
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(255, 255, 255, 0.12);
+    background: #222222;
   }
 
   tr {
