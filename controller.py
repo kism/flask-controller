@@ -18,7 +18,8 @@ def socketHandler():
         s.bind((HOST, PORT))
         s.listen()
         s.settimeout(1)
-        print("Looking for socket connection, in theory on: " + HOST + ":" + str(PORT))
+        print("Looking for socket connection, in theory on: " +
+              HOST + ":" + str(PORT))
 
         while True:
             try:
