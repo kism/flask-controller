@@ -38,3 +38,4 @@ god knows, my windows python install is so cooked
 * connection status for emulator and POST in frontend
 * buffer (if I cant implement up and down presses)
 * use dictionaries?
+* add comments (cringe)
