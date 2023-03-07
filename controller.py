@@ -6,12 +6,11 @@ import threading
 import logging
 
 # "User Set"
-pollingrate = 60          # Tick Rate (Outputs Per Second)
+pollingrate = 120          # Tick Rate (Outputs Per Second)
 WEBHOST = "0.0.0.0"        # Web Interface Bind Address (0.0.0.0)
 WEBPORT = 5000             # Web Interface http Port
 # Socket Server (mGBA) Address TODO FIXME TODO FIXME TODO FIXME TODO FIXME TODO FIXME TODO FIXME
 # TODO FIXME TODO FIXME TODO FIXME TODO FIXME TODO FIXME TODO FIXME TODO FIXME TODO FIXME TODO FIXME
-
 SOCKETHOST = "10.42.0.42"
 SOCKETPORT = 5001          # Socket Server (mGBA) Port
 
@@ -48,7 +47,7 @@ def socketSender():  # Connect to mGBA socket and send commands
                         # message = "hello its me, your webapp"
                         # print("Sending to socket: " + message)
                         if inputqueue:
-                            s.sendall(inputqueue.pop(0).encode('utf-8'))
+                            s.sendall(inputqueue.pop(0).encode('ascii'))
 
                     except BrokenPipeError:
                         print("Disconnected from socket, cringe")
@@ -75,6 +74,7 @@ def ProcessUserInput(dainput):
     if dainput not in validinputs:
         message = "INVALID KEYPRESS, DROPPING"
     else:
+        dainput = dainput.ljust(16, "_")
         message = dainput
         inputqueue.append(dainput)
 

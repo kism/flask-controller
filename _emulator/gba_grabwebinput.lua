@@ -6,16 +6,16 @@ local port                 = 5001
 
 -- Input Mapping Table
 INPUTTAB                   = {}
-INPUTTAB["GBA_KEY_A"]      = 0
-INPUTTAB["GBA_KEY_B"]      = 1
-INPUTTAB["GBA_KEY_L"]      = 9
-INPUTTAB["GBA_KEY_R"]      = 8
-INPUTTAB["GBA_KEY_START"]  = 3
+INPUTTAB["GBA_KEY_A_____"] = 0
+INPUTTAB["GBA_KEY_B_____"] = 1
+INPUTTAB["GBA_KEY_L_____"] = 9
+INPUTTAB["GBA_KEY_R_____"] = 8
+INPUTTAB["GBA_KEY_START_"] = 3
 INPUTTAB["GBA_KEY_SELECT"] = 2
-INPUTTAB["GBA_KEY_UP"]     = 6
-INPUTTAB["GBA_KEY_DOWN"]   = 7
-INPUTTAB["GBA_KEY_LEFT"]   = 5
-INPUTTAB["GBA_KEY_RIGHT"]  = 4
+INPUTTAB["GBA_KEY_UP____"] = 6
+INPUTTAB["GBA_KEY_DOWN__"] = 7
+INPUTTAB["GBA_KEY_LEFT__"] = 5
+INPUTTAB["GBA_KEY_RIGHT_"] = 4
 
 INPUTBUFFER                = {}
 
@@ -44,7 +44,7 @@ function ST_received(id)
 	local sock = ST_SOCKETS[id]
 	if not sock then return end
 	while true do
-		local p, err = sock:receive(1024)
+		local p, err = sock:receive(16)
 		if p then
 			console:log(ST_format(id, p:match("^(.-)%s*$")))
 
@@ -75,7 +75,10 @@ function ST_accept()
 end
 
 function SetKeys()
+	-- console:log(string(#INPUTBUFFER))
 	local p = table.remove(INPUTBUFFER)
+
+	console:log(p)
 
 	local firstTwoChars = string.sub(p, 1, 2)
 	local restOfString = string.sub(p, 3)
