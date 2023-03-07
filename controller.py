@@ -6,7 +6,7 @@ import threading
 import logging
 
 # "User Set"
-pollingrate = 10          # Tick Rate (Outputs Per Second)
+pollingrate = 60          # Tick Rate (Outputs Per Second)
 WEBHOST = "0.0.0.0"        # Web Interface Bind Address (0.0.0.0)
 WEBPORT = 5000             # Web Interface http Port
 SOCKETHOST = "10.42.0.42"  # Socket Server (mGBA) Address TODO FIXME TODO FIXME TODO FIXME
@@ -16,11 +16,11 @@ SOCKETPORT = 5001          # Socket Server (mGBA) Port
 log = logging.getLogger('werkzeug')  # Flask Logger
 log.setLevel(logging.ERROR)
 app = Flask(__name__)                # Flask app object
-nextinput = ""                       # Global nextinput, shared between threads
+inputqueue = []                       # Global inputqueue, shared between threads
 
 
 def socketSender():  # Connect to mGBA socket and send commands
-    global nextinput
+    global inputqueue
     print("Attempting to open a socket")
     connected = False
     while True:
@@ -44,9 +44,8 @@ def socketSender():  # Connect to mGBA socket and send commands
                     try:
                         # message = "hello its me, your webapp"
                         # print("Sending to socket: " + message)
-                        if nextinput != "":
-                            s.sendall(nextinput.encode('utf-8'))
-                            nextinput = ""
+                        if inputqueue:
+                            s.sendall(inputqueue.pop(0).encode('utf-8'))
 
                     except BrokenPipeError:
                         print("Disconnected from socket, cringe")
@@ -64,7 +63,7 @@ def home():
 # Flask Process User Input (From Javascript)
 @app.route('/ProcessUserInput/<string:dainput>', methods=['POST'])
 def ProcessUserInput(dainput):
-    global nextinput
+    global inputqueue
     message = ""
 
     validinputs = ['D_GBA_KEY_L', 'U_GBA_KEY_L', 'D_GBA_KEY_R', 'U_GBA_KEY_R', 'D_GBA_KEY_START', 'U_GBA_KEY_START', 'D_GBA_KEY_B', 'U_GBA_KEY_B', 'D_GBA_KEY_A', 'U_GBA_KEY_A',
@@ -72,10 +71,9 @@ def ProcessUserInput(dainput):
 
     if dainput not in validinputs:
         message = "INVALID KEYPRESS, DROPPING"
-        nextinput = ""
     else:
         message = dainput
-        nextinput = dainput
+        inputqueue.append(dainput)
 
     message = "Sent " + message
     print(message)

@@ -17,6 +17,7 @@ INPUTTAB["GBA_KEY_DOWN"]   = 7
 INPUTTAB["GBA_KEY_LEFT"]   = 5
 INPUTTAB["GBA_KEY_RIGHT"]  = 4
 
+INPUTBUFFER                = {}
 
 function ST_stop(id)
 	local sock = ST_SOCKETS[id]
@@ -47,19 +48,8 @@ function ST_received(id)
 		if p then
 			console:log(ST_format(id, p:match("^(.-)%s*$")))
 
-			local firstTwoChars = string.sub(p, 1, 2)
-			local restOfString = string.sub(p, 3)
-
-			if firstTwoChars == "D_" then
-				console:log("Button Press")
-				emu:addKey(INPUTTAB[restOfString])
-		    elseif firstTwoChars == "U_" then
-				console:log("Button Release")
-				emu:clearKey(INPUTTAB[restOfString])
-			else
-				console:log("Invalid input from socket")
-			end
-
+			-- Add input to input buffer
+			table.insert(INPUTBUFFER, p)
 		else
 			if err ~= socket.ERRORS.AGAIN then
 				console:error(ST_format(id, err, true))
@@ -83,6 +73,25 @@ function ST_accept()
 	sock:add("error", function() ST_error(id) end)
 	console:log(ST_format(id, "Connected"))
 end
+
+function SetKeys()
+	local p = table.remove(INPUTBUFFER)
+
+	local firstTwoChars = string.sub(p, 1, 2)
+	local restOfString = string.sub(p, 3)
+
+	if firstTwoChars == "D_" then
+		console:log("Button Press")
+		emu:addKey(INPUTTAB[restOfString])
+	elseif firstTwoChars == "U_" then
+		console:log("Button Release")
+		emu:clearKey(INPUTTAB[restOfString])
+	else
+		console:log("Invalid input from socket")
+	end
+end
+
+callbacks:add("frame", SetKeys) -- Runs activeHunt() every frame
 
 -- Main
 while not SERVER do
