@@ -4,7 +4,8 @@
 
 ### First time setup Linux
 
-```python -m venv env
+```
+python -m venv env
 pip install -r requirements.txt
 ```
 
