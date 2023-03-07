@@ -1,4 +1,6 @@
-# Flask to MGBA LUA
+# Flask to mGBA LUA
+
+Javascript -> HTTP POST -> Flask -> TCP Socket -> mGBA LUA
 
 ## Linux
 
