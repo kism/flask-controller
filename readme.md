@@ -33,7 +33,8 @@ god knows, my windows python install is so cooked
 * ~~visual feedback in front end~~
 * ~~connection status in frontend~~
 * ~~clean up lua~~
-* ~~separate out vars nicely~~
+* ~~separate out vars nicely lua~~
+* separate out vars nicely python
 * up and down press events
 * connection status for emulator and POST in frontend
 * buffer (if I cant implement up and down presses)
