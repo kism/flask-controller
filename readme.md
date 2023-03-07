@@ -22,13 +22,12 @@ export FLASK_DEBUG=1
 
 ## Windows
 
-god knows
-
+god knows, my windows python install is so cooked
 
 ## TODO
 
 * ~~get app working with linux uinput~~
-* ~~get app working with mgba lua and sockets~~(much better idea)
+* ~~get app working with mgba lua and sockets~~ (much better idea)
 * ~~only send valid keys in frontend js~~
 * ~~visual feedback in front end~~
 * ~~connection status in frontend~~
