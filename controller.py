@@ -9,7 +9,10 @@ import logging
 pollingrate = 60          # Tick Rate (Outputs Per Second)
 WEBHOST = "0.0.0.0"        # Web Interface Bind Address (0.0.0.0)
 WEBPORT = 5000             # Web Interface http Port
-SOCKETHOST = "10.42.0.42"  # Socket Server (mGBA) Address TODO FIXME TODO FIXME TODO FIXME
+# Socket Server (mGBA) Address TODO FIXME TODO FIXME TODO FIXME TODO FIXME TODO FIXME TODO FIXME
+# TODO FIXME TODO FIXME TODO FIXME TODO FIXME TODO FIXME TODO FIXME TODO FIXME TODO FIXME TODO FIXME
+
+SOCKETHOST = "10.42.0.42"
 SOCKETPORT = 5001          # Socket Server (mGBA) Port
 
 
