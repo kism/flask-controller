@@ -1,12 +1,22 @@
 -- Sockets related
-SERVER     = nil
-ST_SOCKETS = {}
-NEXTID     = 1
-local port = 5001
+SERVER                     = nil
+ST_SOCKETS                 = {}
+NEXTID                     = 1
+local port                 = 5001
 
+-- Input Mapping Table
+INPUTTAB                   = {}
+INPUTTAB["GBA_KEY_A"]      = 0
+INPUTTAB["GBA_KEY_B"]      = 1
+INPUTTAB["GBA_KEY_L"]      = 9
+INPUTTAB["GBA_KEY_R"]      = 8
+INPUTTAB["GBA_KEY_START"]  = 3
+INPUTTAB["GBA_KEY_SELECT"] = 2
+INPUTTAB["GBA_KEY_UP"]     = 6
+INPUTTAB["GBA_KEY_DOWN"]   = 7
+INPUTTAB["GBA_KEY_LEFT"]   = 5
+INPUTTAB["GBA_KEY_RIGHT"]  = 4
 
--- Input Related
-FRAMEDELAY = 0
 
 function ST_stop(id)
 	local sock = ST_SOCKETS[id]
@@ -36,31 +46,20 @@ function ST_received(id)
 		local p, err = sock:receive(1024)
 		if p then
 			console:log(ST_format(id, p:match("^(.-)%s*$")))
-			-- console.log(string(tonumber(p)))
-			-- emu:setKey(tonumber(p))
-			-- emu:setKey(1 << int(p))
-			FRAMEDELAY = 3
-			if p == "GBA_KEY_A" then
-				emu:addKey(0)
-			elseif p == "GBA_KEY_B" then
-				emu:addKey(1)
-			elseif p == "GBA_KEY_L" then
-				emu:addKey(9)
-			elseif p == "GBA_KEY_R" then
-				emu:addKey(8)
-			elseif p == "GBA_KEY_START" then
-				emu:addKey(3)
-			elseif p == "GBA_KEY_SELECT" then
-				emu:addKey(2)
-			elseif p == "GBA_KEY_UP" then
-				emu:addKey(6)
-			elseif p == "GBA_KEY_DOWN" then
-				emu:addKey(7)
-			elseif p == "GBA_KEY_LEFT" then
-				emu:addKey(5)
-			elseif p == "GBA_KEY_RIGHT" then
-				emu:addKey(4)
+
+			local firstTwoChars = string.sub(p, 1, 2)
+			local restOfString = string.sub(p, 3)
+
+			if firstTwoChars == "D_" then
+				console:log("Button Press")
+				emu:addKey(INPUTTAB[restOfString])
+		    elseif firstTwoChars == "U_" then
+				console:log("Button Release")
+				emu:clearKey(INPUTTAB[restOfString])
+			else
+				console:log("Invalid input from socket")
 			end
+
 		else
 			if err ~= socket.ERRORS.AGAIN then
 				console:error(ST_format(id, err, true))
@@ -85,16 +84,6 @@ function ST_accept()
 	console:log(ST_format(id, "Connected"))
 end
 
-function ResetKeys()
-	if FRAMEDELAY > 0 then
-		FRAMEDELAY = FRAMEDELAY - 1
-	else
-		emu:setKeys(0)
-	end
-end
-
-callbacks:add("frame", ResetKeys) -- Runs activeHunt() every frame
-
 -- Main
 while not SERVER do
 	local err
@@ -113,7 +102,7 @@ while not SERVER do
 			SERVER:close()
 			console:error(ST_format("Listen", err, true))
 		else
-			console:log("Socket SERVER Test: Listening on port " .. port)
+			console:log("Socket SERVER: Listening on port " .. port)
 			SERVER:add("received", ST_accept)
 		end
 	end
