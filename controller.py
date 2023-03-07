@@ -5,7 +5,15 @@ import socket
 import threading
 import logging
 
-log = logging.getLogger('werkzeug')
+# "User Set"
+pollingrate = 120       # tick rate
+WEBHOST = "0.0.0.0"
+WEBPORT = 5000
+SOCKETHOST = "127.0.0.1"
+SOCKETPORT = 5001
+
+
+log = logging.getLogger('werkzeug') # Flask Logger
 log.setLevel(logging.ERROR)
 
 app = Flask(__name__)       # flask app
@@ -15,8 +23,6 @@ nextinput = ""              # global nextinput
 def socketSender():
     global nextinput
     print("Attempting to open a socket")
-    HOST = "127.0.0.1"
-    PORT = 5001
     connected = False
     while True:
         try:
@@ -25,16 +31,17 @@ def socketSender():
 
                 connected = False
                 while not connected:
-                    print("Connecting to socket: " + HOST + ":" + str(PORT))
+                    print("Connecting to socket: " +
+                          SOCKETHOST + ":" + str(SOCKETPORT))
                     try:
-                        s.connect((HOST, PORT))
+                        s.connect((SOCKETHOST, SOCKETPORT))
                         connected = True
                         print("Connected to socket!")
                     except ConnectionRefusedError:
                         time.sleep(1)
 
                 while connected:
-                    time.sleep(1/60)
+                    time.sleep(1/pollingrate)
                     try:
                         # message = "hello its me, your webapp"
                         # print("Sending to socket: " + message)
@@ -78,7 +85,7 @@ def ProcessUserInput(dainput):
 def main():
     thread = threading.Thread(target=socketSender)
     thread.start()
-    app.run(host="0.0.0.0")
+    app.run(host=WEBHOST, port=WEBPORT)
     thread.join()
 
 
