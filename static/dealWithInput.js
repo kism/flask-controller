@@ -42,26 +42,22 @@ function getkey() {
 document.onkeydown = function (e) {
     var key = getkey();
 
-    if (inputdict[key][1] != true) {
+    if (key in inputdict && inputdict[key][1] != true) {
         // If key is still currently held down, don't bother sending a duplicate POST due to windows keyboard character repeating
-        try {
-            document.getElementById(inputdict[key][0]).style.backgroundColor = "#003F87";
-            inputdict[key][1] = true; // Mark button as being pressed down
-            postkey(key, "D_");
-        } catch (TypeError) {
-            console.log("Invalid key: " + key);
-        }
+        document.getElementById(inputdict[key][0]).style.backgroundColor = "#003F87";
+        inputdict[key][1] = true; // Mark button as being pressed down
+        postkey(key, "D_");
     } else {
-        console.log("Ignoring duplicate input");
+        console.log("Ignoring duplicate or invalid input");
     }
 };
 
 document.onkeyup = function (e) {
     var key = getkey();
 
-    try {
+    if (key in inputdict) {
         document.getElementById(inputdict[key][0]).style.backgroundColor = "#222222";
         inputdict[key][1] = false; // Mark button as being pressed down
         postkey(key, "U_");
-    } catch (TypeError) {} // No need to log an error twice
+    }
 };
