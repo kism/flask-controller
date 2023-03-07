@@ -12,13 +12,11 @@ pip install -r requirements.txt
 
 ```
 source env/bin/activate
-export FLASK_APP=controller
-export FLASK_DEBUG=1
 ```
 
 ### Run App
 
-`./runapp.sh`
+`python controller.py`
 
 ## Windows
 
