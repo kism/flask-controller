@@ -3,7 +3,10 @@ import json
 import time
 import socket
 import threading
+import logging
 
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 app = Flask(__name__)       # flask app
 nextinput = ""              # global nextinput
@@ -55,46 +58,21 @@ def home():
 @app.route('/ProcessUserInput/<string:dainput>', methods=['POST'])
 def ProcessUserInput(dainput):
     global nextinput
-    dainput = json.loads(dainput)
     message = ""
-    # print(dainput)
-    match dainput:
-        case "A":
-            print("GBA L")
-            nextinput = "GBA_KEY_L"
-        case "S":
-            print("GBA R")
-            nextinput = "GBA_KEY_R"
-        case "D":
-            print("GBA START")
-            nextinput = "GBA_KEY_START"
-        case "Z":
-            print("GBA B")
-            nextinput = "GBA_KEY_B"
-        case "X":
-            print("GBA A")
-            nextinput = "GBA_KEY_A"
-        case "C":
-            print("GBA SELECT")
-            nextinput = "GBA_KEY_SELECT"
-        case "&":
-            print("GBA UP")
-            nextinput = "GBA_KEY_UP"
-        case "(":
-            print("GBA DOWN")
-            nextinput = "GBA_KEY_DOWN"
-        case "%":
-            print("GBA LEFT")
-            nextinput = "GBA_KEY_LEFT"
-        case "'":
-            print("GBA RIGHT")
-            nextinput = "GBA_KEY_RIGHT"
-        case _:
-            message = "INVALID KEYPRESS, DROPPING"
-            print(message)
-            nextinput = ""
 
-    return "Sent " + dainput + " " + message
+    validinputs = ['D_GBA_KEY_L', 'U_GBA_KEY_L', 'D_GBA_KEY_R', 'U_GBA_KEY_R', 'D_GBA_KEY_START', 'U_GBA_KEY_START', 'D_GBA_KEY_B', 'U_GBA_KEY_B', 'D_GBA_KEY_A', 'U_GBA_KEY_A',
+                   'D_GBA_KEY_SELECT', 'U_GBA_KEY_SELECT', 'D_GBA_KEY_LEFT', 'U_GBA_KEY_LEFT', 'D_GBA_KEY_UP', 'U_GBA_KEY_UP', 'D_GBA_KEY_RIGHT', 'U_GBA_KEY_RIGHT', 'D_GBA_KEY_DOWN', 'U_GBA_KEY_DOWN']
+
+    if dainput not in validinputs:
+        message = "INVALID KEYPRESS, DROPPING"
+        nextinput = ""
+    else:
+        message = dainput
+        nextinput = dainput
+
+    message = "Sent " + message
+    print(message)
+    return message
 
 
 def main():
