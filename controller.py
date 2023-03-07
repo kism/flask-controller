@@ -6,21 +6,20 @@ import threading
 import logging
 
 # "User Set"
-pollingrate = 120       # tick rate
-WEBHOST = "0.0.0.0"
-WEBPORT = 5000
-SOCKETHOST = "127.0.0.1"
-SOCKETPORT = 5001
+pollingrate = 120          # Tick Rate (Outputs Per Second)
+WEBHOST = "0.0.0.0"        # Web Interface Bind Address (0.0.0.0)
+WEBPORT = 5000             # Web Interface http Port
+SOCKETHOST = "10.42.0.42"  # Socket Server (mGBA) Address
+SOCKETPORT = 5001          # Socket Server (mGBA) Port
 
 
-log = logging.getLogger('werkzeug') # Flask Logger
+log = logging.getLogger('werkzeug')  # Flask Logger
 log.setLevel(logging.ERROR)
+app = Flask(__name__)                # Flask app object
+nextinput = ""                       # Global nextinput, shared between threads
 
-app = Flask(__name__)       # flask app
-nextinput = ""              # global nextinput
 
-
-def socketSender():
+def socketSender():  # Connect to mGBA socket and send commands
     global nextinput
     print("Attempting to open a socket")
     connected = False
@@ -56,12 +55,13 @@ def socketSender():
             s = None
 
 
-# Flask
+# Flask Home
 @app.route('/')
 def home():
     return render_template('home.html')
 
 
+# Flask Process User Input (From Javascript)
 @app.route('/ProcessUserInput/<string:dainput>', methods=['POST'])
 def ProcessUserInput(dainput):
     global nextinput
@@ -82,7 +82,7 @@ def ProcessUserInput(dainput):
     return message
 
 
-def main():
+def main():  # Create and start thread of socketSender function, start Flask webapp
     thread = threading.Thread(target=socketSender)
     thread.start()
     app.run(host=WEBHOST, port=WEBPORT)
