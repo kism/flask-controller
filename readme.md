@@ -1,4 +1,4 @@
-# Flask to mGBA LUA
+# Flask to mGBA Lua
 
 Javascript -> HTTP POST -> Flask -> TCP Socket -> mGBA Lua
 
