@@ -43,4 +43,4 @@ god knows, my windows python install is so cooked
 * connection status for emulator and POST in frontend
 * create two bytes representing the input in python, send w/socket, use setKeys() with it in lua
 * add more comments (cringe)
-
+* Lua text buffer for inputs
