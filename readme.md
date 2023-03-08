@@ -34,13 +34,13 @@ god knows, my windows python install is so cooked
 * ~~connection status in frontend~~
 * ~~clean up lua~~
 * ~~separate out vars nicely lua~~
-* arguments for host and port
 * ~~separate out vars nicely python~~
 * ~~up and down press events~~
-* connection status for emulator and POST in frontend
 * ~~buffer (if I cant implement up and down presses)~~
 * ~~use dictionaries?~~
 * ~~add comments (cringe)~~
+* arguments for host and port
+* connection status for emulator and POST in frontend
 * create two bytes representing the input in python, send w/socket, use setKeys() with it in lua
 * add more comments (cringe)
 
