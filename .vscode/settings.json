@@ -1,8 +1,5 @@
 {
-    "Lua.diagnostics.globals": [
-        "emu",
-        "socket",
-        "console",
-        "callbacks"
-    ]
+    "Lua.diagnostics.globals": ["emu", "socket", "console", "callbacks"],
+    "prettier.printWidth": 120,
+    "prettier.tabWidth": 4
 }

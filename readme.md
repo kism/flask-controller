@@ -39,7 +39,7 @@ god knows, my windows python install is so cooked
 * ~~buffer (if I cant implement up and down presses)~~
 * ~~use dictionaries?~~
 * ~~add comments (cringe)~~
-* arguments for host and port
+* ~~arguments for host and port~~
 * connection status for emulator and POST in frontend
 * create two bytes representing the input in python, send w/socket, use setKeys() with it in lua
 * add more comments (cringe)

@@ -1,5 +1,6 @@
+#!/usr/bin/env python3
 from flask import Flask, render_template
-import json
+import argparse
 import time
 import socket
 import threading
@@ -7,9 +8,9 @@ import logging
 
 # "User Set"
 pollingrate = 120          # Tick Rate (Outputs Per Second)
-WEBHOST = "0.0.0.0"        # Web Interface Bind Address (0.0.0.0)
+WEBADDRESS = "0.0.0.0"     # Web Interface Bind Address (0.0.0.0)
 WEBPORT = 5000             # Web Interface http Port
-SOCKETHOST = "127.0.0.1"  # Socket Server (mGBA) Address
+SOCKETHOST = "127.0.0.1"   # Socket Server (mGBA) Address
 SOCKETPORT = 5001          # Socket Server (mGBA) Port
 
 
@@ -19,9 +20,8 @@ app = Flask(__name__)                # Flask app object
 inputqueue = []                       # Global inputqueue, shared between threads
 
 
-def socketSender():  # Connect to mGBA socket and send commands
+def socketSender(args):  # Connect to mGBA socket and send commands
     global inputqueue
-    print("Attempting to open a socket")
     connected = False
     while True:
         try:
@@ -31,9 +31,9 @@ def socketSender():  # Connect to mGBA socket and send commands
                 connected = False
                 while not connected:
                     print("Connecting to socket: " +
-                          SOCKETHOST + ":" + str(SOCKETPORT))
+                          args.SOCKETHOST + ":" + str(args.SOCKETPORT))
                     try:
-                        s.connect((SOCKETHOST, SOCKETPORT))
+                        s.connect((args.SOCKETHOST, args.SOCKETPORT))
                         connected = True
                         print("Connected to socket!")
                     except ConnectionRefusedError:
@@ -42,8 +42,6 @@ def socketSender():  # Connect to mGBA socket and send commands
                 while connected:
                     time.sleep(1/pollingrate)
                     try:
-                        # message = "hello its me, your webapp"
-                        # print("Sending to socket: " + message)
                         if inputqueue:
                             s.sendall(inputqueue.pop(0).encode('ascii'))
 
@@ -81,12 +79,24 @@ def ProcessUserInput(dainput):
     return message
 
 
-def main():  # Create and start thread of socketSender function, start Flask webapp
-    thread = threading.Thread(target=socketSender)
+def main(args):  # Create and start thread of socketSender function, start Flask webapp
+    thread = threading.Thread(target=socketSender, args=(args,))
     thread.start()
-    app.run(host=WEBHOST, port=WEBPORT)
+    app.run(host=args.WEBADDRESS, port=args.WEBPORT)
     thread.join()
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(description='Flask WebUI, Socket Sender for mGBA')
+    parser.add_argument('-wa', '--webaddress', type=str, dest='WEBADDRESS',
+                        help='(WebUI) Web address to listen on, default is 0.0.0.0', default="0.0.0.0")
+    parser.add_argument('-wp', '--webport', type=int, dest='WEBPORT',
+                        help='(WebUI) Web port to listen on, default is 5000', default=5000)
+    parser.add_argument('-sa', '--socketaddress', type=str, dest='SOCKETHOST',
+                        help='(mGBA) IP address that mGBA is listening on, default is 127.0.0.1', default="127.0.0.1")
+    parser.add_argument('-sp', '--socketport', type=int, dest='SOCKETPORT',
+                        help='(mGBA) Web port that mGBA is listening on, default is 5001', default=5001)
+    parser.add_argument('--debug', dest='debug',
+                        action='store_true', help='Show debug output')
+    args = parser.parse_args()
+    main(args)
