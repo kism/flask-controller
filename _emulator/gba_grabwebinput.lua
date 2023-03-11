@@ -11,23 +11,6 @@ local port = 5001
 
 INPUTBUFFER = {}
 
--- function string.fromhex(str)
---     return (str:gsub('..', function(cc)
---         return string.char(tonumber(cc, 16))
---     end))
--- end
-
-function string.tohex(str)
-    return (str:gsub('.', function(c)
-        return string.format('%02X', string.byte(c))
-    end))
-end
-
-local function bytestr_to_uint32(str)
-    assert(#str == 4, "byte string is not 4 bytes long")
-    return str:byte(1) + str:byte(2) * 0x100 + str:byte(3) * 0x10000 + str:byte(4) * 0x1000000
-end
-
 function ST_stop(id)
     local sock = ST_SOCKETS[id]
     ST_SOCKETS[id] = nil
@@ -104,7 +87,6 @@ end
 callbacks:add("frame", SetTheKeys) -- Runs activeHunt() every frame
 
 -- Main
-
 while not SERVER do
     -- local gamecode =
     -- if emu == not nil then
