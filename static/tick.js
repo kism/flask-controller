@@ -23,6 +23,9 @@ function getUpdate () {
       console.error('There was a problem with the fetch operation:', error)
       document.getElementById('FLASK_MGBA_STATS').innerHTML = `???`
       document.getElementById('FLASK_MGBA_STATS').style.color = '#FFCCCC'
+      document.getElementById('HTTP_LATENCY').style.color = '#FFCCCC'
+      document.getElementById('HTTP_LATENCY').innerHTML =
+        'Cannot reach webserver'
     })
 
 }
