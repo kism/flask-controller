@@ -5,17 +5,9 @@ NEXTID = 1
 local port = 5001
 
 -- Input Mapping Table
-INPUTTAB = {}
-INPUTTAB["GBA_KEY_A_____"] = 0
-INPUTTAB["GBA_KEY_B_____"] = 1
-INPUTTAB["GBA_KEY_L_____"] = 9
-INPUTTAB["GBA_KEY_R_____"] = 8
-INPUTTAB["GBA_KEY_START_"] = 3
-INPUTTAB["GBA_KEY_SELECT"] = 2
-INPUTTAB["GBA_KEY_UP____"] = 6
-INPUTTAB["GBA_KEY_DOWN__"] = 7
-INPUTTAB["GBA_KEY_LEFT__"] = 5
-INPUTTAB["GBA_KEY_RIGHT_"] = 4
+-- 10  ,9 ,8   ,7 ,6   ,5    ,4    ,3     ,2,1
+-- 512,256,128 ,64,32  ,16   ,8    ,4     ,2,1
+-- L  ,R  ,Down,Up,Left,Right,Start,Select,B,A
 
 INPUTBUFFER = {}
 
@@ -46,7 +38,7 @@ function ST_received(id)
         return
     end
     while true do
-        local p, err = sock:receive(16)
+        local p, err = sock:receive(2)
         if p then
             console:log(ST_format(id, p:match("^(.-)%s*$")))
 
@@ -80,32 +72,15 @@ function ST_accept()
     console:log(ST_format(id, "Connected"))
 end
 
-function SetKeys()
-    -- TODO USE THIS INSTEAD LMAO TODO
-    -- 10  ,9 ,8   ,7 ,6   ,5    ,4    ,3     ,2,1
-    -- 512,256,128 ,64,32  ,16   ,8    ,4     ,2,1
-    -- L  ,R  ,Down,Up,Left,Right,Start,Select,B,A
-
-    -- console:log(string(#INPUTBUFFER))
-    local p = table.remove(INPUTBUFFER)
-
-    console:log(p)
-
-    local firstTwoChars = string.sub(p, 1, 2)
-    local restOfString = string.sub(p, 3)
-
-    if firstTwoChars == "D_" then
-        console:log("Button Press")
-        emu:addKey(INPUTTAB[restOfString])
-    elseif firstTwoChars == "U_" then
-        console:log("Button Release")
-        emu:clearKey(INPUTTAB[restOfString])
-    else
-        console:log("Invalid input from socket")
-    end
+function SetTheKeys()
+	if next(my_table) ~= nil then
+    	local p = table.remove(INPUTBUFFER)
+    	console:log(p)
+		emu:setKeys(p)
+	end
 end
 
-callbacks:add("frame", SetKeys) -- Runs activeHunt() every frame
+callbacks:add("frame", SetTheKeys) -- Runs activeHunt() every frame
 
 -- Main
 while not SERVER do
