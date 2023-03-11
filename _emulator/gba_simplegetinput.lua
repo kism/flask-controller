@@ -10,9 +10,12 @@ function string.tohex(str)
     end))
 end
 
-function getdakeys()
+function GetDaKeys()
     local keys = emu:getKeys()
-    console:log(tostring(emu:getKeys()))
+    console:log(type(keys))
+    console:log(tostring(keys))
 end
 
-callbacks:add("frame", getdakeys) -- Runs activeHunt() every frame
+callbacks:add("frame", GetDaKeys) -- Runs activeHunt() every frame
+
+

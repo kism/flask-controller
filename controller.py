@@ -34,7 +34,13 @@ def socketSender(args):  # Connect to mGBA socket and send commands
                     time.sleep(1/args.TICKRATE)
                     try:
                         if inputqueue:
-                            s.sendall(inputqueue.pop(0).to_bytes(2, 'big', signed=False))
+                            print("Input Queue: ", end='')
+                            for i in inputqueue:
+                                print(i, end=' ')
+                            print()
+                            input = inputqueue.pop(0).to_bytes(2, 'little', signed=False)
+                            print("sending " + str(input))
+                            s.sendall(input)
 
                     except BrokenPipeError:
                         print("Disconnected from socket, cringe")
@@ -77,20 +83,20 @@ def ProcessUserInput(dainput):
     else:
 
         if dainput[:2] == "D_":
-            print("Input! Down: " + dainput[2:])
+            # print("Input! Down: " + dainput[2:])
             currentinput = currentinput | buttoncodedict[dainput[2:]]
         elif dainput[:2] == "U_":
-            print("Input! Up: " + dainput[2:])
+            # print("Input! Up: " + dainput[2:])
             currentinput = currentinput & ~(buttoncodedict[dainput[2:]])
         else:
             print("How did we get here?")
 
-        print("{0:b}".format(buttoncodedict[dainput[2:]]).rjust(10, '0'))
-        print("{0:b}".format(currentinput).rjust(10, '0'))
+        # print("{0:b}".format(buttoncodedict[dainput[2:]]).rjust(10, '0'))
+        # print("{0:b}".format(currentinput).rjust(10, '0'))
 
         inputqueue.append(currentinput)
 
-    print(dainput)
+    # print(dainput)
     return dainput
 
 

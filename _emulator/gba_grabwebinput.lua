@@ -11,6 +11,23 @@ local port = 5001
 
 INPUTBUFFER = {}
 
+-- function string.fromhex(str)
+--     return (str:gsub('..', function(cc)
+--         return string.char(tonumber(cc, 16))
+--     end))
+-- end
+
+function string.tohex(str)
+    return (str:gsub('.', function(c)
+        return string.format('%02X', string.byte(c))
+    end))
+end
+
+local function bytestr_to_uint32(str)
+    assert(#str == 4, "byte string is not 4 bytes long")
+    return str:byte(1) + str:byte(2) * 0x100 + str:byte(3) * 0x10000 + str:byte(4) * 0x1000000
+end
+
 function ST_stop(id)
     local sock = ST_SOCKETS[id]
     ST_SOCKETS[id] = nil
@@ -40,8 +57,6 @@ function ST_received(id)
     while true do
         local p, err = sock:receive(2)
         if p then
-            console:log(ST_format(id, p:match("^(.-)%s*$")))
-
             -- Add input to input buffer
             table.insert(INPUTBUFFER, p)
         else
@@ -72,23 +87,40 @@ function ST_accept()
     console:log(ST_format(id, "Connected"))
 end
 
+-- This is the realest
 function SetTheKeys()
-	if next(my_table) ~= nil then
-    	local p = table.remove(INPUTBUFFER)
-    	console:log(p)
-		emu:setKeys(p)
-	end
+    if next(INPUTBUFFER) ~= nil then
+        local p = table.remove(INPUTBUFFER)
+        console:log("On this frame")
+
+        local numhopefully = string.byte(p)
+        -- console:log("Type: " .. type(numhopefully))
+        console:log("Value: " .. numhopefully)
+
+        emu:setKeys(numhopefully)
+    end
 end
 
 callbacks:add("frame", SetTheKeys) -- Runs activeHunt() every frame
 
 -- Main
+
 while not SERVER do
+    -- local gamecode =
+    -- if emu == not nil then
+    --     console:log("Running game: " .. emu:getGameCode())
+    -- else
+    --     console:log("No Game Running!")
+    -- end
+    console:log(_VERSION)
+    console:log("If the next line is an error, no game is loaded, I cant figure out the logic to detect this.")
+    console:log("Running game: " .. emu:getGameCode())
+
     local err
     SERVER, err = socket.bind(nil, port)
     if err then
         if err == socket.ERRORS.ADDRESS_IN_USE then
-            console.log("Address in use")
+            console:log("Address in use")
         else
             console:error(ST_format("Bind", err, true))
             break
