@@ -6,6 +6,7 @@ import socket
 import threading
 import logging
 
+
 inputqueue = []                      # Global inputqueue, shared between threads
 currentinput = 0
 app = Flask(__name__)                 # Flask app object
@@ -34,12 +35,13 @@ def socketSender(args):  # Connect to mGBA socket and send commands
                     time.sleep(1/args.TICKRATE)
                     try:
                         if inputqueue:
-                            print("Input Queue: ", end='')
-                            for i in inputqueue:
-                                print(i, end=' ')
-                            print()
-                            input = inputqueue.pop(0).to_bytes(2, 'little', signed=False)
-                            print("sending " + str(input))
+                            # print("Input Queue: ", end='')
+                            # for i in inputqueue:
+                            #     print(i, end=' ')
+                            # print()
+                            # print("sending " + str(input))
+                            input = inputqueue.pop(0).to_bytes(
+                                2, 'little', signed=False)
                             s.sendall(input)
 
                     except BrokenPipeError:
@@ -60,7 +62,7 @@ def home():
 def ProcessUserInput(dainput):
     global inputqueue
     global currentinput
-    print()
+    message = ""
 
     validinputs = ['D_GBA_KEY_L', 'U_GBA_KEY_L', 'D_GBA_KEY_R', 'U_GBA_KEY_R', 'D_GBA_KEY_START', 'U_GBA_KEY_START', 'D_GBA_KEY_B', 'U_GBA_KEY_B', 'D_GBA_KEY_A', 'U_GBA_KEY_A',
                    'D_GBA_KEY_SELECT', 'U_GBA_KEY_SELECT', 'D_GBA_KEY_LEFT', 'U_GBA_KEY_LEFT', 'D_GBA_KEY_UP', 'U_GBA_KEY_UP', 'D_GBA_KEY_RIGHT', 'U_GBA_KEY_RIGHT', 'D_GBA_KEY_DOWN', 'U_GBA_KEY_DOWN']
@@ -81,7 +83,7 @@ def ProcessUserInput(dainput):
     if dainput not in validinputs:
         message = "INVALID KEYPRESS, DROPPING"
     else:
-
+        message = message + ("Adding an input: " + dainput)
         if dainput[:2] == "D_":
             # print("Input! Down: " + dainput[2:])
             currentinput = currentinput | buttoncodedict[dainput[2:]]
@@ -96,8 +98,8 @@ def ProcessUserInput(dainput):
 
         inputqueue.append(currentinput)
 
-    # print(dainput)
-    return dainput
+    print(message)
+    return message
 
 
 def main(args):  # Create and start thread of socketSender function, start Flask webapp
