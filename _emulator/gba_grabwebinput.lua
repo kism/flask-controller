@@ -18,6 +18,7 @@ function ST_stop(id)
 end
 
 function ST_format(id, msg, isError)
+    msg = msg or ""
     local prefix = "Socket " .. id
     if isError then
         prefix = prefix .. " Error: "
@@ -74,12 +75,8 @@ end
 function SetTheKeys()
     if next(INPUTBUFFER) ~= nil then
         local p = table.remove(INPUTBUFFER)
-        console:log("On this frame")
-
         local numhopefully = string.byte(p)
-        -- console:log("Type: " .. type(numhopefully))
-        console:log("Value: " .. numhopefully)
-
+        console:log("Input: " .. numhopefully)
         emu:setKeys(numhopefully)
     end
 end
@@ -88,15 +85,14 @@ callbacks:add("frame", SetTheKeys) -- Runs activeHunt() every frame
 
 -- Main
 while not SERVER do
-    -- local gamecode =
-    -- if emu == not nil then
-    --     console:log("Running game: " .. emu:getGameCode())
-    -- else
-    --     console:log("No Game Running!")
-    -- end
     console:log(_VERSION)
-    console:log("If the next line is an error, no game is loaded, I cant figure out the logic to detect this.")
-    console:log("Running game: " .. emu:getGameCode())
+    local emustatus = emu or false
+
+    if emustatus then
+        console:log("Running game: " .. emu:getGameCode())
+    else
+        console:log("No Game Running!")
+    end
 
     local err
     SERVER, err = socket.bind(nil, port)

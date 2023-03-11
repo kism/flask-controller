@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from flask import Flask, render_template
+from flask import Flask, render_template, request, jsonify
 import argparse
 import time
 import socket
@@ -8,30 +8,33 @@ import logging
 
 
 inputqueue = []                      # Global inputqueue, shared between threads
+ipqueue = {}
 currentinput = 0
+sockconnected = False
 app = Flask(__name__)                 # Flask app object
 
 
 def socketSender(args):  # Connect to mGBA socket and send commands
     global inputqueue
-    connected = False
+    global sockconnected
+    sockconnected = False
     while True:
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-                connected = False
-                while not connected:
+                sockconnected = False
+                while not sockconnected:
                     print("Connecting to socket: " +
                           args.SOCKETHOST + ":" + str(args.SOCKETPORT))
                     try:
                         s.connect((args.SOCKETHOST, args.SOCKETPORT))
-                        connected = True
+                        sockconnected = True
                         print("Connected to socket!")
                     except ConnectionRefusedError:
                         time.sleep(1)
 
-                while connected:
+                while sockconnected:
                     time.sleep(1/args.TICKRATE)
                     try:
                         if inputqueue:
@@ -46,15 +49,30 @@ def socketSender(args):  # Connect to mGBA socket and send commands
 
                     except BrokenPipeError:
                         print("Disconnected from socket, cringe")
-                        connected = False
+                        sockconnected = False
         except OSError:
             s = None
 
 
-# Flask Home
 @app.route('/')
-def home():
+def home():  # Flask Home
     return render_template('home.html')
+
+
+@app.route('/GetStatus', methods=['GET'])
+def GetStatus():  # Return the status of the app
+    # Add current ip to the queue
+    currenttime = int(time.time())
+    ipqueue.update({request.remote_addr: int(time.time())})
+    for ip in ipqueue.copy():  # if host hasnt been in contact in 7 seconds, drop it
+        if currenttime - 7 > ipqueue[ip]:
+            del ipqueue[ip]
+
+    result = {
+        "sockconnected": sockconnected,
+        "playersconnected": len(ipqueue)
+    }
+    return jsonify(result)
 
 
 # Flask Process User Input (From Javascript)
@@ -83,7 +101,8 @@ def ProcessUserInput(dainput):
     if dainput not in validinputs:
         message = "INVALID KEYPRESS, DROPPING"
     else:
-        message = message + ("Adding an input: " + dainput)
+        print("Adding an input: " + dainput)
+        message = "VALID KEYPRESS"
         if dainput[:2] == "D_":
             # print("Input! Down: " + dainput[2:])
             currentinput = currentinput | buttoncodedict[dainput[2:]]
@@ -93,13 +112,14 @@ def ProcessUserInput(dainput):
         else:
             print("How did we get here?")
 
+        # print input as bytes
         # print("{0:b}".format(buttoncodedict[dainput[2:]]).rjust(10, '0'))
         # print("{0:b}".format(currentinput).rjust(10, '0'))
 
         inputqueue.append(currentinput)
 
-    print(message)
-    return message
+    # print(message)
+    return message, 200
 
 
 def main(args):  # Create and start thread of socketSender function, start Flask webapp
