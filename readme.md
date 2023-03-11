@@ -40,8 +40,8 @@ god knows, my windows python install is so cooked
 * ~~use dictionaries?~~
 * ~~add comments (cringe)~~
 * ~~arguments for host and port~~
-* connection status for emulator and POST in frontend
-* create two bytes representing the input in python, send w/socket, use setKeys() with it in lua
+* ~~connection status for emulator and POST in frontend~~
+* ~~create two bytes representing the input in python, send w/socket, use setKeys() with it in lua~~
+* ~~buffer failsafe~~
 * add more comments (cringe)
-* Lua text buffer for inputs
-* buffer failsafe
+* Lua text buffer display for inputs
