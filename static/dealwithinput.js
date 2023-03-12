@@ -22,7 +22,7 @@ function postkey (key, updown) {
 
   t0 = performance.now()
 
-  fetch(`/ProcessUserInput/${key}`, {
+  fetch(`ProcessUserInput/${key}`, {
     method: 'POST'
   })
     .then(response => {
