@@ -40,8 +40,11 @@ function postkey (key, updown) {
         } else if (frames < 4) {
           document.getElementById('HTTP_LATENCY').innerHTML = `　${frames} frames`
           document.getElementById('HTTP_LATENCY').style.color = '#CCFFCC'
-        } else {
+        } else if (frames < 10) {
           document.getElementById('HTTP_LATENCY').innerHTML = `　${frames} frames`
+          document.getElementById('HTTP_LATENCY').style.color = '#FFCCCC'
+        } else {
+          document.getElementById('HTTP_LATENCY').innerHTML = `${frames} frames`
           document.getElementById('HTTP_LATENCY').style.color = '#FFCCCC'
         }
       } else {
@@ -56,7 +59,7 @@ function postkey (key, updown) {
       document.getElementById('HTTP_LATENCY').innerHTML =
         'Cannot reach webserver'
       document.getElementById('FLASK_MGBA_STATS').innerHTML = `???`
-      document.getElementById('FLASK_MGBA_STATS').style.color = '#FFCCCC'
+      document.getElementById('FLASK_MGBA_STATS').style.color = '#C8C8C8'
     })
 }
 

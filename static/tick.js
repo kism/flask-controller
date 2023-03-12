@@ -44,7 +44,7 @@ function getUpdate () {
       console.error('Could not GetStatus from webserver: ', error)
       document.getElementById('PLAYER_COUNT').innerHTML = `???`
       document.getElementById('FLASK_MGBA_STATS').innerHTML = `???`
-      document.getElementById('FLASK_MGBA_STATS').style.color = '#FFCCCC'
+      document.getElementById('FLASK_MGBA_STATS').style.color = '#C8C8C8'
       document.getElementById('HTTP_LATENCY').style.color = '#FFCCCC'
       document.getElementById('HTTP_LATENCY').innerHTML =
         'Cannot reach webserver'
