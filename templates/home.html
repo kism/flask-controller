@@ -1,7 +1,9 @@
 <html lang="en">
 
 <head>
-    <title>😂😂😂😂😂😂</title>
+    <title>🎧🎙️🎮📺</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-Clacks-Overhead" content="GNU Terry Pratchett" />
     <link rel="stylesheet" href="/static/normalise.css" />
     <link rel="stylesheet" href="/static/zy.css" />
     <script src="static/dealwithinput.js"></script>
@@ -13,44 +15,48 @@
         <h1 id="TITLE">Discord Plays GBA!</h1>
 
         <p> Use your keyboard to send input to the emulator!</p>
-
-        <table>
-            <tr>
-                <td id="GBA_KEY_L">A = Ⓛ</td>
-                <td id="GBA_KEY_R">S = Ⓡ</td>
-                <td id="GBA_KEY_START">D = [Start]</td>
-                <td></td>
-                <td id="GBA_KEY_UP">⬆️</td>
-                <td></td>
-            </tr>
-            <tr>
-                <td id="GBA_KEY_B">Z = 🅑</td>
-                <td id="GBA_KEY_A">X = 🅐</td>
-                <td id="GBA_KEY_SELECT">C = [Select]</td>
-                <td id="GBA_KEY_LEFT">⬅️</td>
-                <td id="GBA_KEY_DOWN">⬇️</td>
-                <td id="GBA_KEY_RIGHT">➡️</td>
-            </tr>
-        </table>
-
-        <h4>Stats:</h4>
-
-        <table>
-            <tr>
-                <td>Players connected:</td>
-                <td id="PLAYER_COUNT">?</td>
-            </tr>
-            <tr>
-                <td>Flask to mGBA:</td>
-                <td id="FLASK_MGBA_STATS">No one knows</td>
-            </tr>
-            <tr>
-                <td>HTTP latency:</td>
-                <td id="HTTP_LATENCY">Waiting for input</td>
-            </tr>
-        </table>
-
-
+        <div class="container">
+            <div class="row">
+                <div class="one-half column">
+                    <h4>Input:</h4>
+                    <table>
+                        <tr>
+                            <td class="input-table" style="width: 75px;" id="GBA_KEY_L">A = Ⓛ</td>
+                            <td class="input-table" style="width: 75px;" id="GBA_KEY_R">S = Ⓡ</td>
+                            <td class="input-table" style="width: 120px;" id="GBA_KEY_START">D = [Start]</td>
+                            <td class="input-table" style="width: 55px;"></td>
+                            <td class="input-table" style="width: 55px;" id="GBA_KEY_UP">⬆️</td>
+                            <td class="input-table" style="width: 55px;"></td>
+                        </tr>
+                        <tr>
+                            <td class="input-table" style="width: 75px;" id="GBA_KEY_B">Z = 🅑</td>
+                            <td class="input-table" style="width: 75px;" id="GBA_KEY_A">X = 🅐</td>
+                            <td class="input-table" style="width: 120px;" id="GBA_KEY_SELECT">C = [Select]</td>
+                            <td class="input-table" style="width: 55px;" id="GBA_KEY_LEFT">⬅️</td>
+                            <td class="input-table" style="width: 55px;" id="GBA_KEY_DOWN">⬇️</td>
+                            <td class="input-table" style="width: 55px;" id="GBA_KEY_RIGHT">➡️</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="one-half column">
+                    <h4>Stats:</h4>
+                    <table>
+                        <tr>
+                            <td class="compact-table">Players connected:</td>
+                            <td class="compact-table" id="PLAYER_COUNT">?</td>
+                        </tr>
+                        <tr>
+                            <td class="compact-table">Flask to mGBA:</td>
+                            <td class="compact-table" id="FLASK_MGBA_STATS">No one knows</td>
+                        </tr>
+                        <tr>
+                            <td class="compact-table">HTTP latency:</td>
+                            <td class="compact-table" id="HTTP_LATENCY">Waiting for input</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
     </main>
 </body>
 

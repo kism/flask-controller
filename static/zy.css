@@ -107,7 +107,7 @@
   main {
     display: block;
     margin: 0 0;
-    max-width: 650px;
+    /* max-width: 650px; */
     padding: 0px 16px 16px;
   }
 
@@ -341,14 +341,14 @@
   /* Ruining the classless dream */
   @media (min-width: 400px) {
     .container {
-      width: 85%;
+      width: 95%;
       padding: 0;
     }
   }
 
   @media (min-width: 550px) {
     .container {
-      width: 80%;
+      width: 95%;
     }
     .column,
     .columns {
@@ -381,3 +381,15 @@
   .row {
     max-width: 100%;
   }
+
+  .compact-table {
+    min-width:140px;
+    padding: 4px;
+  }
+
+ .input-table {
+  height: 55px;
+  padding-left: 4px;
+  padding-right: 4px;
+  text-align: center;
+ }
