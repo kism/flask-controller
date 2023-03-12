@@ -11,8 +11,6 @@ function makeid () {
   return result
 }
 
-console.log(makeid(5))
-
 function getUpdate () {
   fetch('GetStatus', {
     method: 'GET',
