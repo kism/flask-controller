@@ -4,7 +4,7 @@ Javascript -> HTTP POST -> Flask -> TCP Socket -> mGBA Lua
 
 ## Linux
 
-### First time setup Linux
+### First time setup
 
 ```
 python -m venv env
@@ -23,7 +23,25 @@ source env/bin/activate
 
 ## Windows
 
-god knows, my windows python install is so cooked
+### First time setup
+
+```
+python.exe -m venv env
+& .\env\Scripts\acvivate
+pip.exe install -r requirements.txt
+```
+
+### Activate environment
+
+```
+& .\env\Scripts\acvivate
+```
+
+### Run App
+
+`python.exe controller.py`
+
+## Windows
 
 ## TODO
 
