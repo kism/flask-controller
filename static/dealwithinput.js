@@ -51,7 +51,7 @@ function postkey (key, updown) {
       }
     })
     .catch(error => {
-      console.error('Error:', error)
+      console.error('Could not ProcessUserInput to webserver: ', error)
       document.getElementById('HTTP_LATENCY').style.color = '#FFCCCC'
       document.getElementById('HTTP_LATENCY').innerHTML =
         'Cannot reach webserver'

@@ -8,9 +8,8 @@ function getUpdate () {
     })
     .then(data => {
       // Do something with the data
-      console.log(data)
+      // console.log(data)
       if (data.sockconnected) {
-        document.getElementById('PLAYER_COUNT').innerHTML = `${data.playersconnected}`
         document.getElementById('FLASK_MGBA_STATS').innerHTML = `Connected`
         document.getElementById('FLASK_MGBA_STATS').style.color = '#CCFFCC'
 
@@ -18,9 +17,11 @@ function getUpdate () {
         document.getElementById('FLASK_MGBA_STATS').innerHTML = `Disconnected`
         document.getElementById('FLASK_MGBA_STATS').style.color = '#FFCCCC'
       }
+      document.getElementById('PLAYER_COUNT').innerHTML = `${data.playersconnected}`
     })
     .catch(error => {
-      console.error('There was a problem with the fetch operation:', error)
+      console.error('Could not GetStatus from webserver: ', error)
+      document.getElementById('PLAYER_COUNT').innerHTML = `???`
       document.getElementById('FLASK_MGBA_STATS').innerHTML = `???`
       document.getElementById('FLASK_MGBA_STATS').style.color = '#FFCCCC'
       document.getElementById('HTTP_LATENCY').style.color = '#FFCCCC'
