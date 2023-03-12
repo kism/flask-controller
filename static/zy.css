@@ -5,7 +5,7 @@
     font-style: normal;
     font-weight: 400;
     src: local(''),
-         url('/static/fonts/noto-sans-display-v10-latin-regular.woff2') format('woff2'); /* Chrome 26+, Opera 23+, Firefox 39+ */
+         url('static/fonts/noto-sans-display-v10-latin-regular.woff2') format('woff2'); /* Chrome 26+, Opera 23+, Firefox 39+ */
   }
   /* noto-sans-display-500 - latin */
   @font-face {
@@ -13,7 +13,7 @@
     font-style: normal;
     font-weight: 500;
     src: local(''),
-         url('/static/fonts/noto-sans-display-v10-latin-500.woff2') format('woff2'); /* Chrome 26+, Opera 23+, Firefox 39+ */
+         url('static/fonts/noto-sans-display-v10-latin-500.woff2') format('woff2'); /* Chrome 26+, Opera 23+, Firefox 39+ */
   }
   /* noto-sans-display-700 - latin */
   @font-face {
@@ -21,7 +21,7 @@
     font-style: normal;
     font-weight: 700;
     src: local(''),
-         url('/static/fonts/noto-sans-display-v10-latin-700.woff2') format('woff2'); /* Chrome 26+, Opera 23+, Firefox 39+ */
+         url('static/fonts/noto-sans-display-v10-latin-700.woff2') format('woff2'); /* Chrome 26+, Opera 23+, Firefox 39+ */
   }
   /* noto-sans-display-italic - latin */
   @font-face {
@@ -29,7 +29,7 @@
     font-style: italic;
     font-weight: 400;
     src: local(''),
-         url('/static/fonts/noto-sans-display-v10-latin-italic.woff2') format('woff2'); /* Chrome 26+, Opera 23+, Firefox 39+ */
+         url('static/fonts/noto-sans-display-v10-latin-italic.woff2') format('woff2'); /* Chrome 26+, Opera 23+, Firefox 39+ */
   }
   /* noto-sans-display-500italic - latin */
   @font-face {
@@ -37,7 +37,7 @@
     font-style: italic;
     font-weight: 500;
     src: local(''),
-         url('/static/fonts/noto-sans-display-v10-latin-500italic.woff2') format('woff2'); /* Chrome 26+, Opera 23+, Firefox 39+ */
+         url('static/fonts/noto-sans-display-v10-latin-500italic.woff2') format('woff2'); /* Chrome 26+, Opera 23+, Firefox 39+ */
   }
   /* noto-sans-display-700italic - latin */
   @font-face {
@@ -45,7 +45,7 @@
     font-style: italic;
     font-weight: 700;
     src: local(''),
-         url('/static/fonts/noto-sans-display-v10-latin-700italic.woff2') format('woff2'); /* Chrome 26+, Opera 23+, Firefox 39+ */
+         url('static/fonts/noto-sans-display-v10-latin-700italic.woff2') format('woff2'); /* Chrome 26+, Opera 23+, Firefox 39+ */
   }
 
   /* fira-code-300 - latin */
@@ -54,7 +54,7 @@
     font-style: normal;
     font-weight: 300;
     src: local(''),
-         url('/static/fonts/fira-code-v12-latin-300.woff2') format('woff2'); /* Chrome 26+, Opera 23+, Firefox 39+ */
+         url('static/fonts/fira-code-v12-latin-300.woff2') format('woff2'); /* Chrome 26+, Opera 23+, Firefox 39+ */
   }
   /* fira-code-regular - latin */
   @font-face {
@@ -62,7 +62,7 @@
     font-style: normal;
     font-weight: 400;
     src: local(''),
-         url('/static/fonts/fira-code-v12-latin-regular.woff2') format('woff2'); /* Chrome 26+, Opera 23+, Firefox 39+ */
+         url('static/fonts/fira-code-v12-latin-regular.woff2') format('woff2'); /* Chrome 26+, Opera 23+, Firefox 39+ */
   }
   /* fira-code-500 - latin */
   @font-face {
@@ -70,7 +70,7 @@
     font-style: normal;
     font-weight: 500;
     src: local(''),
-         url('/static/fonts/fira-code-v12-latin-500.woff2') format('woff2'); /* Chrome 26+, Opera 23+, Firefox 39+ */
+         url('static/fonts/fira-code-v12-latin-500.woff2') format('woff2'); /* Chrome 26+, Opera 23+, Firefox 39+ */
   }
   /* fira-code-600 - latin */
   @font-face {
@@ -78,7 +78,7 @@
     font-style: normal;
     font-weight: 600;
     src: local(''),
-         url('/static/fonts/fira-code-v12-latin-600.woff2') format('woff2'); /* Chrome 26+, Opera 23+, Firefox 39+ */
+         url('static/fonts/fira-code-v12-latin-600.woff2') format('woff2'); /* Chrome 26+, Opera 23+, Firefox 39+ */
   }
   /* fira-code-700 - latin */
   @font-face {
@@ -86,7 +86,7 @@
     font-style: normal;
     font-weight: 700;
     src: local(''),
-         url('/static/fonts/fira-code-v12-latin-700.woff2') format('woff2'); /* Chrome 26+, Opera 23+, Firefox 39+ */
+         url('static/fonts/fira-code-v12-latin-700.woff2') format('woff2'); /* Chrome 26+, Opera 23+, Firefox 39+ */
   }
 
   /* A C T U A L  C S S */
