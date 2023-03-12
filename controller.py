@@ -8,7 +8,7 @@ import logging
 
 
 inputqueue = []                      # Global inputqueue, shared between threads
-ipqueue = {}
+clientdict = {}
 currentinput = 0
 sockconnected = False
 app = Flask(__name__)                 # Flask app object
@@ -61,16 +61,16 @@ def home():  # Flask Home
 
 @app.route('/GetStatus', methods=['GET'])
 def GetStatus():  # Return the status of the app
-    # Add current ip to the queue
+    # Add current clients client id to the queue
     currenttime = int(time.time())
-    ipqueue.update({request.remote_addr: int(time.time())})
-    for ip in ipqueue.copy():  # if host hasnt been in contact in 7 seconds, drop it
-        if currenttime - 7 > ipqueue[ip]:
-            del ipqueue[ip]
+    clientdict.update({request.headers.get('client-id'): int(time.time())})
+    for ip in clientdict.copy():  # if host hasnt been in contact in 7 seconds, drop it
+        if currenttime - 7 > clientdict[ip]:
+            del clientdict[ip]
 
     result = {
         "sockconnected": sockconnected,
-        "playersconnected": len(ipqueue)
+        "playersconnected": len(clientdict)
     }
     return jsonify(result)
 
