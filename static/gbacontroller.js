@@ -1,16 +1,19 @@
 /* eslint-disable no-irregular-whitespace */
-// keyboard button:["GBA_KEY_NAME",<caurrently pressed>]
+
+// ### INPUT
+
+// keyboard button:["GBA_NAME",<caurrently pressed>]
 var inputdict = {
-  65: ['GBA_KEY_L', false],
-  83: ['GBA_KEY_R', false],
-  68: ['GBA_KEY_START', false],
-  90: ['GBA_KEY_B', false],
-  88: ['GBA_KEY_A', false],
-  67: ['GBA_KEY_SELECT', false],
-  38: ['GBA_KEY_UP', false],
-  40: ['GBA_KEY_DOWN', false],
-  37: ['GBA_KEY_LEFT', false],
-  39: ['GBA_KEY_RIGHT', false]
+  65: ['GBA_L', false],
+  83: ['GBA_R', false],
+  68: ['GBA_START', false],
+  90: ['GBA_B', false],
+  88: ['GBA_A', false],
+  67: ['GBA_SELECT', false],
+  38: ['GBA_UP', false],
+  40: ['GBA_DOWN', false],
+  37: ['GBA_LEFT', false],
+  39: ['GBA_RIGHT', false]
 }
 
 function postkey (key, updown) {
@@ -23,7 +26,10 @@ function postkey (key, updown) {
   t0 = performance.now()
 
   fetch(`ProcessUserInput/${key}`, {
-    method: 'POST'
+    method: 'POST',
+    headers: {
+      'client-id': clientid
+    }
   })
     .then(response => {
       console.log('Sent:', key, '| Response code:', response.status)
@@ -92,3 +98,61 @@ document.onkeyup = function (e) {
     inputdict[key][1] = false // Mark button as being pressed down
   }
 }
+
+
+// ### TICK ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
+function makeid () {
+  var length = 5
+  var result = ''
+  const characters =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  let counter = 0
+  while (counter < length) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length))
+    counter += 1
+  }
+  return result
+}
+
+function getUpdate () {
+  fetch('GetStatus', {
+    method: 'GET',
+    headers: {
+      'client-id': clientid
+    }
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok')
+      }
+      return response.json()
+    })
+    .then(data => {
+      // Do something with the data
+      // console.log(data)
+      if (data.sockconnected) {
+        document.getElementById('FLASK_MGBA_STATS').innerHTML = `Connected`
+        document.getElementById('FLASK_MGBA_STATS').style.color = '#CCFFCC'
+      } else {
+        document.getElementById('FLASK_MGBA_STATS').innerHTML = `Disconnected`
+        document.getElementById('FLASK_MGBA_STATS').style.color = '#FFCCCC'
+      }
+      document.getElementById(
+        'PLAYER_COUNT'
+      ).innerHTML = `${data.playersconnected}`
+    })
+    .catch(error => {
+      console.error('Could not GetStatus from webserver: ', error)
+      document.getElementById('PLAYER_COUNT').innerHTML = `???`
+      document.getElementById('FLASK_MGBA_STATS').innerHTML = `???`
+      document.getElementById('FLASK_MGBA_STATS').style.color = '#C8C8C8'
+      document.getElementById('HTTP_LATENCY').style.color = '#FFCCCC'
+      document.getElementById('HTTP_LATENCY').innerHTML =
+        'Cannot reach webserver'
+    })
+}
+
+const clientid = makeid()
+setInterval(getUpdate, 5000)
+getUpdate()

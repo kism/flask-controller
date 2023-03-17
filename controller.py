@@ -82,26 +82,26 @@ def ProcessUserInput(dainput):
     global currentinput
     message = ""
 
-    validinputs = ['D_GBA_KEY_L', 'U_GBA_KEY_L', 'D_GBA_KEY_R', 'U_GBA_KEY_R', 'D_GBA_KEY_START', 'U_GBA_KEY_START', 'D_GBA_KEY_B', 'U_GBA_KEY_B', 'D_GBA_KEY_A', 'U_GBA_KEY_A',
-                   'D_GBA_KEY_SELECT', 'U_GBA_KEY_SELECT', 'D_GBA_KEY_LEFT', 'U_GBA_KEY_LEFT', 'D_GBA_KEY_UP', 'U_GBA_KEY_UP', 'D_GBA_KEY_RIGHT', 'U_GBA_KEY_RIGHT', 'D_GBA_KEY_DOWN', 'U_GBA_KEY_DOWN']
+    validinputs = ['D_GBA_L', 'U_GBA_L', 'D_GBA_R', 'U_GBA_R', 'D_GBA_START', 'U_GBA_START', 'D_GBA_B', 'U_GBA_B', 'D_GBA_A', 'U_GBA_A',
+                   'D_GBA_SELECT', 'U_GBA_SELECT', 'D_GBA_LEFT', 'U_GBA_LEFT', 'D_GBA_UP', 'U_GBA_UP', 'D_GBA_RIGHT', 'U_GBA_RIGHT', 'D_GBA_DOWN', 'U_GBA_DOWN']
 
     buttoncodedict = {
-        "GBA_KEY_A": 1,
-        "GBA_KEY_B": 2,
-        "GBA_KEY_SELECT": 4,
-        "GBA_KEY_START": 8,
-        "GBA_KEY_RIGHT": 16,
-        "GBA_KEY_LEFT": 32,
-        "GBA_KEY_UP": 64,
-        "GBA_KEY_DOWN": 128,
-        "GBA_KEY_R": 256,
-        "GBA_KEY_L": 512
+        "GBA_A": 1,
+        "GBA_B": 2,
+        "GBA_SELECT": 4,
+        "GBA_START": 8,
+        "GBA_RIGHT": 16,
+        "GBA_LEFT": 32,
+        "GBA_UP": 64,
+        "GBA_DOWN": 128,
+        "GBA_R": 256,
+        "GBA_L": 512
     }
 
     if dainput not in validinputs:
         message = "INVALID KEYPRESS, DROPPING"
     else:
-        print("Adding an input: " + dainput)
+        print("Player: " + request.headers.get('client-id') + " " + dainput)
         message = "VALID KEYPRESS"
         if dainput[:2] == "D_":
             # print("Input! Down: " + dainput[2:])
