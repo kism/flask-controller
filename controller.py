@@ -141,7 +141,7 @@ if __name__ == '__main__':
     parser.add_argument('-sp', '--socketport', type=int, dest='SOCKETPORT',
                         help='(mGBA) Web port that mGBA is listening on, default is 5001', default=5001)
     parser.add_argument('-tr', '--tickrate', type=int, dest='TICKRATE',
-                        help='Inputs per second sent to mGBA, default is 60', default=60)
+                        help='Inputs per second sent to mGBA, default is 60', default=120)
     parser.add_argument('--debug', dest='debug',
                         action='store_true', help='Show debug output')
     args = parser.parse_args()
