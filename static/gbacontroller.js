@@ -1,6 +1,6 @@
 /* eslint-disable no-irregular-whitespace */
 
-// ### INPUT
+// ### INPUT ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
 // keyboard button:["GBA_NAME",<caurrently pressed>]
 var inputdict = {
