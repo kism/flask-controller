@@ -25,7 +25,7 @@ function postkey (key, updown) {
 
   t0 = performance.now()
 
-  fetch(`ProcessUserInput/${key}`, {
+  fetch(`input/${key}`, {
     method: 'POST',
     headers: {
       'client-id': clientid
