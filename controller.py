@@ -75,7 +75,9 @@ def get_status():
     # Add current clients client id to the queue
     currenttime = int(time.time())
     clientdict.update({request.headers.get("client-id"): int(time.time())})
-    for ipaddress in clientdict.copy():  # if host hasnt been in contact in 7 seconds, drop it
+    for (
+        ipaddress
+    ) in clientdict.copy():  # if host hasnt been in contact in 7 seconds, drop it
         if currenttime - 7 > clientdict[ipaddress]:
             del clientdict[ipaddress]
 
