@@ -63,4 +63,5 @@ pip.exe install -r requirements.txt
 * ~~buffer failsafe~~
 * better readme
 * add more comments (cringe)
-* Lua text buffer display for inputs
+* ~~Lua text buffer display for inputs~~
+* coloured text for 'player names'
