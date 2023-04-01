@@ -41,13 +41,19 @@ function postkey (key, updown) {
           document.getElementById('HTTP_LATENCY').innerHTML = `＜1 frame`
           document.getElementById('HTTP_LATENCY').style.color = '#CCFFCC'
         } else if (frames == 1) {
-          document.getElementById('HTTP_LATENCY').innerHTML = `　${frames} frame`
+          document.getElementById(
+            'HTTP_LATENCY'
+          ).innerHTML = `　${frames} frame`
           document.getElementById('HTTP_LATENCY').style.color = '#CCFFCC'
         } else if (frames < 4) {
-          document.getElementById('HTTP_LATENCY').innerHTML = `　${frames} frames`
+          document.getElementById(
+            'HTTP_LATENCY'
+          ).innerHTML = `　${frames} frames`
           document.getElementById('HTTP_LATENCY').style.color = '#CCFFCC'
         } else if (frames < 10) {
-          document.getElementById('HTTP_LATENCY').innerHTML = `　${frames} frames`
+          document.getElementById(
+            'HTTP_LATENCY'
+          ).innerHTML = `　${frames} frames`
           document.getElementById('HTTP_LATENCY').style.color = '#FFCCCC'
         } else {
           document.getElementById('HTTP_LATENCY').innerHTML = `${frames} frames`
@@ -55,8 +61,7 @@ function postkey (key, updown) {
         }
       } else {
         document.getElementById('HTTP_LATENCY').style.color = '#FFCCCC'
-        document.getElementById('HTTP_LATENCY').innerHTML =
-        'Something is wrong'
+        document.getElementById('HTTP_LATENCY').innerHTML = 'Something is wrong'
       }
     })
     .catch(error => {
@@ -99,11 +104,10 @@ document.onkeyup = function (e) {
   }
 }
 
-
 // ### TICK ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
 function makeid () {
-  var length = 5
+  var length = 6
   var result = ''
   const characters =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
@@ -153,6 +157,6 @@ function getUpdate () {
     })
 }
 
-const clientid = makeid()
+var clientid = makeid() // This should be a const but its fun to let players use the js console to set their names
 setInterval(getUpdate, 5000)
 getUpdate()

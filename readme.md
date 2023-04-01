@@ -8,6 +8,7 @@ Javascript -> HTTP POST -> Flask -> TCP Socket -> mGBA Lua
 
 ```
 python -m venv env
+source env/bin/activate
 pip install -r requirements.txt
 ```
 
@@ -19,7 +20,9 @@ source env/bin/activate
 
 ### Run App
 
-`python controller.py`
+`python3 controller.py`
+
+`python3 controller.py --help` will show you arguements that you can use.
 
 ## Windows
 
@@ -64,4 +67,4 @@ pip.exe install -r requirements.txt
 * better readme
 * add more comments (cringe)
 * ~~Lua text buffer display for inputs~~
-* coloured text for 'player names'
+* ~~coloured text for 'player names'~~
