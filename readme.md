@@ -8,14 +8,13 @@ Javascript -> HTTP POST -> Flask -> TCP Socket -> mGBA Lua
 
 ```
 python -m venv env
-source env/bin/activate
-pip install -r requirements.txt
+pipenv install --dev
 ```
 
 ### Activate environment
 
 ```
-source env/bin/activate
+pipenv shell
 ```
 
 ### Run App
