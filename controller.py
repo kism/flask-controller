@@ -279,7 +279,7 @@ if __name__ == "__main__":
         "--tickrate",
         type=int,
         dest="TICKRATE",
-        help="Inputs per second sent to mGBA, default is 60",
+        help="Inputs per second sent to mGBA, default is 120",
         default=120,
     )
     parser.add_argument(
