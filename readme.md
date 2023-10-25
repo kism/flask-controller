@@ -7,7 +7,6 @@ Javascript -> HTTP POST -> Flask -> TCP Socket -> mGBA Lua
 ### First time setup
 
 ```
-python -m venv env
 pipenv install --dev
 ```
 
@@ -23,7 +22,7 @@ pipenv shell
 
 `python3 controller.py --help` will show you arguements that you can use.
 
-## Windows
+## Windows (needs to be updated for pipenv lol)
 
 ### First time setup
 
