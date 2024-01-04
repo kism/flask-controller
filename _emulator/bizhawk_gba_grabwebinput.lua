@@ -12,11 +12,7 @@ local port = 5001
 INPUTBUFFER = {}
 
 console.log("")
-console.log("")
-console.log("")
-console.log("")
-
-
+console.log("-- Starting --")
 
 function ST_stop(id)
     local sock = ST_SOCKETS[id]
