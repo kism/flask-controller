@@ -21,7 +21,7 @@ console.log("")
 function ST_stop(id)
     local sock = ST_SOCKETS[id]
     ST_SOCKETS[id] = nil
-    sock:close()
+    sock.close()
 end
 
 function ST_format(id, msg, isError)
@@ -46,7 +46,7 @@ function ST_received(id)
         return
     end
     while true do
-        local p, err = sock:receive(2)
+        local p, err = sock.receive(2)
         if p then
             -- Add input to input buffer
             table.insert(INPUTBUFFER, p)
@@ -61,7 +61,7 @@ function ST_received(id)
 end
 
 function ST_accept()
-    local sock, err = SERVER:accept()
+    local sock, err = SERVER.accept()
     if err then
         console.error(ST_format("Accept", err, true))
         return
@@ -110,7 +110,7 @@ while not SERVER do
         end
     else
         local ok
-        ok, err = SERVER:listen()
+        ok, err = SERVER.listen()
         if err then
             SERVER.close()
             console.error(ST_format("Listen", err, true))
