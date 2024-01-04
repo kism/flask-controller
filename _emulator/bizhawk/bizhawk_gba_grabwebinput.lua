@@ -102,8 +102,12 @@ while not server do
     if res == nil and err ~= "address already in use" then
         console.log("Address already in use: " .. err)
         return
+    else
+        -- Finish making server
+        console.log("Listening on: " .. port)
+        res, err = server:listen(0)
+        server:settimeout(0)
     end
-
 end
 
 --- Real loop
