@@ -1,3 +1,16 @@
+# Temp
+_emulator/bizhawk/common.lua
+_emulator/bizhawk/lua_5_3_compat.lua
+_emulator/bizhawk/socket.lua
+_emulator/bizhawk/x64/luasocket.LICENSE.txt
+_emulator/bizhawk/x64/socket-windows-5-1.dll
+_emulator/bizhawk/x64/socket-windows-5-4.dll
+_emulator/bizhawk/x86/luasocket.LICENSE.txt
+_emulator/bizhawk/x86/socket-windows-5-1.dll
+
+
+
+
 ## Python
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -134,3 +147,5 @@ dmypy.json
 node_modules/
 package.json
 package-lock.json
+
+

@@ -1,5 +1,17 @@
+-- Imports
+
+local lua_major, lua_minor = _VERSION:match("Lua (%d+)%.(%d+)")
+lua_major = tonumber(lua_major)
+lua_minor = tonumber(lua_minor)
+
+if lua_major > 5 or (lua_major == 5 and lua_minor >= 3) then
+    require("lua_5_3_compat")
+end
+
+local socket = require("socket")
+
 -- Sockets related
-socket = require("socket") --- https://github.com/alain-riedinger/luasocket/releases/tag/3.0-5.4.3
+
 SERVER = nil
 ST_SOCKETS = {}
 NEXTID = 1
@@ -73,29 +85,30 @@ end
 
 -- Main
 while not SERVER do
+    local err
+
     console.log(_VERSION)
     local emustatus = emu or false
 
+    -- Print emulator info
     if emustatus then
         console.log("System running: " .. emu.getsystemid())
+        rom_hash = gameinfo.getromhash()
+        console.log("Game hash: " .. rom_hash)
     else
         console.log("No Game Running!")
     end
 
-    local err
-    SERVER, err = socket.bind("0.0.0.0", port)
-    if err then
-        if err == socket.ERRORS.ADDRESS_IN_USE then
-            console.log("Address in use")
-        else
-            console.error(ST_format("Bind", err, true))
-            break
-        end
-    else
-        local ok
-        ok = SERVER:accept()
-        console.log("Socket SERVER: Listening on port " .. port)
+    -- Start socket server
+    server, err = socket.socket.tcp4()
+    res, err = server:bind("localhost", port)
+    if res == nil and err ~= "address already in use" then
+        print(err)
+        return
     end
+
+
+
 end
 
 
