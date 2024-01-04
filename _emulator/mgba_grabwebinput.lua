@@ -81,7 +81,7 @@ function SetTheKeys()
     end
 end
 
-callbacks:add("frame", SetTheKeys) -- Runs activeHunt() every frame
+callbacks:add("frame", SetTheKeys) -- Runs SetTheKeys() every frame
 
 -- Main
 while not SERVER do
