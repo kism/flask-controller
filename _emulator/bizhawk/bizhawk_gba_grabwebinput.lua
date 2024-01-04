@@ -1,5 +1,4 @@
 -- Imports
-
 local lua_major, lua_minor = _VERSION:match("Lua (%d+)%.(%d+)")
 lua_major = tonumber(lua_major)
 lua_minor = tonumber(lua_minor)
@@ -11,7 +10,6 @@ end
 local socket = require("socket")
 
 -- Sockets related
-
 SERVER = nil
 ST_SOCKETS = {}
 NEXTID = 1
@@ -69,8 +67,6 @@ function ST_received(id)
     end
 end
 
-
-
 -- This is the realest
 function SetTheKeys()
     if next(INPUTBUFFER) ~= nil then
@@ -80,8 +76,6 @@ function SetTheKeys()
         emu.setKeys(numhopefully)
     end
 end
-
-
 
 -- Main
 while not SERVER do
@@ -101,16 +95,16 @@ while not SERVER do
 
     -- Start socket server
     server, err = socket.socket.tcp4()
+    if err then
+        console.log("Could not create server: " .. err)
+    end
     res, err = server:bind("localhost", port)
     if res == nil and err ~= "address already in use" then
-        print(err)
+        console.log(err)
         return
     end
 
-
-
 end
-
 
 --- Real loop
 while true do

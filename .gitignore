@@ -7,6 +7,10 @@ _emulator/bizhawk/x64/socket-windows-5-1.dll
 _emulator/bizhawk/x64/socket-windows-5-4.dll
 _emulator/bizhawk/x86/luasocket.LICENSE.txt
 _emulator/bizhawk/x86/socket-windows-5-1.dll
+_emulator/bizhawk/base64.lua
+_emulator/bizhawk/bizhawk_gba_grabwebinput.lua
+_emulator/bizhawk/genericlmao.lua
+_emulator/bizhawk/json.lua
 
 
 
