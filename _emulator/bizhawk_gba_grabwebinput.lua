@@ -1,4 +1,5 @@
 -- Sockets related
+socket = require("socket") --- https://github.com/alain-riedinger/luasocket/releases/tag/3.0-5.4.3
 SERVER = nil
 ST_SOCKETS = {}
 NEXTID = 1
@@ -56,23 +57,7 @@ function ST_received(id)
     end
 end
 
-function ST_accept()
-    local sock, err = SERVER.accept()
-    if err then
-        console.error(ST_format("Accept", err, true))
-        return
-    end
-    local id = NEXTID
-    NEXTID = id + 1
-    ST_SOCKETS[id] = sock
-    sock.add("received", function()
-        ST_received(id)
-    end)
-    sock.add("error", function()
-        ST_error(id)
-    end)
-    console.log(ST_format(id, "Connected"))
-end
+
 
 -- This is the realest
 function SetTheKeys()
@@ -83,6 +68,8 @@ function SetTheKeys()
         emu.setKeys(numhopefully)
     end
 end
+
+
 
 -- Main
 while not SERVER do
@@ -96,7 +83,7 @@ while not SERVER do
     end
 
     local err
-    SERVER, err = socket.bind(nil, port)
+    SERVER, err = socket.bind("0.0.0.0", port)
     if err then
         if err == socket.ERRORS.ADDRESS_IN_USE then
             console.log("Address in use")
@@ -106,7 +93,7 @@ while not SERVER do
         end
     else
         local ok
-        ok, err = SERVER.listen()
+        ok, err = SERVER:accept()
         if err then
             SERVER.close()
             console.error(ST_format("Listen", err, true))
