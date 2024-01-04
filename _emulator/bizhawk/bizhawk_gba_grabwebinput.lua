@@ -10,7 +10,7 @@ end
 local socket = require("socket")
 
 -- Sockets related
-SERVER = nil
+server = nil
 ST_SOCKETS = {}
 NEXTID = 1
 local port = 5001
@@ -78,7 +78,7 @@ function SetTheKeys()
 end
 
 -- Main
-while not SERVER do
+while not server do
     local err
 
     console.log(_VERSION)
@@ -100,7 +100,7 @@ while not SERVER do
     end
     res, err = server:bind("localhost", port)
     if res == nil and err ~= "address already in use" then
-        console.log(err)
+        console.log("Address already in use: " .. err)
         return
     end
 
