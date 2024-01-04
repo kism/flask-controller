@@ -93,14 +93,8 @@ while not SERVER do
         end
     else
         local ok
-        ok, err = SERVER:accept()
-        if err then
-            SERVER.close()
-            console.error(ST_format("Listen", err, true))
-        else
-            console.log("Socket SERVER: Listening on port " .. port)
-            SERVER.add("received", ST_accept)
-        end
+        ok = SERVER:accept()
+        console.log("Socket SERVER: Listening on port " .. port)
     end
 end
 
