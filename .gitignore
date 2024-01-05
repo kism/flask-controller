@@ -1,21 +1,3 @@
-# Temp
-_emulator/bizhawk/common.lua
-_emulator/bizhawk/lua_5_3_compat.lua
-_emulator/bizhawk/socket.lua
-_emulator/bizhawk/x64/luasocket.LICENSE.txt
-_emulator/bizhawk/x64/socket-windows-5-1.dll
-_emulator/bizhawk/x64/socket-windows-5-4.dll
-_emulator/bizhawk/x86/luasocket.LICENSE.txt
-_emulator/bizhawk/x86/socket-windows-5-1.dll
-_emulator/bizhawk/base64.lua
-_emulator/bizhawk/bizhawk_gba_grabwebinput.lua
-_emulator/bizhawk/genericlmao.lua
-_emulator/bizhawk/json.lua
-_emulator/bizhawk/bizhawk_gba_grabwebinput2.lua
-
-
-
-
 ## Python
 # Byte-compiled / optimized / DLL files
 __pycache__/
