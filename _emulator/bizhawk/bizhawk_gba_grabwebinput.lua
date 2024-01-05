@@ -247,6 +247,14 @@ Response:
     - `err` (`string`): A description of the problem
 ]]
 
+INPUTBUFFER = {}
+LASTINPUT = {}
+
+-- Input Mapping Table
+-- 10  ,9 ,8   ,7 ,6   ,5    ,4    ,3     ,2,1
+-- 512,256,128 ,64,32  ,16   ,8    ,4     ,2,1
+-- L  ,R  ,Down,Up,Left,Right,Start,Select,B,A
+
 local bizhawk_version = client.getversion()
 local bizhawk_major, bizhawk_minor, bizhawk_patch = bizhawk_version:match("(%d+)%.(%d+)%.?(%d*)")
 bizhawk_major = tonumber(bizhawk_major)
@@ -414,12 +422,24 @@ end
 
 -- Receive data from AP client and send message back
 function send_receive()
-    local numhopefully = nil
-    local message, err = client_socket:receive(2)
 
-    if message then
-        numhopefully = string.byte(message)
+    local p, err = client_socket:receive(2)
+    if p then
+        print("its:" .. p)
+        print()
+        table.insert(INPUTBUFFER, p)
     end
+
+
+    -- while true do
+    --     local p, err = client_socket:receive(2)
+    --     if p then
+    --         table.insert(INPUTBUFFER, p)
+    --     end
+    --     if err then
+    --         break
+    --     end
+    -- end
 
     -- Handle errors
     if err == "closed" then
@@ -441,12 +461,12 @@ function send_receive()
     -- Reset timeout timer
     timeout_timer = 5
 
-    -- Process received data
-    if DEBUG then
-        if numhopefully then
-            print("message: " .. numhopefully)
-        end
-    end
+    -- -- Process received data
+    -- if DEBUG then
+    --     if numhopefully then
+    --         print("message: " .. numhopefully)
+    --     end
+    -- end
 
 end
 
@@ -519,15 +539,53 @@ function main()
     end
 end
 
+function checkbit(byte1, mask)
+    return (byte1 & mask) ~= 0
+end
+
+function SetTheKeys()
+    if next(INPUTBUFFER) ~= nil then
+        local p = table.remove(INPUTBUFFER)
+        local numhopefully = string.byte(p)
+        print("Input: " .. numhopefully)
+
+        -- if checkbit(numhopefully, 0x01) then
+        --     print("MATCH0x01")
+        -- end
+
+        -- if checkbit(numhopefully, 0x02) then
+        --     print("MATCH0x02")
+        -- end
+
+        input = {}
+        input['L'] = checkbit(numhopefully, 0x0200)
+        input['R'] = checkbit(numhopefully, 0x0100)
+        input['Down'] = checkbit(numhopefully, 0x0080)
+        input['Up'] = checkbit(numhopefully, 0x0040)
+        input['Left'] = checkbit(numhopefully, 0x0020)
+        input['Right'] = checkbit(numhopefully, 0x0010)
+        input['Start'] = checkbit(numhopefully, 0x0008)
+        input['Select'] = checkbit(numhopefully, 0x0004)
+        input['B'] = checkbit(numhopefully, 0x0002)
+        input['A'] = checkbit(numhopefully, 0x0001)
+
+        joypad.set(input)
+        LASTINPUT = input
+    else
+        joypad.set(LASTINPUT)
+    end
+end
+
 event.onexit(function()
-    print("\n-- Restarting Script --\n")
     if server ~= nil then
+        print("Closing server")
         server:close()
     end
+    print("-- Ending Script --")
 end)
 
-
 print("\n-- Starting --")
+print(_VERSION)
 if bizhawk_major < 2 or (bizhawk_major == 2 and bizhawk_minor < 7) then
     print("Must use BizHawk 2.7.0 or newer")
 elseif bizhawk_major > 2 or (bizhawk_major == 2 and bizhawk_minor > 9) then
@@ -581,6 +639,7 @@ else
     end
 
     while true do
+        SetTheKeys()
         emu.frameadvance()
     end
 end
