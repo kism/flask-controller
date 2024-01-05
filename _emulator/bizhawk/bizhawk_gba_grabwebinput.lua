@@ -420,16 +420,24 @@ function process_request(req)
     return res
 end
 
--- Receive data from AP client and send message back
+-- This could use better math lmao, bitwise
 function send_receive()
 
     local p1, err = client_socket:receive(1)
     if p1 then
         print("")
-        print("\np1:" .. string.byte(p1))
+        p1 = string.byte(p1)
+        print("p1:" .. p1)
+
         local p2, err = client_socket:receive(1)
-        print("p2:" .. string.byte(p2))
-        table.insert(INPUTBUFFER, (p1 .. p2))
+        p2 = string.byte(p2)
+        print("p2:" .. p2)
+
+        p2 = p2 * 256
+
+        local p = p1 + p2
+        print("p:" .. p)
+        table.insert(INPUTBUFFER, p)
     end
 
 
@@ -547,8 +555,7 @@ end
 
 function SetTheKeys()
     if next(INPUTBUFFER) ~= nil then
-        local p = table.remove(INPUTBUFFER)
-        local numhopefully = string.byte(p)
+        local numhopefully = table.remove(INPUTBUFFER)
         print("Input: " .. numhopefully)
 
         -- if checkbit(numhopefully, 0x01) then
