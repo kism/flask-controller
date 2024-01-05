@@ -22,6 +22,7 @@ SOFTWARE.
 ]]
 
 -- Bizhawk port of my mgba code, ty Zunawe for connector_bizhawk_generic.lua
+-- Needs the archipelago lua socket libs (included)
 
 -- Input Mapping Table
 -- 10  ,9 ,8   ,7 ,6   ,5    ,4    ,3     ,2,1
