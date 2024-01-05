@@ -11,6 +11,7 @@ _emulator/bizhawk/base64.lua
 _emulator/bizhawk/bizhawk_gba_grabwebinput.lua
 _emulator/bizhawk/genericlmao.lua
 _emulator/bizhawk/json.lua
+_emulator/bizhawk/bizhawk_gba_grabwebinput2.lua
 
 
 

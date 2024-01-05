@@ -80,11 +80,11 @@ def socket_sender():
                     time.sleep(1 / args.TICKRATE)
                     try:
                         if inputqueue:
-                            print("Input Queue: ", end='')
-                            for i in inputqueue:
-                                print(i, end=' ')
-                            print()
-                            print("sending " + str(i))
+                            # print("Input Queue: ", end='')
+                            # for i in inputqueue:
+                            #     print(i, end=' ')
+                            # print("")
+                            # print("sending " + str(i))
                             ininput = inputqueue.pop(0).to_bytes(
                                 2, "little", signed=False
                             )
