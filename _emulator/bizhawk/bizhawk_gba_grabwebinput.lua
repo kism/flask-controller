@@ -75,7 +75,7 @@ function send_receive()
         p2 = string.byte(p2)
         p2 = bit.lshift(p2, 8) -- Offset the second byte since it will be the upper of the two bytes
 
-        -- Or the two bytes together, adding them works too
+        -- Or the two bytes together, adding them works too, insert into INPUTBUFFER
         table.insert(INPUTBUFFER, bit.bor(p1, p2))
     end
 
