@@ -27,7 +27,7 @@ end
 local socket = require("socket")
 
 -- Set to log incoming requests
--- Will cause lag due to large console output
+-- Might cause lag due to large console output
 local DEBUG = true
 
 local SOCKET_PORT = 5001
@@ -39,6 +39,8 @@ local server = nil
 local client_socket = nil
 
 local current_state = STATE_NOT_CONNECTED
+
+local message
 
 local timeout_timer = 0
 local message_timer = 0
@@ -60,30 +62,29 @@ function unlock()
     client_socket:settimeout(0)
 end
 
--- This could use better math lmao, bitwise
+-- No idea why I can't just receive two bytes
 function send_receive()
-
+    -- Try receive a byte via the socket client
     local p1, err = client_socket:receive(1)
     if p1 then
-        -- print("")
+        -- If we have a byte, convert the first part to an actual byte datatype
         p1 = string.byte(p1)
-        -- print("p1:" .. p1)
 
+        -- Grab the second byte
         local p2, err = client_socket:receive(1)
         p2 = string.byte(p2)
-        -- print("p2:" .. p2)
+        p2 = bit.lshift(p2, 8) -- Offset the second byte since it will be the upper of the two bytes
 
-        p2 = p2 * 256
-
-        local p = p1 + p2
-        -- print("p:" .. p)
-        table.insert(INPUTBUFFER, p)
+        -- Or the two bytes together, adding them works too
+        table.insert(INPUTBUFFER, bit.bor(p1, p2))
     end
 
     -- Handle errors
     if err == "closed" then
         if current_state == STATE_CONNECTED then
-            print("Connection to client closed")
+            local message = "Connection to client closed"
+            gui.addmessage(message)
+            print(message)
         end
         current_state = STATE_NOT_CONNECTED
         return
@@ -99,13 +100,6 @@ function send_receive()
 
     -- Reset timeout timer
     timeout_timer = 5
-
-    -- -- Process received data
-    -- if DEBUG then
-    --     if numhopefully then
-    --         print("message: " .. numhopefully)
-    --     end
-    -- end
 
 end
 
@@ -150,7 +144,10 @@ function main()
                 print("Looking for client, listening on: " .. SOCKET_PORT)
                 local client, timeout = server:accept()
                 if timeout == nil then
-                    print("Client connected")
+                    message = "Client connected"
+                    print(message)
+                    gui.addmessage(message)
+
                     current_state = STATE_CONNECTED
                     client_socket = client
                     server:close()
@@ -162,11 +159,6 @@ function main()
             repeat
                 send_receive()
             until not locked
-
-            -- if timeout_timer <= 0 then
-            --     print("Client timed out")
-            --     current_state = STATE_NOT_CONNECTED
-            -- end
         end
 
         coroutine.yield()
@@ -180,7 +172,10 @@ end
 function SetTheKeys()
     if next(INPUTBUFFER) ~= nil then
         local numhopefully = table.remove(INPUTBUFFER)
-        print("Input: " .. numhopefully)
+
+        if DEBUG then
+            print("Input: " .. numhopefully)
+        end
 
         input = {}
         input['L'] = checkbit(numhopefully, 0x0200)
