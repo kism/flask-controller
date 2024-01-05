@@ -423,11 +423,13 @@ end
 -- Receive data from AP client and send message back
 function send_receive()
 
-    local p, err = client_socket:receive(2)
-    if p then
-        print("its:" .. p)
-        print()
-        table.insert(INPUTBUFFER, p)
+    local p1, err = client_socket:receive(1)
+    if p1 then
+        print("")
+        print("\np1:" .. string.byte(p1))
+        local p2, err = client_socket:receive(1)
+        print("p2:" .. string.byte(p2))
+        table.insert(INPUTBUFFER, (p1 .. p2))
     end
 
 
