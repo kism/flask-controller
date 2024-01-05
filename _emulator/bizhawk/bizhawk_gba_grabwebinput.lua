@@ -40,8 +40,6 @@ local client_socket = nil
 
 local current_state = STATE_NOT_CONNECTED
 
-local message
-
 local timeout_timer = 0
 local message_timer = 0
 local message_interval = 0
@@ -82,9 +80,8 @@ function send_receive()
     -- Handle errors
     if err == "closed" then
         if current_state == STATE_CONNECTED then
-            local message = "Connection to client closed"
-            gui.addmessage(message)
-            print(message)
+            print_everywhere("Connection to client closed")
+
         end
         current_state = STATE_NOT_CONNECTED
         return
@@ -128,6 +125,11 @@ function initialize_server()
     server:settimeout(0)
 end
 
+function print_everywhere(message)
+    print(message)
+    gui.addmessage(message)
+end
+
 function main()
     while true do
         if server == nil then
@@ -140,14 +142,11 @@ function main()
         prev_time = current_time
 
         if current_state == STATE_NOT_CONNECTED then
-            if emu.framecount() % 30 == 0 then
-                print("Looking for client, listening on: " .. SOCKET_PORT)
+            if emu.framecount() % 120 == 0 then
+                print_everywhere("Looking for client, listening on: " .. SOCKET_PORT)
                 local client, timeout = server:accept()
                 if timeout == nil then
-                    message = "Client connected"
-                    print(message)
-                    gui.addmessage(message)
-
+                    print_everywhere("Client connected")
                     current_state = STATE_CONNECTED
                     client_socket = client
                     server:close()
