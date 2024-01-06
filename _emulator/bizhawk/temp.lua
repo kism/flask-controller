@@ -1,4 +1,4 @@
--- This could use better math lmao
+-- No idea why I can't just receive two bytes, offset second byte and bitwise xor to combine
 function send_receive()
     local p1, err = client_socket:receive(1)
     if p1 then

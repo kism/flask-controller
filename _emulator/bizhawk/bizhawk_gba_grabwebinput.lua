@@ -86,7 +86,7 @@ function unlock()
     client_socket:settimeout(0)
 end
 
--- No idea why I can't just receive two bytes
+-- No idea why I can't just receive two bytes, offset second byte and bitwise xor to combine
 function send_receive()
     -- Try receive a byte via the socket client
     local p1, err = client_socket:receive(1)
