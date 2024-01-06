@@ -45,7 +45,13 @@ python -m pipenv shell
 python -m pipenv run python controller.py
 ```
 
-If you activated the environment
+Leaving this in for myself
+
+```bash
+cd .\src\flaskcontroller\ ; python -m pipenv run python controller.py
+```
+
+And if you activated the environment
 
 ```bash
 python controller.py
