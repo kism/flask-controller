@@ -1,48 +1,75 @@
-# Flask to mGBA Lua
+# Flask to mGBA/Bizhawk Lua
 
 Javascript -> HTTP POST -> Flask -> TCP Socket -> mGBA Lua
+Javascript -> HTTP POST -> Flask -> TCP Socket -> Bizhawk Lua
 
-## Linux
+## 🐧 Linux
 
-### First time setup
+### 🐧 First time setup
 
+Install pipenv for your distro, can install with pip too
+
+```bash
+pipenv install
 ```
-pipenv install --dev
-```
 
-### Activate environment
+### 🐧 Activate environment
 
-```
+```bash
 pipenv shell
 ```
 
-### Run App
+### 🐧 Run App
 
 `python3 controller.py`
 
 `python3 controller.py --help` will show you arguements that you can use.
 
-## Windows (needs to be updated for pipenv lol)
+## 🪟 Windows
 
-### First time setup
+### 🪟 First time setup
 
-```
-python.exe -m venv env
-& .\env\Scripts\acvivate
-pip.exe install -r requirements.txt
+```bash
+python -m pipenv install
 ```
 
-### Activate environment
+### 🪟 Activate environment (optional)
 
+```bash
+python -m pipenv shell
 ```
-& .\env\Scripts\acvivate
+
+### 🪟 Run App
+
+```bash
+python -m pipenv run python controller.py
 ```
 
-### Run App
+If you activated the environment
 
-`python.exe controller.py`
+```bash
+python controller.py
+```
 
-## Windows
+## 🎮 mGBA
+
+Tools -> Scripting
+
+File -> Load script
+
+`flaskcontroller/_emulator/mgba/mgba_grabwebinput.lua`
+
+Client/Server automatically reconnects well.
+
+## 🦅 Bizhawk
+
+Tools -> Lua Console
+
+Script -> Open Script
+
+`flaskcontroller/_emulator/bizhawk/bizhawk_gba_grabwebinput.lua`
+
+If the python webserver exits/closes you will need to reboot the core for it to reconnect, so save in your game and reboot core.
 
 ## TODO
 
@@ -62,7 +89,8 @@ pip.exe install -r requirements.txt
 * ~~connection status for emulator and POST in frontend~~
 * ~~create two bytes representing the input in python, send w/socket, use setKeys() with it in lua~~
 * ~~buffer failsafe~~
-* better readme
-* add more comments (cringe)
+* ~~better readme~~
+* ~~add more comments (cringe)~~
 * ~~Lua text buffer display for inputs~~
 * ~~coloured text for 'player names'~~
+* ~~Bizhawk version~~
