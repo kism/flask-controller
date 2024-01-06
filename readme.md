@@ -1,6 +1,7 @@
 # Flask to mGBA/Bizhawk Lua
 
 Javascript -> HTTP POST -> Flask -> TCP Socket -> mGBA Lua
+
 Javascript -> HTTP POST -> Flask -> TCP Socket -> Bizhawk Lua
 
 ## 🐧 Linux
