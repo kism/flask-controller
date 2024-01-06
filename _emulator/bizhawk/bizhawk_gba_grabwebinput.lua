@@ -19,18 +19,18 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-]]
-
+]] --
+--
 -- Bizhawk port of my mgba code, ty Zunawe for connector_bizhawk_generic.lua
 -- Needs the archipelago lua socket libs (included)
-
+--
 -- Input Mapping Table
 -- 10  ,9 ,8   ,7 ,6   ,5    ,4    ,3     ,2,1
 -- 512,256,128 ,64,32  ,16   ,8    ,4     ,2,1
 -- L  ,R  ,Down,Up,Left,Right,Start,Select,B,A
-
+--
 INPUTBUFFER = {}
-LASTINPUT = {}
+input = {}
 
 local bizhawk_version = client.getversion()
 local bizhawk_major, bizhawk_minor, bizhawk_patch = bizhawk_version:match("(%d+)%.(%d+)%.?(%d*)")
@@ -103,11 +103,10 @@ function send_receive()
         table.insert(INPUTBUFFER, bit.bor(p1, p2))
     end
 
-    -- Handle errors
+    -- Handle errors, this is leftover code so might not be fully functional
     if err == "closed" then
         if current_state == STATE_CONNECTED then
             print_everywhere("Connection to client closed")
-
         end
         current_state = STATE_NOT_CONNECTED
         return
@@ -126,6 +125,7 @@ function send_receive()
 
 end
 
+-- Create socket listener
 function initialize_server()
     local err
     local port = SOCKET_PORT
@@ -151,11 +151,54 @@ function initialize_server()
     server:settimeout(0)
 end
 
+-- Print to screen and console
 function print_everywhere(message)
     print(message)
     gui.addmessage(message)
 end
 
+function checkbit(byte1, mask)
+    return (byte1 & mask) ~= 0
+end
+
+-- Set keys, keep existing key presses if there is nothing in the buffer
+function SetTheKeys()
+    if next(INPUTBUFFER) ~= nil then
+        local numhopefully = table.remove(INPUTBUFFER)
+
+        if DEBUG then
+            print("Input: " .. numhopefully)
+        end
+
+        input = {}
+        input['L'] = checkbit(numhopefully, 0x0200)
+        input['R'] = checkbit(numhopefully, 0x0100)
+        input['Down'] = checkbit(numhopefully, 0x0080)
+        input['Up'] = checkbit(numhopefully, 0x0040)
+        input['Left'] = checkbit(numhopefully, 0x0020)
+        input['Right'] = checkbit(numhopefully, 0x0010)
+        input['Start'] = checkbit(numhopefully, 0x0008)
+        input['Select'] = checkbit(numhopefully, 0x0004)
+        input['B'] = checkbit(numhopefully, 0x0002)
+        input['A'] = checkbit(numhopefully, 0x0001)
+
+        joypad.set(input)
+
+    else
+        joypad.set(input)
+    end
+end
+
+-- Cleanup on exit, might work
+event.onexit(function()
+    if server ~= nil then
+        print("Closing server")
+        server:close()
+    end
+    print("-- Ending Script --")
+end)
+
+-- Main
 function main()
     while true do
         if server == nil then
@@ -190,45 +233,7 @@ function main()
     end
 end
 
-function checkbit(byte1, mask)
-    return (byte1 & mask) ~= 0
-end
-
-function SetTheKeys()
-    if next(INPUTBUFFER) ~= nil then
-        local numhopefully = table.remove(INPUTBUFFER)
-
-        if DEBUG then
-            print("Input: " .. numhopefully)
-        end
-
-        input = {}
-        input['L'] = checkbit(numhopefully, 0x0200)
-        input['R'] = checkbit(numhopefully, 0x0100)
-        input['Down'] = checkbit(numhopefully, 0x0080)
-        input['Up'] = checkbit(numhopefully, 0x0040)
-        input['Left'] = checkbit(numhopefully, 0x0020)
-        input['Right'] = checkbit(numhopefully, 0x0010)
-        input['Start'] = checkbit(numhopefully, 0x0008)
-        input['Select'] = checkbit(numhopefully, 0x0004)
-        input['B'] = checkbit(numhopefully, 0x0002)
-        input['A'] = checkbit(numhopefully, 0x0001)
-
-        joypad.set(input)
-        LASTINPUT = input
-    else
-        joypad.set(LASTINPUT)
-    end
-end
-
-event.onexit(function()
-    if server ~= nil then
-        print("Closing server")
-        server:close()
-    end
-    print("-- Ending Script --")
-end)
-
+-- Start script
 print("\n-- Starting --")
 print(_VERSION)
 if bizhawk_major < 2 or (bizhawk_major == 2 and bizhawk_minor < 7) then
