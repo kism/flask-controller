@@ -11,7 +11,6 @@ local port = 5001
 
 INPUTBUFFER = {}
 
-
 console:log("-- Starting --")
 
 function ST_stop(id)
