@@ -45,64 +45,24 @@ def press_buttons(indata):
 
     myint = int.from_bytes(indata, "little")
 
+
     inputarray = iterate_bits(myint)
+    lastinputarray = inputarray
 
     # print(inputarray)
 
 
     # print("New input: " + str(int.from_bytes(indata)))
+    keys = ["q","w","e","r","t","y","u","i","o","p"]
+    n = 0
 
-    if inputarray[0]:
-        pydirectinput.keyDown("q")
-    else:
-        pydirectinput.keyUp("q")
+    for key in keys:
+        if inputarray[n] != lastinputarray[n]:
+            if inputarray[n]:
+                pydirectinput.keyDown(key)
+            else:
+                pydirectinput.keyUp(key)
 
-    if inputarray[1]:
-        pydirectinput.keyDown("w")
-    else:
-        pydirectinput.keyUp("w")
-
-    if inputarray[2]:
-        pydirectinput.keyDown("e")
-    else:
-        pydirectinput.keyUp("e")
-
-    if inputarray[3]:
-        pydirectinput.keyDown("r")
-    else:
-        pydirectinput.keyUp("r")
-
-    if inputarray[4]:
-        pydirectinput.keyDown("t")
-    else:
-        pydirectinput.keyUp("t")
-
-    if inputarray[5]:
-        pydirectinput.keyDown("y")
-    else:
-        pydirectinput.keyUp("y")
-
-    if inputarray[6]:
-        pydirectinput.keyDown("u")
-    else:
-        pydirectinput.keyUp("u")
-
-    if inputarray[7]:
-        pydirectinput.keyDown("i")
-    else:
-        pydirectinput.keyUp("i")
-
-    if inputarray[8]:
-        # print("pressing")
-        pydirectinput.keyDown("o")
-    else:
-        # print("releasing")
-        pydirectinput.keyUp("o")
-
-    if inputarray[9]:
-        pydirectinput.keyDown("p")
-    else:
-        pydirectinput.keyUp("p")
 
 
 while True:
