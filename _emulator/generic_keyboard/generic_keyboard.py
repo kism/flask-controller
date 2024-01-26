@@ -62,6 +62,7 @@ def press_buttons(indata):
                 pydirectinput.keyDown(key)
             else:
                 pydirectinput.keyUp(key)
+        n = n + 1
 
 
 
