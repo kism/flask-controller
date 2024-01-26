@@ -8,6 +8,7 @@ pydirectinput.PAUSE = 1/120
 SERVER = None
 HOST = "localhost"
 PORT = 5001
+lastinputarray = [False, False, False, False, False, False, False, False, False, False]
 
 
 # Create a socket object
@@ -42,12 +43,13 @@ def iterate_bits(num):
 
 def press_buttons(indata):
     """Bitwise compare to the socked and press/release depending"""
+    global lastinputarray
 
     myint = int.from_bytes(indata, "little")
 
 
     inputarray = iterate_bits(myint)
-    lastinputarray = inputarray
+
 
     # print(inputarray)
 
@@ -59,11 +61,14 @@ def press_buttons(indata):
     for key in keys:
         if inputarray[n] != lastinputarray[n]:
             if inputarray[n]:
+                # print("pressing " + key)
                 pydirectinput.keyDown(key)
             else:
+                # print("releasing " + key)
                 pydirectinput.keyUp(key)
         n = n + 1
 
+    lastinputarray = inputarray
 
 
 while True:
@@ -71,14 +76,14 @@ while True:
     client_socket, client_address = server_socket.accept()
     print(f"Connection from {client_address}")
 
-    try:
-        while True:
-            # Receive and print data from the client
-            data = client_socket.recv(2)
-            # print(f"Received data: {data}")
-            press_buttons(data)
-    except:
-        pass
+    # try:
+    while True:
+        # Receive and print data from the client
+        data = client_socket.recv(2)
+        # print(f"Received data: {data}")
+        press_buttons(data)
+    # except:
+    #     pass
 
     # Close the connection with the client
     client_socket.close()
