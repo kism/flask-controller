@@ -52,54 +52,54 @@ def press_buttons(indata):
 
     # print("New input: " + str(int.from_bytes(indata)))
 
-    if inputarray[9]:
+    if inputarray[0]:
         pyautogui.keyDown("q")
     else:
         pyautogui.keyUp("q")
 
-    if inputarray[8]:
+    if inputarray[1]:
         pyautogui.keyDown("w")
     else:
         pyautogui.keyUp("w")
 
-    if inputarray[7]:
+    if inputarray[2]:
         pyautogui.keyDown("e")
     else:
         pyautogui.keyUp("e")
 
-    if inputarray[6]:
+    if inputarray[3]:
         pyautogui.keyDown("r")
     else:
         pyautogui.keyUp("r")
 
-    if inputarray[5]:
+    if inputarray[4]:
         pyautogui.keyDown("t")
     else:
         pyautogui.keyUp("t")
 
-    if inputarray[4]:
+    if inputarray[5]:
         pyautogui.keyDown("y")
     else:
         pyautogui.keyUp("y")
 
-    if inputarray[3]:
+    if inputarray[6]:
         pyautogui.keyDown("u")
     else:
         pyautogui.keyUp("u")
 
-    if inputarray[2]:
+    if inputarray[7]:
         pyautogui.keyDown("i")
     else:
         pyautogui.keyUp("i")
 
-    if inputarray[1]:
+    if inputarray[8]:
         # print("pressing")
         pyautogui.keyDown("o")
     else:
         # print("releasing")
         pyautogui.keyUp("o")
 
-    if inputarray[0]:
+    if inputarray[9]:
         pyautogui.keyDown("p")
     else:
         pyautogui.keyUp("p")
