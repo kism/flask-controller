@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 import socket
-import pyautogui
+import pydirectinput
 
-pyautogui.PAUSE = 1/120
+pydirectinput.PAUSE = 1/120
 
 SERVER = None
 HOST = "localhost"
@@ -53,56 +53,56 @@ def press_buttons(indata):
     # print("New input: " + str(int.from_bytes(indata)))
 
     if inputarray[0]:
-        pyautogui.keyDown("q")
+        pydirectinput.keyDown("q")
     else:
-        pyautogui.keyUp("q")
+        pydirectinput.keyUp("q")
 
     if inputarray[1]:
-        pyautogui.keyDown("w")
+        pydirectinput.keyDown("w")
     else:
-        pyautogui.keyUp("w")
+        pydirectinput.keyUp("w")
 
     if inputarray[2]:
-        pyautogui.keyDown("e")
+        pydirectinput.keyDown("e")
     else:
-        pyautogui.keyUp("e")
+        pydirectinput.keyUp("e")
 
     if inputarray[3]:
-        pyautogui.keyDown("r")
+        pydirectinput.keyDown("r")
     else:
-        pyautogui.keyUp("r")
+        pydirectinput.keyUp("r")
 
     if inputarray[4]:
-        pyautogui.keyDown("t")
+        pydirectinput.keyDown("t")
     else:
-        pyautogui.keyUp("t")
+        pydirectinput.keyUp("t")
 
     if inputarray[5]:
-        pyautogui.keyDown("y")
+        pydirectinput.keyDown("y")
     else:
-        pyautogui.keyUp("y")
+        pydirectinput.keyUp("y")
 
     if inputarray[6]:
-        pyautogui.keyDown("u")
+        pydirectinput.keyDown("u")
     else:
-        pyautogui.keyUp("u")
+        pydirectinput.keyUp("u")
 
     if inputarray[7]:
-        pyautogui.keyDown("i")
+        pydirectinput.keyDown("i")
     else:
-        pyautogui.keyUp("i")
+        pydirectinput.keyUp("i")
 
     if inputarray[8]:
         # print("pressing")
-        pyautogui.keyDown("o")
+        pydirectinput.keyDown("o")
     else:
         # print("releasing")
-        pyautogui.keyUp("o")
+        pydirectinput.keyUp("o")
 
     if inputarray[9]:
-        pyautogui.keyDown("p")
+        pydirectinput.keyDown("p")
     else:
-        pyautogui.keyUp("p")
+        pydirectinput.keyUp("p")
 
 
 while True:
