@@ -157,6 +157,10 @@ function getUpdate () {
     })
 }
 
+function customid () {
+  clientid = prompt("Enter six character username:");
+}
+
 var clientid = makeid() // This should be a const but its fun to let players use the js console to set their names
 setInterval(getUpdate, 5000)
 getUpdate()

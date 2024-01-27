@@ -76,14 +76,15 @@ while True:
     client_socket, client_address = server_socket.accept()
     print(f"Connection from {client_address}")
 
-    # try:
-    while True:
-        # Receive and print data from the client
-        data = client_socket.recv(2)
-        # print(f"Received data: {data}")
-        press_buttons(data)
-    # except:
-    #     pass
+    try:
+        while True:
+            # Receive and print data from the client
+            data = client_socket.recv(2)
+            # print(f"Received data: {data}")
+            press_buttons(data)
+    except Exception as err:
+        print("\n Error, " + str(err))
+        print("\nRestarting Socket Client")
 
     # Close the connection with the client
     client_socket.close()

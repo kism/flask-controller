@@ -187,7 +187,12 @@ def process_user_input(dainput):
         # Save some latency and do this last
         message = "VALID KEYPRESS"
         playeridcoloured = colour_player_id(request.headers.get("client-id"))
-        print("Player: " + playeridcoloured + " " + dainput)
+
+        # dainput = dainput.replace("U_GBA_", "⬆️")
+        # dainput = dainput.replace("D_GBA_", "⬇️")
+
+        if "D_GBA_" in dainput:
+            print("Player: " + playeridcoloured + " " + dainput.replace("D_GBA_", ""))
 
 
     # print(message)
@@ -196,6 +201,10 @@ def process_user_input(dainput):
 
 def colour_player_id(playerid):
     """Fun coloured player names"""
+
+    playerid = playerid[:6]
+    playerid = playerid.ljust(6, ' ')
+
     if HASCOLORAMA: # If we have colourama installed (pip)
         newplayerid = ""
 
