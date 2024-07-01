@@ -1,5 +1,8 @@
 {
-    "Lua.diagnostics.globals": ["emu", "socket", "console", "callbacks"],
-    "prettier.printWidth": 120,
-    "prettier.tabWidth": 4
+  "[python]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "charliermarsh.ruff"
+  },
+  "python.languageServer": "Pylance",
+  "python.terminal.activateEnvInCurrentTerminal": true
 }

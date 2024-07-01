@@ -8,48 +8,48 @@ Javascript -> HTTP POST -> Flask -> TCP Socket -> Bizhawk Lua
 
 ### 🐧 First time setup
 
-Install pipenv for your distro, can install with pip too
+Install poetry for your distro, can install with pip too
 
 ```bash
-pipenv install
+poetry install --only main
 ```
 
 ### 🐧 Activate environment
 
 ```bash
-pipenv shell
+poetry shell
 ```
 
 ### 🐧 Run App
 
-`python3 controller.py`
+`flask --app flaskcontroller run --port 5000`
 
-`python3 controller.py --help` will show you arguements that you can use.
+`waitress-serve --listen "127.0.0.1:5000" --call flaskcontroller:create_app` will show you arguements that you can use.
 
 ## 🪟 Windows
 
 ### 🪟 First time setup
 
 ```bash
-python -m pipenv install
+python -m poetry install
 ```
 
 ### 🪟 Activate environment (optional)
 
 ```bash
-python -m pipenv shell
+python -m poetry shell
 ```
 
 ### 🪟 Run App
 
 ```bash
-python -m pipenv run python controller.py
+python -m poetry run python controller.py
 ```
 
 Leaving this in for myself
 
 ```bash
-cd .\src\flaskcontroller\ ; python -m pipenv run python controller.py
+cd .\src\flaskcontroller\ ; python -m poetry run python controller.py
 ```
 
 And if you activated the environment
@@ -101,3 +101,4 @@ If the python webserver exits/closes you will need to reboot the core for it to 
 * ~~Lua text buffer display for inputs~~
 * ~~coloured text for 'player names'~~
 * ~~Bizhawk version~~
+* ~~Use proper flask folder structure~~
