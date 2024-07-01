@@ -1,0 +1,60 @@
+[tool.poetry]
+name = "flaskcontroller"
+version = "0.1.0"
+description = "Flask webapp to send input to emulators"
+authors = ["Kieran Gee <kieran.lost.the.game@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+flask = "^3.0.3"
+waitress = "^3.0.0"
+pyyaml = "^6.0.1"
+requests = "^2.32.3"
+colorama = "^0.4.6"
+pyautogui = "^0.9.54"
+pydirectinput = { version = "^1.0.4", markers = "platform_system == 'Windows'" }
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.5.0"
+pylance = "^0.13.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.ruff]
+cache-dir = "~/.cache/ruff"
+target-version = "py311"
+line-length = 120
+
+[tool.ruff.lint]
+extend-fixable = ["B", "I001"]
+select = ["ALL"] # include all the rules, including new ones
+ignore = [
+    # Modules
+    "DJ",  # Django
+    "PTH", # KG builtin-open is fine
+
+    # Specific rules
+    "ANN101", # KG Why define self...
+    "DTZ005", # KG no need to specify timezone
+    "DTZ011", # KG no need to specify timezone
+    "T201",   # KG print is fine for this scale
+    "S104",   # KG Happy to bind on 0.0.0.0 by default
+    "TD002",  # KG Verbose TODO, only I work on this project
+    "TD003",  # KG Verbose TODO, only I work on this project
+    "ERA001",  # TEMP, commented out code, need to put real logging in
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+docstring-code-line-length = 40
