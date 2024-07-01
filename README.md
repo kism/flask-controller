@@ -4,6 +4,8 @@ Javascript -> HTTP POST -> Flask -> TCP Socket -> mGBA Lua
 
 Javascript -> HTTP POST -> Flask -> TCP Socket -> Bizhawk Lua
 
+Javascript -> HTTP POST -> Flask -> TCP Socket -> Python Client that presses keyboard keys
+
 ## 🐧 Linux
 
 ### 🐧 First time setup
