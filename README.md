@@ -1,8 +1,8 @@
 # Flask to mGBA/Bizhawk Lua
 
-![Check](https://github.com/kism/flaskcontroller/actions/workflows/check.yml/badge.svg)
-![Test](https://github.com/kism/flaskcontroller/actions/workflows/test.yml/badge.svg)
-[![codecov](https://codecov.io/gh/kism/flaskcontroller/graph/badge.svg?token=9R9ZI99GLP)](https://codecov.io/gh/kism/flaskcontroller)
+![Check](https://github.com/kism/flask-controller/actions/workflows/check.yml/badge.svg)
+![Test](https://github.com/kism/flask-controller/actions/workflows/test.yml/badge.svg)
+[![codecov](https://codecov.io/gh/kism/flask-controller/graph/badge.svg?token=9R9ZI99GLP)](https://codecov.io/gh/kism/flask-controller)
 
 Javascript -> HTTP POST -> Flask -> TCP Socket -> mGBA Lua
 
