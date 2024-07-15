@@ -10,27 +10,35 @@ Javascript -> HTTP POST -> Flask -> TCP Socket -> Bizhawk Lua
 
 Javascript -> HTTP POST -> Flask -> TCP Socket -> Python Client that presses keyboard keys
 
-## 🐧 Linux
+## Prerequisites
 
-### 🐧 First time setup
+Install pipx <https://pipx.pypa.io/stable/>
 
-Install poetry for your distro, can install with pip too
+Install poetry with pipx `pipx install poetry`
+
+## Run
+
+### Run Dev
+
+```bash
+poetry install
+poetry shell
+flask --app flaskcontroller run --port 5000
+```
+
+### Run Prod
 
 ```bash
 poetry install --only main
+.venv/bin/waitress-serve \
+    --listen "127.0.0.1:5000" \
+    --trusted-proxy '*' \
+    --trusted-proxy-headers 'x-forwarded-for x-forwarded-proto x-forwarded-port' \
+    --log-untrusted-proxy-headers \
+    --clear-untrusted-proxy-headers \
+    --threads 4 \
+    --call flaskcontroller:create_app
 ```
-
-### 🐧 Activate environment
-
-```bash
-poetry shell
-```
-
-### 🐧 Run App
-
-`flask --app flaskcontroller run --port 5000`
-
-`waitress-serve --listen "127.0.0.1:5000" --call flaskcontroller:create_app` will show you arguments that you can use.
 
 ## 🪟 Windows
 
@@ -70,7 +78,7 @@ Tools -> Scripting
 
 File -> Load script
 
-`flaskcontroller/_emulator/mgba/mgba_grabwebinput.lua`
+`flaskcontroller/_emulator/mgba/mgba_grab_web_input.lua`
 
 Client/Server automatically reconnects well.
 
@@ -80,31 +88,6 @@ Tools -> Lua Console
 
 Script -> Open Script
 
-`flaskcontroller/_emulator/bizhawk/bizhawk_gba_grabwebinput.lua`
+`flaskcontroller/_emulator/bizhawk/bizhawk_gba_grab_web_input.lua`
 
-If the python webserver exits/closes you will need to reboot the core for it to reconnect, so save in your game and reboot core.
-
-## TODO
-
-* ~~get app working with linux uinput~~
-* ~~get app working with mgba lua and sockets~~ (much better idea)
-* ~~only send valid keys in frontend js~~
-* ~~visual feedback in front end~~
-* ~~connection status in frontend~~
-* ~~clean up lua~~
-* ~~separate out vars nicely lua~~
-* ~~separate out vars nicely python~~
-* ~~up and down press events~~
-* ~~buffer (if I cant implement up and down presses)~~
-* ~~use dictionaries?~~
-* ~~add comments (cringe)~~
-* ~~arguments for host and port~~
-* ~~connection status for emulator and POST in frontend~~
-* ~~create two bytes representing the input in python, send w/socket, use setKeys() with it in lua~~
-* ~~buffer failsafe~~
-* ~~better readme~~
-* ~~add more comments (cringe)~~
-* ~~Lua text buffer display for inputs~~
-* ~~coloured text for 'player names'~~
-* ~~Bizhawk version~~
-* ~~Use proper flask folder structure~~
+If the python web server exits/closes you will need to reboot the core for it to reconnect, so save in your game and reboot core.
