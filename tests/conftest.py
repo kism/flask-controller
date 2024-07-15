@@ -110,7 +110,6 @@ class MockTCPHandler(socketserver.BaseRequestHandler):
     def handle(self):
         """Mock TCP Server data handling."""
         self.data = self.request.recv(1024).strip()
-        self.server.received_data = self.data.decode("utf-8")
 
 
 def start_mock_server(host: str, port: int):
@@ -128,3 +127,14 @@ def mock_server():
     server = start_mock_server("localhost", 5001)
     yield server
     server.shutdown()
+
+
+@pytest.fixture()
+def sleepless(monkeypatch: any):
+    """Patch to make time.sleep not work."""
+    import time
+
+    def sleep(seconds: int) -> None:
+        """Fake sleep method."""
+
+    monkeypatch.setattr(time, "sleep", sleep)

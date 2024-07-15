@@ -8,7 +8,7 @@ from flask.testing import FlaskClient
 stop_thread = False
 
 
-def test_input(mock_server: TCPServer, client: FlaskClient):
+def test_input(sleepless, mock_server: TCPServer, client: FlaskClient):
     """Use a socket sender to work as a client."""
     response = client.post("/input/D_GBA_START")
     assert response.status_code == HTTPStatus.BAD_REQUEST
@@ -24,7 +24,7 @@ def test_input(mock_server: TCPServer, client: FlaskClient):
     assert response.data == b"INVALID KEYPRESS, DROPPING"
 
 
-def test_get_status(mock_server: TCPServer, client: FlaskClient):
+def test_get_status(sleepless, mock_server: TCPServer, client: FlaskClient):
     """Use a socket sender to work as a client."""
     response = client.get("/GetStatus")
     assert response.status_code == HTTPStatus.OK
