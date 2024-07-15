@@ -4,6 +4,7 @@ import logging
 import socket
 import threading
 import time
+from http import HTTPStatus
 
 import colorama
 from flask import Blueprint, Flask, Response, jsonify, request
@@ -25,7 +26,7 @@ console_handler.setFormatter(formatter)
 input_logger.addHandler(console_handler)
 
 
-TESTING_MAX_LOOP = 10
+TESTING_MAX_LOOP = 3
 
 fg_colours = [
     colorama.Fore.BLACK,
@@ -162,7 +163,7 @@ def process_user_input(da_input: str) -> str:
             new_input = new_input & ~(button_code_dict[da_input[2:]])
 
         else:
-            logger.warning("How did we get here?")
+            logger.warning("How did we get here?")  # pragma: no cover
 
         fw_controller.set_current_input(new_input)
 
@@ -174,39 +175,46 @@ def process_user_input(da_input: str) -> str:
 
         # Save some latency and do this last
         message = "VALID KEYPRESS"
+        if "client-id" not in request.headers:
+            return "No client ID", HTTPStatus.BAD_REQUEST
+
         player_id_coloured = colour_player_id(request.headers.get("client-id"))
 
         if "D_GBA_" in da_input:
             msg = "Player: " + player_id_coloured + " " + da_input.replace("D_GBA_", "")
             input_logger.info(msg)
 
-    return message, 200
+    return message, HTTPStatus.OK
 
 
 def socket_sender() -> None:
     """Connect to mGBA socket and send commands."""
-    loop_count = 10
+    loop_count = 0
+    str_max_loop = "∞" if fc_app_conf["run_forever"] else str(TESTING_MAX_LOOP)
     while fc_app_conf["run_forever"] or loop_count < TESTING_MAX_LOOP:
+        logging.info("base loop")
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
                 fw_controller.set_sock_disconnected()
-                while not fw_controller.get_sock_connected() or loop_count < TESTING_MAX_LOOP:
+                while not fw_controller.get_sock_connected():
+                    if loop_count > TESTING_MAX_LOOP:
+                        break
+
                     msg = (
-                        "Connecting to socket: " + fc_app_conf["socket_address"] + ":" + str(fc_app_conf["socket_port"])
+                        f"Connecting to socket: {fc_app_conf['socket_address']}:{fc_app_conf['socket_port']}"
+                        f" Attempt: {loop_count}/{str_max_loop} {fc_app_conf['run_forever']}"
                     )
                     logging.info(msg)
-                    if not fc_app_conf["run_forever"]:
-                        msg = f"Loop count: {loop_count}"
-                        logging.debug(msg)
+
                     try:
                         sock.connect((fc_app_conf["socket_address"], fc_app_conf["socket_port"]))
                         fw_controller.set_sock_connected()
                         logging.info("Connected to socket!")
                     except ConnectionRefusedError:
-                        time.sleep(1)
                         loop_count += 1
+                        time.sleep(1)
 
                 # While the socket between this program and mGBA is connected
                 # we check to see if there is anything in the input queue
@@ -225,6 +233,8 @@ def socket_sender() -> None:
                         fw_controller.set_sock_disconnected()
         except OSError:
             sock = None
+
+        loop_count += 1
 
 
 def colour_player_id(player_id: str) -> str:

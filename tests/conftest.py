@@ -6,6 +6,9 @@ Fixtures defined in a conftest.py can be used by any test in that package withou
 import contextlib
 import os
 import shutil
+import socket
+import socketserver
+import threading
 
 import flask
 import pytest
@@ -25,6 +28,14 @@ if os.path.exists(TEST_INSTANCE_PATH):
 
 # Recreate the folder
 os.makedirs(TEST_INSTANCE_PATH)
+
+
+def pytest_configure():
+    """This is a magic function for adding things to pytest?"""
+    pytest.TEST_INSTANCE_PATH = TEST_INSTANCE_PATH
+    pytest.TEST_CONFIG_FILE_PATH = TEST_CONFIG_FILE_PATH
+    pytest.TEST_CONFIGS_LOCATION = TEST_CONFIGS_LOCATION
+    pytest.TEST_LOG_PATH = TEST_LOG_PATH
 
 
 @pytest.fixture()
@@ -94,9 +105,27 @@ def get_test_config() -> dict:
     return _get_test_config
 
 
-def pytest_configure():
-    """This is a magic function for adding things to pytest?"""
-    pytest.TEST_INSTANCE_PATH = TEST_INSTANCE_PATH
-    pytest.TEST_CONFIG_FILE_PATH = TEST_CONFIG_FILE_PATH
-    pytest.TEST_CONFIGS_LOCATION = TEST_CONFIGS_LOCATION
-    pytest.TEST_LOG_PATH = TEST_LOG_PATH
+class MockTCPHandler(socketserver.BaseRequestHandler):
+    """Mock TCP Server data handling class."""
+
+    def handle(self):
+        """Mock TCP Server data handling."""
+        self.data = self.request.recv(1024).strip()
+        self.server.received_data = self.data.decode("utf-8")
+
+
+def start_mock_server(host: str, port: int):
+    """Mock TCP Server."""
+    server = socketserver.TCPServer((host, port), MockTCPHandler)
+    server_thread = threading.Thread(target=server.serve_forever)
+    server_thread.daemon = True
+    server_thread.start()
+    return server
+
+
+@pytest.fixture()
+def mock_server():
+    """Mock Server, pretends to be an emulator script."""
+    server = start_mock_server("localhost", 5001)
+    yield server
+    server.shutdown()
