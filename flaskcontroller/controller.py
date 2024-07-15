@@ -5,43 +5,48 @@ import socket
 import threading
 import time
 
+import colorama
 from flask import Blueprint, Flask, Response, jsonify, request
 
 from . import get_flaskcontroller_config
 
 fc_app_conf = get_flaskcontroller_config()["app"]
 
+# Main logger
 logger = logging.getLogger(__name__)
 
+# Input logger, just show message
+input_logger = logging.getLogger("input_logger")
+input_logger.propagate = False
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.INFO)  # Set the logging level for the handler
+formatter = logging.Formatter("%(message)s")
+console_handler.setFormatter(formatter)
+input_logger.addHandler(console_handler)
+
+
 TESTING_MAX_LOOP = 10
-HAS_COLORAMA = True
-try:
-    from colorama import Back, Fore, Style, init
 
-    fg_colours = [
-        Fore.BLACK,
-        Fore.RED,
-        Fore.GREEN,
-        Fore.YELLOW,
-        Fore.BLUE,
-        Fore.MAGENTA,
-        Fore.CYAN,
-        Fore.WHITE,
-    ]
-    bg_colours = [
-        Back.BLACK,
-        Back.RED,
-        Back.GREEN,
-        Back.YELLOW,
-        Back.BLUE,
-        Back.MAGENTA,
-        Back.CYAN,
-        Back.WHITE,
-    ]
-except ImportError:
-    HAS_COLORAMA = False
-
-init()
+fg_colours = [
+    colorama.Fore.BLACK,
+    colorama.Fore.RED,
+    colorama.Fore.GREEN,
+    colorama.Fore.YELLOW,
+    colorama.Fore.BLUE,
+    colorama.Fore.MAGENTA,
+    colorama.Fore.CYAN,
+    colorama.Fore.WHITE,
+]
+bg_colours = [
+    colorama.Back.BLACK,
+    colorama.Back.RED,
+    colorama.Back.GREEN,
+    colorama.Back.YELLOW,
+    colorama.Back.BLUE,
+    colorama.Back.MAGENTA,
+    colorama.Back.CYAN,
+    colorama.Back.WHITE,
+]
 
 input_queue = []
 client_dict = {}
@@ -172,7 +177,8 @@ def process_user_input(da_input: str) -> str:
         player_id_coloured = colour_player_id(request.headers.get("client-id"))
 
         if "D_GBA_" in da_input:
-            print("Player: " + player_id_coloured + " " + da_input.replace("D_GBA_", ""))
+            msg = "Player: " + player_id_coloured + " " + da_input.replace("D_GBA_", "")
+            input_logger.info(msg)
 
     return message, 200
 
@@ -197,7 +203,7 @@ def socket_sender() -> None:
                     try:
                         sock.connect((fc_app_conf["socket_address"], fc_app_conf["socket_port"]))
                         fw_controller.set_sock_connected()
-                        print("Connected to socket!")
+                        logging.info("Connected to socket!")
                     except ConnectionRefusedError:
                         time.sleep(1)
                         loop_count += 1
@@ -215,7 +221,7 @@ def socket_sender() -> None:
                             sock.sendall(in_input)
 
                     except BrokenPipeError:
-                        print("Disconnected from socket, cringe")
+                        logging.warning("Disconnected from socket, cringe")
                         fw_controller.set_sock_disconnected()
         except OSError:
             sock = None
@@ -226,35 +232,32 @@ def colour_player_id(player_id: str) -> str:
     player_id = player_id[:6]
     player_id = player_id.ljust(6, " ")
 
-    if HAS_COLORAMA:  # If we have colorama installed (pip)
-        new_player_id = ""
-        split_player_id = [""]
+    new_player_id = ""
+    split_player_id = [""]
 
-        # Split the player id string into chunks of 3
-        for idx, i in enumerate(player_id):
-            split_player_id[len(split_player_id) - 1] = split_player_id[len(split_player_id) - 1] + i
-            if (idx + 1) % 3 == 0:
-                split_player_id.append("")
+    # Split the player id string into chunks of 3
+    for idx, i in enumerate(player_id):
+        split_player_id[len(split_player_id) - 1] = split_player_id[len(split_player_id) - 1] + i
+        if (idx + 1) % 3 == 0:
+            split_player_id.append("")
 
-        # Colour each chunk based on the sum of its characters
-        # Uses modulus of the length of the colour array
-        # So each string chunk will be coloured the same way
-        for i in split_player_id:
-            fun_number = sum(bytearray(i, "ascii"))
-            fg_pick = fg_colours[(fun_number + fun_number) % len(fg_colours)]
-            bg_pick = bg_colours[(fun_number) % len(bg_colours)]
+    # Colour each chunk based on the sum of its characters
+    # Uses modulus of the length of the colour array
+    # So each string chunk will be coloured the same way
+    for i in split_player_id:
+        fun_number = sum(bytearray(i, "ascii"))
+        fg_pick = fg_colours[(fun_number + fun_number) % len(fg_colours)]
+        bg_pick = bg_colours[(fun_number) % len(bg_colours)]
 
-            if fg_colours.index(fg_pick) == bg_colours.index(bg_pick):
-                if bg_pick == bg_colours[len(bg_colours) - 1]:
-                    bg_pick = bg_colours[0]
-                else:
-                    bg_pick = bg_colours[bg_colours.index(bg_pick) + 1]
+        if fg_colours.index(fg_pick) == bg_colours.index(bg_pick):
+            if bg_pick == bg_colours[len(bg_colours) - 1]:
+                bg_pick = bg_colours[0]
+            else:
+                bg_pick = bg_colours[bg_colours.index(bg_pick) + 1]
 
-            new_player_id = new_player_id + (Style.BRIGHT + fg_pick + bg_pick + i + Style.RESET_ALL)
+        new_player_id = new_player_id + (colorama.Style.BRIGHT + fg_pick + bg_pick + i + colorama.Style.RESET_ALL)
 
-        player_id = new_player_id
-
-    return player_id
+    return new_player_id
 
 
 fw_controller = FlaskWebController()

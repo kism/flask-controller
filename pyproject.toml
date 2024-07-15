@@ -54,7 +54,6 @@ ignore = [
     "TD003",  # KG Verbose TODO, only I work on this project
     "ISC001", # KG conflict in the formatter
     "COM812", # KG conflict in the formatter
-    "T201", # KG This needs print for the input log
 ]
 
 [tool.ruff.lint.per-file-ignores]
