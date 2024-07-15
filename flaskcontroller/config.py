@@ -106,7 +106,7 @@ class FlaskControllerConfig:
 
         self._warn_unexpected_keys(DEFAULT_CONFIG, config, "<root>")
 
-        if failure:
+        if failure: # pragma: no cover
             logger.critical("Config validation failed, Exiting.")
             sys.exit(1)
 

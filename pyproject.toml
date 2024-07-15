@@ -81,5 +81,8 @@ docstring-code-format = true
 docstring-code-line-length = 40
 
 [tool.pytest.ini_options]
-addopts = "--cov=flaskcontroller --cov-report=term --cov-report=html"
+addopts = "--cov-context=test --cov=flaskcontroller --cov-report=term --cov-report=html"
 testpaths = ["tests"]
+
+[tool.coverage.html]
+show_contexts = true
