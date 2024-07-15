@@ -26,7 +26,7 @@ poetry shell
 
 `flask --app flaskcontroller run --port 5000`
 
-`waitress-serve --listen "127.0.0.1:5000" --call flaskcontroller:create_app` will show you arguements that you can use.
+`waitress-serve --listen "127.0.0.1:5000" --call flaskcontroller:create_app` will show you arguments that you can use.
 
 ## 🪟 Windows
 

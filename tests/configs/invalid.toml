@@ -1,0 +1,8 @@
+[app]
+run_forever = false
+configuration_failure = true
+
+[logging]
+
+[flask]
+TESTING = true

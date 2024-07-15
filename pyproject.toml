@@ -7,24 +7,29 @@ license = "MIT"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
-flask = "^3.0.3"
-waitress = "^3.0.0"
-pyyaml = "^6.0.1"
+python = "^3.10"
+flask = "^3.0"
+waitress = "^3.0"
+tomlkit = "^0.12"
 requests = "^2.32.3"
 colorama = "^0.4.6"
 pyautogui = "^0.9.54"
 pydirectinput = { version = "^1.0.4", markers = "platform_system == 'Windows'" }
 
 
+[tool.poetry.group.test.dependencies]
+pytest = "*"
+pytest-cov = "*"
+pytest-mock = "*"
+jinja2 = "*"      # Flask depends on this, I have it here since config loading is templated for tests.
+
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.5.0"
-pylance = "^0.13.0"
+ruff = "*"
+pylance = "*"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
 
 [tool.ruff]
 cache-dir = "~/.cache/ruff"
@@ -32,23 +37,39 @@ target-version = "py311"
 line-length = 120
 
 [tool.ruff.lint]
-extend-fixable = ["B", "I001"]
-select = ["ALL"] # include all the rules, including new ones
+extend-fixable = ["B", "I001"] # KG I think this means something...
+extend-unsafe-fixes = [
+    "F401",
+] # KG I don't like that this is fixed automatically (this doesnt work?)
+select = ["ALL"] # KG Include absolutely all of Ruff's rules.
 ignore = [
     # Modules
-    "DJ",  # Django
-    "PTH", # KG builtin-open is fine
+    "DJ",  # KG Django not required
+    "PTH", # KG builtin 'open' is fine, not going to use pathlib
+    "DTZ", # KG no need to specify timezone for time objects
 
     # Specific rules
-    "ANN101", # KG Why define self...
-    "DTZ005", # KG no need to specify timezone
-    "DTZ011", # KG no need to specify timezone
-    "T201",   # KG print is fine for this scale
-    "S104",   # KG Happy to bind on 0.0.0.0 by default
+    "ANN101", # KG Why define self type for object functions...
     "TD002",  # KG Verbose TODO, only I work on this project
     "TD003",  # KG Verbose TODO, only I work on this project
-    "ERA001",  # TEMP, commented out code, need to put real logging in
+    "ISC001", # KG conflict in the formatter
+    "COM812", # KG conflict in the formatter
+    "T201", # KG This needs print for the input log
 ]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*.py" = [
+    # Modules
+    "ARG", # KG Unused function args -> fixtures nevertheless are functionally relevant
+    "FBT", # KG Don't care about booleans as positional arguments in tests, e.g. via @pytest.mark.parametrize()
+
+    # Specific rules
+    "S101",   # KG asserts allowed in tests.
+    "ANN201", # KG Not really needed for pytest.
+    "SLF001", # KG Accessing private members is needed for testing.
+    "INP001", # __init__.py not needed for PyTest.
+]
+
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
@@ -58,3 +79,7 @@ quote-style = "double"
 indent-style = "space"
 docstring-code-format = true
 docstring-code-line-length = 40
+
+[tool.pytest.ini_options]
+addopts = "--cov=flaskcontroller --cov-report=term --cov-report=html"
+testpaths = ["tests"]

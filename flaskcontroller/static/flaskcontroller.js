@@ -127,14 +127,14 @@ function getUpdate() {
         .then((data) => {
             // Do something with the data
             // console.log(data)
-            if (data.sockconnected) {
+            if (data.sock_connected) {
                 document.getElementById("FLASK_MGBA_STATS").innerHTML = `Connected`;
                 document.getElementById("FLASK_MGBA_STATS").style.color = "#CCFFCC";
             } else {
                 document.getElementById("FLASK_MGBA_STATS").innerHTML = `Disconnected`;
                 document.getElementById("FLASK_MGBA_STATS").style.color = "#FFCCCC";
             }
-            document.getElementById("PLAYER_COUNT").innerHTML = `${data.playersconnected}`;
+            document.getElementById("PLAYER_COUNT").innerHTML = `${data.players_connected}`;
         })
         .catch((error) => {
             console.error("Could not GetStatus from webserver: ", error);
