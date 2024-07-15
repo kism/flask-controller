@@ -6,7 +6,6 @@ Fixtures defined in a conftest.py can be used by any test in that package withou
 import contextlib
 import os
 import shutil
-import socket
 import socketserver
 import threading
 
