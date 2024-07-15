@@ -1,9 +1,9 @@
 {
   "recommendations": [
-    "esbenp.prettier-vscode",
-    "ms-python.python",
-    "ms-python.vscode-pylance",
-    "samuelcolvin.jinjahtml",
-    "charliermarsh.ruff"
+      "esbenp.prettier-vscode",
+      "ms-python.python",
+      "ms-python.vscode-pylance",
+      "samuelcolvin.jinjahtml",
+      "charliermarsh.ruff",
   ]
 }
