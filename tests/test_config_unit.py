@@ -1,6 +1,8 @@
 """Test launching the app and config."""
 
+import contextlib
 import logging
+import os
 
 import pytest
 import pytest_mock
@@ -79,3 +81,7 @@ def test_config_dictionary_not_in_schema(caplog: pytest.LogCaptureFixture):
     conf._warn_unexpected_keys(config.DEFAULT_CONFIG, test_config, "<root>")
     assert "Config entry key <root>[TEST_CONFIG_ROOT_ENTRY_NOT_IN_SCHEMA] not in schema" in caplog.text
     assert "Config entry key [app][TEST_CONFIG_APP_ENTRY_NOT_IN_SCHEMA] not in schema" in caplog.text
+
+    # Remove any created config/logs FIXME
+    with contextlib.suppress(FileNotFoundError):
+        os.unlink(pytest.TEST_CONFIG_FILE_PATH)
