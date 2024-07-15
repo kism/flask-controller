@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
-"""Client to get the inputs and output them as keypresses."""
+"""Client to get the inputs and output them as key presses."""
 
+import logging
 import socket
 
-DUMMYSERVER = True
+logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-if not DUMMYSERVER:
+DUMMY_SERVER = True
+
+if not DUMMY_SERVER:
     import pydirectinput
 
     pydirectinput.PAUSE = 1 / 120
@@ -13,7 +17,7 @@ if not DUMMYSERVER:
 SERVER = None
 HOST = "localhost"
 PORT = 5001
-lastinputarray = [False, False, False, False, False, False, False, False, False, False]
+last_input_array = [False, False, False, False, False, False, False, False, False, False]
 
 
 # Create a socket object
@@ -25,67 +29,66 @@ server_socket.bind((HOST, PORT))
 # Set the maximum number of queued connections
 server_socket.listen(5)
 
-print(f"Server listening on {HOST}:{PORT}")
+logging.info("Server listening on %s:%s", HOST, PORT)
 
 
 def iterate_bits(num: int) -> list:
     """Make a gross dict representing 10 bits."""
-    inputarray = []
+    input_array = []
     binary_representation = bin(num)[2:]  # Convert the integer to binary and remove the '0b' prefix
     binary_representation = binary_representation.zfill(10)  # Assuming 32-bit integers for illustration
 
     for _bit_position, bit_value in enumerate(binary_representation[::-1]):
-        # print(f'Bit at position {bit_position}: {bit_value}')
+        logger.debug("Bit at position: %s:%s", _bit_position, bit_value)
         new_bit_value = bit_value != "0"  # Why didn't I comment this, this is nonsense
-        inputarray.append(new_bit_value)
+        input_array.append(new_bit_value)
 
-    return inputarray
+    return input_array
 
 
-def press_buttons(indata: bytes) -> None:
+def press_buttons(in_data: bytes) -> None:
     """Bitwise compare to the socked and press/release depending."""
-    global lastinputarray  # noqa: PLW0603 fine for this program/scale
+    global last_input_array  # noqa: PLW0603 fine for this program/scale
 
-    myint = int.from_bytes(indata, "little")
+    my_int = int.from_bytes(in_data, "little")
 
-    inputarray = iterate_bits(myint)
+    input_array = iterate_bits(my_int)
 
-    # print(inputarray)
+    logger.debug(str(input_array))
 
-    # print("New input: " + str(int.from_bytes(indata)))
+    logger.debug("New input: %s", int.from_bytes(in_data))
     keys = ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"]
     n = 0
 
     for key in keys:
-        if inputarray[n] != lastinputarray[n]:
-            if inputarray[n]:
-                if DUMMYSERVER:
-                    print("pressing " + key)
+        if input_array[n] != last_input_array[n]:
+            if input_array[n]:
+                if DUMMY_SERVER:
+                    logging.info("Pressing %s", key)
                 else:
                     pydirectinput.keyDown(key)
             else:  # noqa: PLR5501 HUH?
-                if DUMMYSERVER:
-                    print("releasing " + key)
+                if DUMMY_SERVER:
+                    logging.info("Releasing %s", key)
                 else:
                     pydirectinput.keyUp(key)
         n = n + 1
 
-    lastinputarray = inputarray
+    last_input_array = input_array
 
 
 while True:
     # Wait for a client to connect
     client_socket, client_address = server_socket.accept()
-    print(f"Connection from {client_address}")
+    logging.info("Connection from: %s", client_address)
 
     try:
         while True:
-            # Receive and print data from the client
+            # Receive and logging.info data from the client
             data = client_socket.recv(2)
             press_buttons(data)
-    except Exception as err:  # noqa: BLE001 I don't know what can go wrong here...
-        print("\n Error, " + str(err))
-        print("\nRestarting Socket Client")
+    except Exception:
+        logging.exception("Restarting Socket Client")
 
     # Close the connection with the client
     client_socket.close()
