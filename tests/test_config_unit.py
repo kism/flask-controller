@@ -1,8 +1,6 @@
 """Test launching the app and config."""
 
-import contextlib
 import logging
-import os
 
 import pytest
 import pytest_mock
