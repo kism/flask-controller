@@ -5,11 +5,12 @@ import logging
 import pytest
 import pytest_mock
 
+import flaskcontroller
+from flaskcontroller import config
 
-def test_config_permissions_error(mocker: pytest_mock.plugin.MockerFixture):
+
+def test_config_permissions_error(tmp_path, mocker: pytest_mock.plugin.MockerFixture):
     """Mock a Permissions error with mock_open."""
-    import flaskcontroller
-
     conf = flaskcontroller.get_flaskcontroller_config()
 
     mock_open_func = mocker.mock_open(read_data="")
@@ -19,13 +20,11 @@ def test_config_permissions_error(mocker: pytest_mock.plugin.MockerFixture):
 
     # TEST: PermissionsError is raised.
     with pytest.raises(PermissionError):
-        conf._write_config({}, pytest.TEST_CONFIG_FILE_PATH)
+        conf._write_config({}, tmp_path)
 
 
 def test_dictionary_functions_of_config():
     """Test the functions in the config object that let it behave like a dictionary."""
-    import flaskcontroller
-
     conf = flaskcontroller.get_flaskcontroller_config()
 
     # TEST: __contains__ method.
@@ -40,14 +39,11 @@ def test_dictionary_functions_of_config():
 
 def test_config_dictionary_merge(get_test_config: dict):
     """Unit test the dictionary merge in _merge_with_defaults."""
-    import flaskcontroller
-    from flaskcontroller import config
-
     conf = flaskcontroller.get_flaskcontroller_config()
 
     test_dictionaries = [
         {},
-        get_test_config("logging_path_valid"),
+        get_test_config("logging_invalid_log_level"),
         get_test_config("testing_true_valid"),
     ]
 
@@ -68,9 +64,6 @@ def test_config_dictionary_merge(get_test_config: dict):
 
 def test_config_dictionary_not_in_schema(caplog: pytest.LogCaptureFixture):
     """Unit test _warn_unexpected_keys."""
-    import flaskcontroller
-    from flaskcontroller import config
-
     caplog.set_level(logging.WARNING)
     conf = flaskcontroller.get_flaskcontroller_config()
     test_config = {"TEST_CONFIG_ROOT_ENTRY_NOT_IN_SCHEMA": "", "app": {"TEST_CONFIG_APP_ENTRY_NOT_IN_SCHEMA": ""}}
