@@ -27,6 +27,7 @@ jinja2 = "*"      # Flask depends on this, I have it here since config loading i
 ruff = "*"
 pylance = "*"
 
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
@@ -68,8 +69,12 @@ ignore = [
     "SLF001", # KG Accessing private members is needed for testing.
     "INP001", # KG __init__.py not needed for PyTest.
     "PT004",  # KG monkeypatches don't return.
+    "ANN001", # KG Tests don't need type hints.
 ]
-
+"create_my_new_project.py" = [ # If you have used this boilerplate to start making your app, you can delete this.
+    # Specific rules
+    "T201", # KG print() is fine for the scale of this file
+]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
@@ -81,7 +86,13 @@ docstring-code-format = true
 docstring-code-line-length = 40
 
 [tool.pytest.ini_options]
-addopts = "--cov-context=test --cov=flaskcontroller --cov-report=term --cov-report=html"
+addopts = [
+    "--import-mode=importlib",
+    "--cov-context=test",
+    "--cov=flaskcontroller",
+    "--cov-report=term",
+    "--cov-report=html",
+]
 testpaths = ["tests"]
 
 [tool.coverage.html]

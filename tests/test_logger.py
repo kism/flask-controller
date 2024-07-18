@@ -20,7 +20,7 @@ def test_config_invalid_log_level(get_test_config: FunctionType, caplog: pytest.
     assert "Invalid logging level" in caplog.text
 
 
-def test_handlers_added(app: Flask):
+def test_handlers_added(tmp_path, app: Flask):
     """Test passing config to app."""
     # TEST: Assert that the config dictionary can set config attributes successfully.
     import flaskcontroller.logger
@@ -43,7 +43,7 @@ def test_handlers_added(app: Flask):
 
     assert len(logger.handlers) == 0  # Check the object reset worked
 
-    logging_conf = {"path": pytest.TEST_LOG_PATH, "level": "INFO"}  # Test file handler
+    logging_conf = {"path": os.path.join(tmp_path, "test.log"), "level": "INFO"}  # Test file handler
 
     # TEST: Two handlers when logging to file expected
     flaskcontroller.logger.setup_logger(app, logging_conf, logger)
@@ -58,4 +58,3 @@ def test_handlers_added(app: Flask):
         logger.removeHandler(handler)
         handler.close()
 
-    os.unlink(pytest.TEST_LOG_PATH)
