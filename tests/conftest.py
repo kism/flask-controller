@@ -47,9 +47,7 @@ def get_test_config() -> dict:
         """Load all the .toml configs into a single dict."""
         out_config = None
 
-        filename = f"{config_name}.toml"
-
-        filepath = os.path.join(TEST_CONFIGS_LOCATION, TEST_CONFIGS_LOCATION, filename)
+        filepath = os.path.join(TEST_CONFIGS_LOCATION, TEST_CONFIGS_LOCATION, config_name)
 
         if os.path.isfile(filepath):
             with open(filepath) as file:

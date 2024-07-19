@@ -1,5 +1,8 @@
 [app]
-run_forever = false
+
+[app.testing]
+dont_run_socket = true
+dont_run_forever = true
 
 [logging]
 level = "INVALID"
