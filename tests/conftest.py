@@ -53,7 +53,6 @@ def get_test_config() -> dict:
     return _get_test_config
 
 
-
 class MockTCPHandler(socketserver.BaseRequestHandler):
     """Mock TCP Server data handling class."""
 
@@ -74,7 +73,11 @@ def start_mock_server(host: str, port: int):
 @pytest.fixture()
 def mock_server():
     """Mock Server, pretends to be an emulator script."""
-    server = start_mock_server("localhost", 5001)
+    import random
+
+    port_number = random.randint(10000, 20000)
+
+    server = start_mock_server("localhost", port_number)
     yield server
     server.shutdown()
 

@@ -1,0 +1,9 @@
+[app]
+
+[app.testing]
+dont_run_socket = false
+dont_run_forever = true
+
+[logging]
+
+[flask]
