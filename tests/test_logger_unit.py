@@ -47,30 +47,30 @@ def test_config_logging_to_dir(logger, tmp_path):
         _add_file_handler(logger, tmp_path)
 
 
-# def test_handler_console_added(logger, app: Flask):
-#     """Test logging console handler."""
-#     logging_conf = {"path": "", "level": "INFO"}  # Test only console handler
+def test_handler_console_added(logger, app: Flask):
+    """Test logging console handler."""
+    logging_conf = {"path": "", "level": "INFO"}  # Test only console handler
 
-#     # TEST: Only one handler (console), should exist when no logging path provided
-#     flaskcontroller.logger.setup_logger(app, logging_conf, logger)
-#     assert len(logger.handlers) == 1
+    # TEST: Only one handler (console), should exist when no logging path provided
+    flaskcontroller.logger.setup_logger(app, logging_conf, logger)
+    assert len(logger.handlers) == 1
 
-#     # TEST: If a console handler exists, another one shouldn't be created
-#     flaskcontroller.logger.setup_logger(app, logging_conf, logger)
-#     assert len(logger.handlers) == 1
+    # TEST: If a console handler exists, another one shouldn't be created
+    flaskcontroller.logger.setup_logger(app, logging_conf, logger)
+    assert len(logger.handlers) == 1
 
 
-# def test_handler_file_added(logger, tmp_path, app: Flask):
-#     """Test logging file handler."""
-#     logging_conf = {"path": os.path.join(tmp_path, "test.log"), "level": "INFO"}  # Test file handler
+def test_handler_file_added(logger, tmp_path, app: Flask):
+    """Test logging file handler."""
+    logging_conf = {"path": os.path.join(tmp_path, "test.log"), "level": "INFO"}  # Test file handler
 
-#     # TEST: Two handlers when logging to file expected
-#     flaskcontroller.logger.setup_logger(app, logging_conf, logger)
-#     assert len(logger.handlers) == 2  # noqa: PLR2004 A console and a file handler are expected
+    # TEST: Two handlers when logging to file expected
+    flaskcontroller.logger.setup_logger(app, logging_conf, logger)
+    assert len(logger.handlers) == 2  # noqa: PLR2004 A console and a file handler are expected
 
-#     # TEST: Two handlers when logging to file expected, another one shouldn't be created
-#     flaskcontroller.logger.setup_logger(app, logging_conf, logger)
-#     assert len(logger.handlers) == 2  # noqa: PLR2004 A console and a file handler are expected
+    # TEST: Two handlers when logging to file expected, another one shouldn't be created
+    flaskcontroller.logger.setup_logger(app, logging_conf, logger)
+    assert len(logger.handlers) == 2  # noqa: PLR2004 A console and a file handler are expected
 
 
 @pytest.mark.parametrize(
