@@ -6,11 +6,11 @@ from socketserver import TCPServer
 from flask.testing import FlaskClient
 
 
-# def test_get_status_sock_connected_false(client: FlaskClient):
-#     """Test the hello API endpoint. This one uses the fixture in conftest.py."""
-#     response = client.get("/GetStatus")
-#     # TEST: The default /hello/ response
-#     assert response.json["sock_connected"] is False
+def test_get_status_sock_connected_false(client: FlaskClient):
+    """Test the hello API endpoint. This one uses the fixture in conftest.py."""
+    response = client.get("/GetStatus")
+    # TEST: The default /hello/ response
+    assert response.json["sock_connected"] is False
 
 
 # def test_input(sleepless: any, mock_server: TCPServer, client: FlaskClient):
