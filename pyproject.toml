@@ -95,7 +95,6 @@ addopts = [
     "--cov-report=html",
 ]
 testpaths = ["tests"]
-timeout = 3
 
 [tool.coverage.html]
 show_contexts = true

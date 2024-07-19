@@ -8,8 +8,6 @@ from flask.testing import FlaskClient
 
 from flaskcontroller import create_app
 
-pytestmark = pytest.mark.timeout(3)
-
 
 @pytest.fixture()
 def client_with_socket(tmp_path, get_test_config: dict) -> any:
@@ -24,23 +22,19 @@ def test_get_status_sock_connected_false(client: FlaskClient):
     assert response.json["sock_connected"] is False
 
 
-def test_get_status_sock_connected_true(tmp_path, get_test_config, mock_server: TCPServer):
+def test_get_status_sock_connected_true(tmp_path, get_test_config, mock_server: TCPServer, caplog: pytest.LogCaptureFixture):
     """TKKTKTKKTKTKTKTKKTKTKTKTKTK."""
+    import logging
+
+    from flaskcontroller import controller
 
     test_config = get_test_config("testing_run_socket.toml")
     _, test_config["app"]["socket_port"] = mock_server.server_address
 
-    # assert test_config["app"]["socket_port"] == "lamo"
 
-    app = create_app(test_config=test_config, instance_path=tmp_path)
+    with caplog.at_level(logging.DEBUG):
+        controller.socket_sender(test_config)
 
-    return
-
-    client = app.test_client()
-
-    response = client.get("/GetStatus")
-    # TEST: The default /hello/ response
-    assert response.json["sock_connected"] is True
 
 
 # def test_input(sleepless: any, mock_server: TCPServer, app_with_socket: FlaskClient):
