@@ -19,7 +19,6 @@ DEFAULT_CONFIG = {
         "tick_rate": 120,
         "testing": {
             "dont_run_socket": False,
-            "dont_run_forever": False,
         },
     },
     "logging": {
