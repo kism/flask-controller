@@ -2,9 +2,9 @@
 socket_address = "127.0.0.1"
 tick_rate = 120
 
-[app.testing]
-dont_run_socket = false
-dont_run_forever = true
+# [app.testing]
+# dont_run_socket = false
+# dont_run_forever = true
 
 [logging]
 level = "INFO"

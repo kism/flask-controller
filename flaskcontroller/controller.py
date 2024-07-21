@@ -21,8 +21,8 @@ formatter = logging.Formatter("%(message)s")
 console_handler.setFormatter(formatter)
 input_logger.addHandler(console_handler)
 
-
 TESTING_MAX_LOOP = 3
+_run_thread = True  # This is a killswitch used in pytest specifically
 
 fg_colours = [
     colorama.Fore.BLACK,
@@ -186,10 +186,9 @@ def process_user_input(da_input: str) -> str:
 def socket_sender(fc_conf: dict) -> None:
     """Connect to mGBA socket and send commands."""
     loop_count = 0
-    run_forever = not fc_conf["app"]["testing"]["dont_run_forever"]
-    str_max_loop = "∞" if run_forever else str(TESTING_MAX_LOOP)
-    while run_forever or loop_count < TESTING_MAX_LOOP:
-        logging.info("base loop")
+    # run_forever = not fc_conf["app"]["testing"]["dont_run_forever"]
+    str_max_loop = "∞" # if run_forever else str(TESTING_MAX_LOOP)
+    while  _run_thread:
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -198,7 +197,7 @@ def socket_sender(fc_conf: dict) -> None:
                 while not fw_controller.get_sock_connected():
                     msg = (
                         f"Connecting to socket: {fc_conf['app']['socket_address']}:{fc_conf['app']['socket_port']}"
-                        f" Attempt: {loop_count}/{str_max_loop}"
+                        f" Attempt: {loop_count + 1}/{str_max_loop}"
                     )
                     logging.info(msg)
 
@@ -210,16 +209,12 @@ def socket_sender(fc_conf: dict) -> None:
                         loop_count += 1
                         time.sleep(1)
 
-                    if not run_forever and loop_count > TESTING_MAX_LOOP:
-                        logger.info("Maximum retries reached as dont_run_forever is True. Socket sender thread ended.")
-                        return
-
                 # While the socket between this program and mGBA is connected
                 # we check to see if there is anything in the input queue
                 # and then send it if there is. This runs at approximately the
                 # tick rate defined. It doesn't take into consideration the processing
                 # time of this block of code lol.
-                while fw_controller.get_sock_connected():
+                while fw_controller.get_sock_connected() and _run_thread:
                     time.sleep(1 / fc_conf["app"]["tick_rate"])
                     try:
                         if input_queue:

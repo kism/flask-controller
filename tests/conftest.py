@@ -4,8 +4,6 @@ Fixtures defined in a conftest.py can be used by any test in that package withou
 """
 
 import os
-import socketserver
-import threading
 
 import flask
 import pytest
@@ -51,35 +49,6 @@ def get_test_config() -> dict:
             return tomlkit.load(file)
 
     return _get_test_config
-
-
-class MockTCPHandler(socketserver.BaseRequestHandler):
-    """Mock TCP Server data handling class."""
-
-    def handle(self):
-        """Mock TCP Server data handling."""
-        self.data = self.request.recv(1024).strip()
-
-
-def start_mock_server(host: str, port: int):
-    """Mock TCP Server."""
-    server = socketserver.TCPServer((host, port), MockTCPHandler)
-    server_thread = threading.Thread(target=server.serve_forever)
-    server_thread.daemon = True
-    server_thread.start()
-    return server
-
-
-@pytest.fixture()
-def mock_server():
-    """Mock Server, pretends to be an emulator script."""
-    import random
-
-    port_number = random.randint(10000, 20000)
-
-    server = start_mock_server("localhost", port_number)
-    yield server
-    server.shutdown()
 
 
 @pytest.fixture()
