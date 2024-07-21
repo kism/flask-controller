@@ -27,10 +27,10 @@ class TCPServer:
         while True:
             self._sock.listen(5)
             connection, address = self._sock.accept()
-            message = connection.recv(2)
+            message = connection.recv(2048)
             # response = "Received"
             # connection.send(response.encode())
-            connection.close()
+            # connection.close()
 
 
 @pytest.fixture(autouse=True)
@@ -62,15 +62,18 @@ def test_get_status_sock_connected_true(tmp_path, get_test_config, caplog: pytes
 
     from flaskcontroller import controller
 
-    def _timeout_thread(seconds=3):
+    def _do_inputs(test_client):
         import time
 
-        # time.sleep(1)
-        # controller.process_user_input("D_GBA_START")
-        # time.sleep(1)
-        # controller.process_user_input("U_GBA_START")
+        time.sleep(1)
+        test_client.post("/input/D_GBA_START", headers={"client_id": "TESTEST"})
+        time.sleep(1)
+        test_client.post("/input/U_GBA_START", headers={"client_id": "TESTEST"})
 
-        time.sleep(seconds)
+        response = test_client.post("/input/D_GBA_START")
+        assert response.status_code == HTTPStatus.BAD_REQUEST
+
+
         controller._run_thread = False
 
     test_config = get_test_config("testing_run_socket.toml")
@@ -78,13 +81,15 @@ def test_get_status_sock_connected_true(tmp_path, get_test_config, caplog: pytes
     test_config["app"]["socket_port"] = 5001
 
     with caplog.at_level(logging.DEBUG):
-        thread = threading.Thread(target=_timeout_thread)
+        app = create_app(test_config=test_config,instance_path=tmp_path)
+        thread = threading.Thread(target=_do_inputs,args=(app.test_client(),))
         thread.daemon = True
         thread.start()
-        controller.socket_sender(test_config)
+        # controller.socket_sender(test_config)
 
     thread.join()
-    assert "Connected to socket" in caplog.text
+    assert thread.exit
+    assert "Connected to socketzz" in caplog.text
 
 
 # def test_input(sleepless: any, mock_server: TCPServer, app_with_socket: FlaskClient):

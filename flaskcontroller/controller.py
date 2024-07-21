@@ -230,6 +230,9 @@ def socket_sender(fc_conf: dict) -> None:
         loop_count += 1
         time.sleep(1)
 
+    if not _run_thread:
+        logger.info("PyTest stopped socket_sender")
+
 
 def colour_player_id(player_id: str) -> str:
     """Fun coloured player names."""
