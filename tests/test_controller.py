@@ -6,7 +6,6 @@ import socket
 import threading
 import time
 from http import HTTPStatus
-from typing import Self
 
 import pytest
 from flask.testing import FlaskClient
@@ -17,21 +16,21 @@ import flaskcontroller
 class TCPServer:
     """Object TCPServer to be used as a test socket server."""
 
-    def __init__(self) -> None:
+    def __init__(self):
         """Init the socket."""
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-    def __enter__(self) -> Self:
+    def __enter__(self):
         """Implement 'with x as y:."""
         self._sock.bind(("127.0.0.1", 5001))
         return self
 
-    def __exit__(self, exception_type, exception_value, traceback) -> None:
+    def __exit__(self, exception_type, exception_value, traceback):
         """Deconstruct the object."""
         self._sock.close()
 
-    def listen_for_traffic(self) -> None:
+    def listen_for_traffic(self):
         """Loop for socket listener."""
         import logging
 
