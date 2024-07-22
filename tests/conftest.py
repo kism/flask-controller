@@ -49,14 +49,3 @@ def get_test_config() -> dict:
             return tomlkit.load(file)
 
     return _get_test_config
-
-
-@pytest.fixture()
-def sleepless(monkeypatch: any):
-    """Patch to make time.sleep not work."""
-    import time
-
-    def sleep(seconds: int) -> None:
-        """Fake sleep method."""
-
-    monkeypatch.setattr(time, "sleep", sleep)
