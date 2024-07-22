@@ -66,7 +66,10 @@ def test_get_status_sock_connected_false(caplog: pytest.LogCaptureFixture, clien
 
 
 def test_socket_sender(dummy_tcp_server, tmp_path, caplog: pytest.LogCaptureFixture):
-    """Test the controller socket sender."""
+    """Test the controller socket sender.
+
+    We do many checks here because it't not really worth spinning up a separate one for each test on a different port.
+    """
     # Since this is the one time that we run the socket sender, I test startup without config too.
     # TEST: File is created when no config is provided.
     with caplog.at_level(logging.WARNING):
