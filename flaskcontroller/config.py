@@ -181,5 +181,3 @@ class FlaskControllerConfig:
         """Load configuration from a file."""
         with open(self._config_path, encoding="utf8") as toml_file:
             return tomlkit.load(toml_file)
-
-

@@ -26,7 +26,7 @@ def app(tmp_path, get_test_config: dict) -> any:
 
 
 @pytest.fixture()
-def client(app: flask.Flask) -> any:
+def client(app) -> any:
     """This returns a test client for the default app()."""
     return app.test_client()
 

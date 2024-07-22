@@ -33,12 +33,3 @@ def test_config_file_loading(tmp_path, caplog: pytest.LogCaptureFixture):
     caplog.set_level(logging.INFO)
     create_app(test_config=None, instance_path=tmp_path)
     assert "Using this path as it's the first one that was found" in caplog.text
-
-
-# def test_config_file_creation(tmp_path, caplog: pytest.LogCaptureFixture):
-#     """TEST: that file is created when no config is provided.."""
-#     with caplog.at_level(logging.WARNING):
-#         create_app(test_config=None, instance_path=tmp_path)
-
-#     assert "No configuration file found, creating at default location:" in caplog.text
-
