@@ -77,18 +77,18 @@ def test_socket_sender(dummy_tcp_server, tmp_path, caplog: pytest.LogCaptureFixt
 
     test_client = app.test_client()
 
-    # Since socket_sender takes a bit to shutdown, we use this to check when it exits.
-    retries = 50
+    # Since socket_sender takes a bit to start up, we give it a few attempts to connect.
+    retries = 10
     i = 0
     while True:
-        time.sleep(0.5)
-        i += 1
-        # TEST: GetStatus endpoint
         response = test_client.get("/GetStatus")
         if i >= retries or response.json["sock_connected"] is True:
             flaskcontroller.controller._run_thread = False
             break
+        time.sleep(0.5)
+        i += 1
 
+    # TEST: GetStatus endpoint
     assert response.status_code == HTTPStatus.OK
     assert response.json["sock_connected"] is True
 
