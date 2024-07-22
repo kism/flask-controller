@@ -6,7 +6,7 @@ from logging.handlers import RotatingFileHandler
 from flask import Flask
 
 LOG_LEVELS = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]  # Valid str logging levels.
-LOG_FORMAT = "%(levelname)s: %(message)s"  # This is the logging message format that I like.
+LOG_FORMAT = "%(asctime)s:%(levelname)s:%(name)s:%(message)s"  # This is the logging message format that I like.
 
 
 # In flask the root logger doesn't have any handlers, its all in app.logger
@@ -21,7 +21,13 @@ logger = logging.getLogger(__name__)  # This is where we log to in this module, 
 
 # Pass in the whole app object to make it obvious we are configuring the logger object within the app object.
 def setup_logger(app: Flask, logging_conf: dict, in_logger: logging.Logger | None = None) -> None:
-    """Setup the logger, set config per FC_conf."""
+    """Setup the logger, set configuration per logging_conf.
+
+    Args:
+        app: The Flask app, needed to get the app's logger object.
+        logging_conf: The logging configuration {"level": "", "path": ""}
+        in_logger: Logger to configure, useful for testing.
+    """
     if not in_logger:  # in_logger should only exist when testing with PyTest.
         in_logger = logging.getLogger()  # Get the root logger
 

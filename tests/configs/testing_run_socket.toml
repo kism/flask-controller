@@ -1,0 +1,12 @@
+[app]
+socket_address = "127.0.0.1"
+socket_port = 5001
+tick_rate = 120
+
+[app.testing]
+dont_run_socket = false
+
+[logging]
+level = "INFO"
+
+[flask]

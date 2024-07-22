@@ -1,6 +1,7 @@
 [app]
-run_forever = false
-configuration_failure = true
+
+[app.testing]
+dont_run_socket = true
 
 [logging]
 

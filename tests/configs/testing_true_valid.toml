@@ -1,8 +1,7 @@
-
 [app]
-run_forever = false
 
-[logging]
+[app.testing]
+dont_run_socket = true
 
 [flask]
 TESTING = true

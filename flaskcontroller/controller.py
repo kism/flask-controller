@@ -9,15 +9,11 @@ from http import HTTPStatus
 import colorama
 from flask import Blueprint, Flask, Response, jsonify, request
 
-from . import get_flaskcontroller_config
-
-fc_app_conf = get_flaskcontroller_config()["app"]
-
 # Main logger
 logger = logging.getLogger(__name__)
 
 # Input logger, just show message
-input_logger = logging.getLogger("input_logger")
+input_logger = logging.getLogger("controller.input_logger")
 input_logger.propagate = False
 console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.INFO)  # Set the logging level for the handler
@@ -25,8 +21,10 @@ formatter = logging.Formatter("%(message)s")
 console_handler.setFormatter(formatter)
 input_logger.addHandler(console_handler)
 
-
 TESTING_MAX_LOOP = 3
+_run_thread = True  # This is a kill switch used in pytest specifically
+fw_controller = None  # This will be the object that keeps track of the input queue and status
+
 
 fg_colours = [
     colorama.Fore.BLACK,
@@ -187,31 +185,27 @@ def process_user_input(da_input: str) -> str:
     return message, HTTPStatus.OK
 
 
-def socket_sender() -> None:
+def socket_sender(fc_conf: dict) -> None:
     """Connect to mGBA socket and send commands."""
     loop_count = 0
-    str_max_loop = "∞" if fc_app_conf["run_forever"] else str(TESTING_MAX_LOOP)
-    while fc_app_conf["run_forever"] or loop_count < TESTING_MAX_LOOP:
-        logging.info("base loop")
+    str_max_loop = "∞"
+    while _run_thread:
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
                 fw_controller.set_sock_disconnected()
                 while not fw_controller.get_sock_connected():
-                    if loop_count > TESTING_MAX_LOOP:
-                        break
-
                     msg = (
-                        f"Connecting to socket: {fc_app_conf['socket_address']}:{fc_app_conf['socket_port']}"
-                        f" Attempt: {loop_count}/{str_max_loop} {fc_app_conf['run_forever']}"
+                        f"Connecting to socket: {fc_conf['app']['socket_address']}:{fc_conf['app']['socket_port']}"
+                        f" Attempt: {loop_count + 1}/{str_max_loop}"
                     )
-                    logging.info(msg)
+                    logger.info(msg)
 
                     try:
-                        sock.connect((fc_app_conf["socket_address"], fc_app_conf["socket_port"]))
+                        sock.connect((fc_conf["app"]["socket_address"], fc_conf["app"]["socket_port"]))
                         fw_controller.set_sock_connected()
-                        logging.info("Connected to socket!")
+                        logger.info("Connected to socket!")
                     except ConnectionRefusedError:
                         loop_count += 1
                         time.sleep(1)
@@ -221,20 +215,24 @@ def socket_sender() -> None:
                 # and then send it if there is. This runs at approximately the
                 # tick rate defined. It doesn't take into consideration the processing
                 # time of this block of code lol.
-                while fw_controller.get_sock_connected():
-                    time.sleep(1 / fc_app_conf["tick_rate"])
+                while fw_controller.get_sock_connected() and _run_thread:
+                    time.sleep(1 / fc_conf["app"]["tick_rate"])
                     try:
                         if input_queue:
                             in_input = input_queue.pop(0).to_bytes(2, "little", signed=False)
                             sock.sendall(in_input)
 
                     except BrokenPipeError:
-                        logging.warning("Disconnected from socket, cringe")
+                        logger.warning("Disconnected from socket, cringe")
                         fw_controller.set_sock_disconnected()
         except OSError:
             sock = None
 
         loop_count += 1
+        time.sleep(1)
+
+    if not _run_thread:
+        logger.info("PyTest stopped socket_sender")
 
 
 def colour_player_id(player_id: str) -> str:
@@ -260,17 +258,20 @@ def colour_player_id(player_id: str) -> str:
         bg_pick = bg_colours[(fun_number) % len(bg_colours)]
 
         if fg_colours.index(fg_pick) == bg_colours.index(bg_pick):
-            if bg_pick == bg_colours[len(bg_colours) - 1]:
-                bg_pick = bg_colours[0]
-            else:
-                bg_pick = bg_colours[bg_colours.index(bg_pick) + 1]
+            bg_pick = bg_colours[bg_colours.index(bg_pick) + 1]
 
         new_player_id = new_player_id + (colorama.Style.BRIGHT + fg_pick + bg_pick + i + colorama.Style.RESET_ALL)
 
     return new_player_id
 
 
-fw_controller = FlaskWebController()
-
-thread = threading.Thread(target=socket_sender)
-thread.start()
+def start_socket_sender(fc_conf: dict) -> None:
+    """Functions to start the socket sender infinite loop."""
+    global fw_controller  # noqa: PLW0603 This is needed to avoid pollution.
+    fw_controller = FlaskWebController()
+    if not fc_conf["app"]["testing"]["dont_run_socket"]:
+        logger.info("Starting socket sender thread!")
+        thread = threading.Thread(target=socket_sender, args=(fc_conf,))
+        thread.start()
+    else:
+        logger.warning("Not starting socket sender thread.")
