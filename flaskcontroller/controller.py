@@ -7,7 +7,7 @@ import time
 from http import HTTPStatus
 
 import colorama
-from flask import Blueprint, Flask, Response, jsonify, request
+from flask import Blueprint, Flask, Response, current_app, jsonify, request
 
 # Main logger
 logger = logging.getLogger(__name__)
@@ -265,13 +265,13 @@ def colour_player_id(player_id: str) -> str:
     return new_player_id
 
 
-def start_socket_sender(fc_conf: dict) -> None:
+def start_socket_sender() -> None:
     """Functions to start the socket sender infinite loop."""
     global fw_controller  # noqa: PLW0603 This is needed to avoid pollution.
     fw_controller = FlaskWebController()
-    if not fc_conf["app"]["testing"]["dont_run_socket"]:
+    if not current_app.config["app"]["testing"]["dont_run_socket"]:
         logger.info("Starting socket sender thread!")
-        thread = threading.Thread(target=socket_sender, args=(fc_conf,))
+        thread = threading.Thread(target=socket_sender, args=(current_app.config,))
         thread.start()
     else:
         logger.warning("Not starting socket sender thread.")

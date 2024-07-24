@@ -4,7 +4,7 @@ from pprint import pformat
 
 from flask import Flask, render_template
 
-from . import config, logger
+from . import config, controller, logger
 
 
 def create_app(test_config: dict | None = None, instance_path: str | None = None) -> Flask:
@@ -40,12 +40,13 @@ def create_app(test_config: dict | None = None, instance_path: str | None = None
 
     app.logger.debug(app_config_str)
 
-    from . import controller
-
     # Register blueprints
     app.register_blueprint(controller.bp)
 
-    controller.start_socket_sender(fc_conf)
+    # So for modules that need information from the app object we need to start them `with app.app_context():`
+    # Since we use `from flask import current_app` in the imported modules to get the config
+    with app.app_context():
+        controller.start_socket_sender()  # This runs the function that initialises the socket sender
 
     # Flask homepage, generally don't have this as a blueprint.
     @app.route("/")
