@@ -35,7 +35,7 @@ def socket_os_error(monkeypatch):
     import socket
 
     def socket_fail(*args, **kwargs) -> None:  # noqa: ANN002, ANN003, throw away args
-        """No sleep."""
+        """TKTKTKTKT."""
         raise OSError
 
     monkeypatch.setattr(socket, "socket", socket_fail)
@@ -43,6 +43,66 @@ def socket_os_error(monkeypatch):
 
 def test_os_error(socket_os_error, caplog):
     """TKTKKTKTKTK."""
+    controller._run_thread = True
+
+    thread = threading.Thread(target=stop_run_thread)
+    thread.start()
+
+    controller.socket_sender({})
+
+    thread.join()
+
+    with caplog.at_level(logging.CRITICAL):
+        assert "OSError when trying to create socket" in caplog.text
+
+
+class MockSocket:
+    def __init__(self):
+        pass
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, exc_type, exc_val, traceback):
+        pass
+
+    def setsockopt(self):
+        pass
+
+    def connect(self, *args, **kwargs):  # noqa: ANN002, ANN003, throw away args
+        pass
+
+
+@pytest.fixture()
+def socket_connection_refused_error(monkeypatch):
+    """Patched function TKTKTKTKTK."""
+    import socket
+
+    ms = MockSocket()
+
+    def fake_socket(*args, **kwargs) -> MockSocket:  # noqa: ANN002, ANN003, throw away args
+        return ms
+
+    def socket_fail(*args, **kwargs) -> None:  # noqa: ANN002, ANN003, throw away args
+        """TKTKTKTKT."""
+        raise ConnectionRefusedError
+
+    print(ms)
+
+    monkeypatch.setattr(socket, "socket", fake_socket)
+    # monkeypatch.setattr("socket.socket", "setsockopt", fake_socket)
+
+
+def test_connection_refused_error(socket_connection_refused_error, caplog):
+    """TKTKKTKTKTK."""
+    import socket
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        assert sock is not None
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+    assert "YOU DID IT" == "WAHOOOOOO"
+    # end testing
     controller._run_thread = True
 
     thread = threading.Thread(target=stop_run_thread)
