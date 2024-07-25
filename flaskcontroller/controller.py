@@ -93,11 +93,11 @@ def get_status() -> Response:
     # The client_dict is a dictionary that stores the client-ids and when they last pinged.
     # Add current clients client id to the queue
     current_time = int(time.time())
-    client_dict.update({request.headers.get("client-id"): int(time.time())})
-    for ipaddress in client_dict.copy():
+    client_dict[request.headers.get("client-id")] = int(time.time())
+    for client in client_dict.copy():
         # if host hasn't been in contact in 7 seconds, drop it
-        if current_time - 7 > client_dict[ipaddress]:
-            del client_dict[ipaddress]
+        if current_time - 7 > client_dict[client]:
+            del client_dict[client]
 
     # Also returns the status of the mGBA socket connection
     result = {"sock_connected": fw_controller.get_sock_connected(), "players_connected": len(client_dict)}
@@ -226,6 +226,8 @@ def socket_sender(fc_conf: dict) -> None:
                         logger.warning("Disconnected from socket, cringe")
                         fw_controller.set_sock_disconnected()
         except OSError:
+            logging.exception("OSError when trying to create socket")
+            logging.info("Trying again...")
             sock = None
 
         loop_count += 1

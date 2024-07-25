@@ -84,7 +84,7 @@ def test_socket_sender(dummy_tcp_server, tmp_path, caplog: pytest.LogCaptureFixt
     retries = 10
     i = 0
     while True:
-        response = test_client.get("/GetStatus")
+        response = test_client.get("/GetStatus", headers={"client-id": "TEST1"})
         if i >= retries or response.json["sock_connected"] is True:
             flaskcontroller.controller._run_thread = False
             break
@@ -112,11 +112,13 @@ def test_socket_sender(dummy_tcp_server, tmp_path, caplog: pytest.LogCaptureFixt
     response = test_client.post("/input/D_GBA_START")
     assert response.status_code == HTTPStatus.BAD_REQUEST
 
+    time.sleep(7.5) # Do better https://stackoverflow.com/a/24006251
+    response = test_client.get("/GetStatus", headers={"client-id": "TEST2"})
+
+    caplog.set_level(logging.INFO)
+
     # Cleanup, I don't like the sleeps but alas
     flaskcontroller.controller._run_thread = False
-
-    caplog.clear()
-    caplog.set_level(logging.INFO)
 
     # Since socket_sender takes a bit to shutdown, we use this to check when it exits.
     retries = 500

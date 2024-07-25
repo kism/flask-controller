@@ -2,8 +2,13 @@
 
 import random
 import string
+import threading
+import time
+import logging
 
-from flaskcontroller.controller import colour_player_id
+import pytest
+
+from flaskcontroller import controller
 
 
 def test_colour_player_id():
@@ -15,4 +20,37 @@ def test_colour_player_id():
         random_strings.append(random_string)
 
     for my_string in random_string:
-        colour_player_id(my_string)
+        controller.colour_player_id(my_string)
+
+
+def stop_run_thread(seconds=1.5):
+    """Stop infinite loop."""
+    time.sleep(seconds)
+    controller._run_thread = False
+
+
+@pytest.fixture()
+def socket_os_error(monkeypatch):
+    """Patched function TKTKTKTKTK."""
+    import socket
+
+    def socket_fail(*args, **kwargs) -> None:  # noqa: ANN002, ANN003, throw away args
+        """No sleep."""
+        raise OSError
+
+    monkeypatch.setattr(socket, "socket", socket_fail)
+
+
+def test_os_error(socket_os_error, caplog):
+    """TKTKKTKTKTK."""
+    controller._run_thread = True
+
+    thread = threading.Thread(target=stop_run_thread)
+    thread.start()
+
+    controller.socket_sender({})
+
+    thread.join()
+
+    with caplog.at_level(logging.CRITICAL):
+        assert "OSError when trying to create socket" in caplog.text
