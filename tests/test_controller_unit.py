@@ -18,6 +18,7 @@ def test_colour_player_id():
         random_string = "".join(random.choices(string.ascii_letters + string.digits, k=length))
         random_strings.append(random_string)
 
+    # TEST: No exceptions raised
     for my_string in random_string:
         controller.colour_player_id(my_string)
 
@@ -46,8 +47,13 @@ def test_os_error(monkeypatch, caplog):
 
     thread.join()
 
+    # TEST: OSError is raised.
     with caplog.at_level(logging.CRITICAL):
         assert "OSError when trying to create socket" in caplog.text
+
+    # TEST: OSError is raised.
+    with caplog.at_level(logging.INFO):
+        assert "Trying again..." in caplog.text
 
 
 class MockSocketConnectionRefusedError:
@@ -90,9 +96,11 @@ def test_connection_refused_error(tmp_path, get_test_config, mocker, caplog):
 
     thread.join()
 
+    # TEST: Exception ConnectionRefusedError is caught.
     with caplog.at_level(logging.ERROR):
         assert "Socket connection refused" in caplog.text
 
+    # TEST: Script continues
     with caplog.at_level(logging.INFO):
         assert "Trying again" in caplog.text
 
@@ -141,8 +149,10 @@ def test_connection_broken_pipe_error(tmp_path, get_test_config, mocker, caplog)
 
     thread.join()
 
+    # TEST: Exception BrokenPipeError is excepted
     with caplog.at_level(logging.ERROR):
         assert "Disconnected from socket, cringe" in caplog.text
 
+    # TEST: Script continues
     with caplog.at_level(logging.INFO):
         assert "Attempt: 2/∞" in caplog.text
