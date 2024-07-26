@@ -74,6 +74,8 @@ ignore = [
     "ANN001", # KG Tests don't need type hints.
     "S311",   # KG I'll assume no real crypto will be done in PyTest.
     "ANN204", # KG Python 3.10 doesn't have from types import self
+    "ANN002", # KG args/kwargs throwawayu in testing
+    "ANN003", # KG args/kwargs throwawayu in testing
 ]
 "create_my_new_project.py" = [ # If you have used this boilerplate to start making your app, you can delete this.
     # Specific rules

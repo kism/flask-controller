@@ -112,7 +112,7 @@ def test_socket_sender(dummy_tcp_server, tmp_path, caplog: pytest.LogCaptureFixt
     response = test_client.post("/input/D_GBA_START")
     assert response.status_code == HTTPStatus.BAD_REQUEST
 
-    time.sleep(7.5) # Do better https://stackoverflow.com/a/24006251
+    time.sleep(7.5)  # Do better https://stackoverflow.com/a/24006251
     response = test_client.get("/GetStatus", headers={"client-id": "TEST2"})
 
     caplog.set_level(logging.INFO)

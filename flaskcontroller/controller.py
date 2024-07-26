@@ -195,7 +195,7 @@ def socket_sender(fc_conf: dict) -> None:
                 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
                 fw_controller.set_sock_disconnected()
-                while not fw_controller.get_sock_connected():
+                while _run_thread and not fw_controller.get_sock_connected():
                     msg = (
                         f"Connecting to socket: {fc_conf['app']['socket_address']}:{fc_conf['app']['socket_port']}"
                         f" Attempt: {loop_count + 1}/{str_max_loop}"
@@ -207,7 +207,9 @@ def socket_sender(fc_conf: dict) -> None:
                         fw_controller.set_sock_connected()
                         logger.info("Connected to socket!")
                     except ConnectionRefusedError:
+                        logger.error("Socket connection refused")  # noqa: TRY400 Don't want this one too noisy
                         loop_count += 1
+                        logger.info("Trying again")
                         time.sleep(1)
 
                 # While the socket between this program and mGBA is connected
@@ -223,7 +225,7 @@ def socket_sender(fc_conf: dict) -> None:
                             sock.sendall(in_input)
 
                     except BrokenPipeError:
-                        logger.warning("Disconnected from socket, cringe")
+                        logger.error("Disconnected from socket, cringe")  # noqa: TRY400 Don't want this one too noisy
                         fw_controller.set_sock_disconnected()
         except OSError:
             logging.exception("OSError when trying to create socket")

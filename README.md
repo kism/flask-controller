@@ -91,7 +91,3 @@ Script -> Open Script
 `flaskcontroller/_emulator/bizhawk/bizhawk_gba_grab_web_input.lua`
 
 If the python web server exits/closes you will need to reboot the core for it to reconnect, so save in your game and reboot core.
-
-## Todo
-
-- https://dev.to/ghost/pytest-with-background-thread-fixtures-3599

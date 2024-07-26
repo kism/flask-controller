@@ -1,12 +1,11 @@
 """Unit test the controller module."""
 
+import logging
 import random
+import socket
 import string
 import threading
 import time
-import logging
-
-import pytest
 
 from flaskcontroller import controller
 
@@ -29,20 +28,15 @@ def stop_run_thread(seconds=1.5):
     controller._run_thread = False
 
 
-@pytest.fixture()
-def socket_os_error(monkeypatch):
-    """Patched function TKTKTKTKTK."""
-    import socket
+def test_os_error(monkeypatch, caplog):
+    """Test OSError on Socket creation."""
 
-    def socket_fail(*args, **kwargs) -> None:  # noqa: ANN002, ANN003, throw away args
-        """TKTKTKTKT."""
+    def socket_fail(*args, **kwargs) -> None:
+        """Immediate socket failure with OSError."""
         raise OSError
 
     monkeypatch.setattr(socket, "socket", socket_fail)
 
-
-def test_os_error(socket_os_error, caplog):
-    """TKTKKTKTKTK."""
     controller._run_thread = True
 
     thread = threading.Thread(target=stop_run_thread)
@@ -56,61 +50,99 @@ def test_os_error(socket_os_error, caplog):
         assert "OSError when trying to create socket" in caplog.text
 
 
-class MockSocket:
-    def __init__(self):
-        pass
+class MockSocketConnectionRefusedError:
+    """Mock Object."""
+
+    def __init__(self, *args, **kwargs):
+        """Mocked."""
 
     def __enter__(self):
-        pass
+        """Mocked."""
+        return self
 
     def __exit__(self, exc_type, exc_val, traceback):
-        pass
+        """Mocked."""
 
-    def setsockopt(self):
-        pass
+    def setsockopt(self, *args, **kwargs):
+        """Mocked."""
 
-    def connect(self, *args, **kwargs):  # noqa: ANN002, ANN003, throw away args
-        pass
-
-
-@pytest.fixture()
-def socket_connection_refused_error(monkeypatch):
-    """Patched function TKTKTKTKTK."""
-    import socket
-
-    ms = MockSocket()
-
-    def fake_socket(*args, **kwargs) -> MockSocket:  # noqa: ANN002, ANN003, throw away args
-        return ms
-
-    def socket_fail(*args, **kwargs) -> None:  # noqa: ANN002, ANN003, throw away args
-        """TKTKTKTKT."""
+    def connect(self, *args, **kwargs):
+        """Mocked Exception."""
         raise ConnectionRefusedError
 
-    print(ms)
 
-    monkeypatch.setattr(socket, "socket", fake_socket)
-    # monkeypatch.setattr("socket.socket", "setsockopt", fake_socket)
+def test_connection_refused_error(tmp_path, get_test_config, mocker, caplog):
+    """Test connection refused error."""
+    mocker.patch.object(socket, "socket", MockSocketConnectionRefusedError)
 
+    import flaskcontroller
 
-def test_connection_refused_error(socket_connection_refused_error, caplog):
-    """TKTKKTKTKTK."""
-    import socket
+    test_config = get_test_config("testing_true_valid.toml")
 
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        assert sock is not None
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    flaskcontroller.create_app(test_config=test_config, instance_path=tmp_path)
 
-    assert "YOU DID IT" == "WAHOOOOOO"
-    # end testing
     controller._run_thread = True
 
     thread = threading.Thread(target=stop_run_thread)
     thread.start()
 
-    controller.socket_sender({})
+    controller.socket_sender({"app": {"socket_address": "127.0.0.1", "socket_port": "9999", "tick_rate": 120}})
 
     thread.join()
 
-    with caplog.at_level(logging.CRITICAL):
-        assert "OSError when trying to create socket" in caplog.text
+    with caplog.at_level(logging.ERROR):
+        assert "Socket connection refused" in caplog.text
+
+    with caplog.at_level(logging.INFO):
+        assert "Trying again" in caplog.text
+
+
+class MockSocketBrokenPipeError:
+    """Mock Object."""
+
+    def __init__(self, *args, **kwargs):
+        """Mocked."""
+
+    def __enter__(self):
+        """Mocked."""
+        return self
+
+    def __exit__(self, exc_type, exc_val, traceback):
+        """Mocked."""
+
+    def setsockopt(self, *args, **kwargs):
+        """Mocked."""
+
+    def connect(self, *args, **kwargs):
+        """Mocked."""
+
+    def sendall(self, *args, **kwargs):
+        """Mocked Error."""
+        raise BrokenPipeError
+
+
+def test_connection_broken_pipe_error(tmp_path, get_test_config, mocker, caplog):
+    """Test Broken Pipe Error exception."""
+    mocker.patch.object(socket, "socket", MockSocketBrokenPipeError)
+
+    import flaskcontroller
+
+    test_config = get_test_config("testing_true_valid.toml")
+
+    flaskcontroller.create_app(test_config=test_config, instance_path=tmp_path)
+
+    controller.input_queue.append(1)
+    controller._run_thread = True
+
+    thread = threading.Thread(target=stop_run_thread)
+    thread.start()
+
+    controller.socket_sender({"app": {"socket_address": "127.0.0.1", "socket_port": "9999", "tick_rate": 120}})
+
+    thread.join()
+
+    with caplog.at_level(logging.ERROR):
+        assert "Disconnected from socket, cringe" in caplog.text
+
+    with caplog.at_level(logging.INFO):
+        assert "Attempt: 2/∞" in caplog.text
