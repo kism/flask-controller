@@ -127,4 +127,5 @@ def test_socket_sender(dummy_tcp_server, tmp_path, caplog: pytest.LogCaptureFixt
         time.sleep(0.1)
         i += 1
 
+    # TEST: That socket_sender stopped, this is just for making sure that PyTest exits cleanly
     assert "PyTest stopped socket_sender" in caplog.text

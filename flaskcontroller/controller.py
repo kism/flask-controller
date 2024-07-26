@@ -209,7 +209,7 @@ def socket_sender(fc_conf: dict) -> None:
                     except ConnectionRefusedError:
                         logger.error("Socket connection refused")  # noqa: TRY400 Don't want this one too noisy
                         loop_count += 1
-                        logger.info("Trying again")
+                        logger.info("Trying again...")
                         time.sleep(1)
 
                 # While the socket between this program and mGBA is connected
@@ -229,10 +229,9 @@ def socket_sender(fc_conf: dict) -> None:
                         fw_controller.set_sock_disconnected()
         except OSError:
             logging.exception("OSError when trying to create socket")
-            logging.info("Trying again...")
-            sock = None
 
         loop_count += 1
+        logging.info("Trying again...")
         time.sleep(1)
 
     if not _run_thread:
