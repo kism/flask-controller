@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 # Input logger, just show message
 input_logger = logging.getLogger("controller.input_logger")
+input_logger.setLevel(logging.INFO)
 input_logger.propagate = False
 console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.INFO)  # Set the logging level for the handler
