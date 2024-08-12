@@ -62,7 +62,8 @@ def test_get_status_sock_connected_false(caplog: pytest.LogCaptureFixture, clien
     with caplog.at_level(logging.WARNING):
         response = client.get("/GetStatus")
         # TEST: The default /hello/ response
-        assert response.json["sock_connected"] is False
+        json_data = response.get_json()
+        assert json_data["sock_connected"] is False
 
 
 def test_socket_sender(dummy_tcp_server, tmp_path, caplog: pytest.LogCaptureFixture):
@@ -85,7 +86,8 @@ def test_socket_sender(dummy_tcp_server, tmp_path, caplog: pytest.LogCaptureFixt
     i = 0
     while True:
         response = test_client.get("/GetStatus", headers={"client-id": "TEST1"})
-        if i >= retries or response.json["sock_connected"] is True:
+        json_data = response.get_json()
+        if i >= retries or json_data["sock_connected"] is True:
             flaskcontroller.controller._run_thread = False
             break
         time.sleep(0.5)
@@ -93,7 +95,8 @@ def test_socket_sender(dummy_tcp_server, tmp_path, caplog: pytest.LogCaptureFixt
 
     # TEST: GetStatus endpoint
     assert response.status_code == HTTPStatus.OK
-    assert response.json["sock_connected"] is True
+    json_data = response.get_json()
+    assert json_data["sock_connected"] is True
 
     # TEST: Input endpoints.
     response = test_client.post("/input/D_GBA_START")

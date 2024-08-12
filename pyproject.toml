@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "flaskcontroller"
-version = "0.1.0"
+version = "0.1.1"
 description = "Flask webapp to send input to emulators"
 authors = ["Kieran Gee <kieran.lost.the.game@gmail.com>"]
 license = "MIT"
@@ -24,6 +24,8 @@ pytest-mock = "*"
 jinja2 = "*"                # Flask depends on this, I have it here since config loading is templated for tests.
 detect-test-pollution = "*"
 pytest-random-order = "*"
+mypy = "*"
+types-colorama = "*"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "*"
@@ -103,3 +105,17 @@ testpaths = ["tests"]
 
 [tool.coverage.html]
 show_contexts = true
+
+
+[tool.mypy]
+files = ["flaskcontroller", "tests"]
+namespace_packages = true
+explicit_package_bases = true
+show_error_codes = true
+strict = false
+enable_error_code = [
+    "ignore-without-code",
+    "redundant-expr",
+    "truthy-bool",
+    "type-arg",
+]

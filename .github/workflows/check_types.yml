@@ -1,5 +1,5 @@
 ---
-name: Test (PyTest)
+name: Type Check (Mypy)
 
 on:
   push:
@@ -8,18 +8,15 @@ on:
       - test
 
 jobs:
-  test_app:
+  mypy:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.10", "3.11", "3.12"] # Don't bother with beta versions, slow on github. https://github.com/actions/python-versions/releases
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.11"
 
       - name: Run image
         uses: abatilo/actions-poetry@v2
@@ -30,7 +27,7 @@ jobs:
           poetry config virtualenvs.in-project true --local
 
       - name: Define a cache for the virtual environment based on the dependencies lock file
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ./.venv
           key: venv-${{ hashFiles('poetry.lock') }}
@@ -38,10 +35,5 @@ jobs:
       - name: Install dependencies
         run: poetry install --without dev
 
-      - name: Test with pytest
-        run: .venv/bin/pytest --cov-report=xml # xml report needed for codecov, other settings from pyproject.toml
-
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v4.0.1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+      - name: Check types with mypy
+        run: .venv/bin/mypy

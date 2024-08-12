@@ -6,6 +6,7 @@ from flask import Flask, render_template
 
 from . import config, controller, logger
 
+__version__ = "0.1.1"
 
 def create_app(test_config: dict | None = None, instance_path: str | None = None) -> Flask:
     """Create and configure an instance of the Flask application."""
