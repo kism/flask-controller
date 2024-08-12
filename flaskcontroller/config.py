@@ -4,6 +4,7 @@ import contextlib
 import logging
 import os
 import pwd
+import typing
 
 import tomlkit
 
@@ -12,7 +13,7 @@ import tomlkit
 logger = logging.getLogger(__name__)
 
 # Default config dictionary, also works as a schema
-DEFAULT_CONFIG = {
+DEFAULT_CONFIG: dict = {
     "app": {
         "socket_address": "127.0.0.1",
         "socket_port": 5001,
@@ -55,9 +56,9 @@ class FlaskControllerConfig:
             instance_path: The flask instance path, should be always from app.instance_path
             config: If provided config won't be loaded from a file.
         """
-        self._config_path = None
-        self._config = DEFAULT_CONFIG
-        self.instance_path = instance_path
+        self._config_path: str | None = None
+        self._config: dict = DEFAULT_CONFIG
+        self.instance_path: str = instance_path
 
         self._get_config_file_path()
 
@@ -77,11 +78,11 @@ class FlaskControllerConfig:
     https://gist.github.com/turicas/1510860
     """
 
-    def __getitem__(self, key: str) -> any:
+    def __getitem__(self, key: str) -> typing.Any:  # noqa: ANN401 Yes this will return Any, but it's a dict.
         """Get item from config like a dictionary."""
         return self._config[key]
 
-    def __contains__(self, key: str) -> str:
+    def __contains__(self, key: str) -> bool:
         """Check if key is 'in' the configuration."""
         return key in self._config
 
@@ -89,12 +90,16 @@ class FlaskControllerConfig:
         """Return string representation of the config."""
         return repr(self._config)
 
-    def items(self) -> list[str, any]:
+    def items(self) -> typing.ItemsView[typing.Any, typing.Any]:
         """Return dictionary items of configuration."""
         return self._config.items()
 
     def _write_config(self) -> None:
         """Write configuration to a file."""
+        if not self._config_path:  # Appease mypy
+            msg = "Config path not set, cannot write config"
+            raise ValueError(msg, self._config_path)
+
         try:
             with open(self._config_path, "w", encoding="utf8") as toml_file:
                 tomlkit.dump(self._config, toml_file)
@@ -157,8 +162,8 @@ class FlaskControllerConfig:
         """
         paths = [
             os.path.join(self.instance_path, "config.toml"),
-            os.path.expanduser("~/.config/flaskcontroller/config.toml"),
-            "/etc/flaskcontroller/config.toml",
+            os.path.expanduser("~/.config/mycoolapp/config.toml"),
+            "/etc/mycoolapp/config.toml",
         ]
 
         for path in paths:
@@ -179,5 +184,9 @@ class FlaskControllerConfig:
 
     def _load_file(self) -> dict:
         """Load configuration from a file."""
+        if not self._config_path:  # Appease mypy
+            msg = "Config path not set, cannot load config"
+            raise ValueError(msg, self._config_path)
+
         with open(self._config_path, encoding="utf8") as toml_file:
             return tomlkit.load(toml_file)

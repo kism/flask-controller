@@ -7,7 +7,7 @@ import time
 from http import HTTPStatus
 
 import colorama
-from flask import Blueprint, Flask, Response, current_app, jsonify, request
+from flask import Blueprint, Response, current_app, jsonify, request
 
 # Main logger
 logger = logging.getLogger(__name__)
@@ -24,7 +24,6 @@ input_logger.addHandler(console_handler)
 
 TESTING_MAX_LOOP = 3
 _run_thread = True  # This is a kill switch used in pytest specifically
-fw_controller = None  # This will be the object that keeps track of the input queue and status
 
 
 fg_colours = [
@@ -51,7 +50,6 @@ bg_colours = [
 input_queue = []
 client_dict = {}
 
-app = Flask(__name__)  # Flask app object
 
 
 class FlaskWebController:
@@ -84,11 +82,13 @@ class FlaskWebController:
 
 
 bp = Blueprint("flaskcontroller", __name__)
+fw_controller: FlaskWebController | None = None  # The object that keeps track of the input queue and status
 
 
 @bp.route("/GetStatus", methods=["GET"])
 def get_status() -> Response:
     """Return the status of the app."""
+    assert fw_controller is not None  # noqa: S101 Appease mypy
     # This is a 'ping' of sorts used to handle the player_count metric.
     # The js GETs this every x seconds.
     # The client_dict is a dictionary that stores the client-ids and when they last pinged.
@@ -106,8 +106,10 @@ def get_status() -> Response:
 
 
 @bp.route("/input/<string:da_input>", methods=["POST"])
-def process_user_input(da_input: str) -> str:
+def process_user_input(da_input: str) -> tuple[str, int]:
     """Flask Process User Input (From Javascript)."""
+    assert fw_controller is not None  # noqa: S101 Appease mypy
+
     message = ""
 
     # Valid GB Button states passed from the js
@@ -188,6 +190,8 @@ def process_user_input(da_input: str) -> str:
 
 def socket_sender(fc_conf: dict) -> None:
     """Connect to mGBA socket and send commands."""
+    assert fw_controller is not None  # noqa: S101 Appease mypy
+
     loop_count = 0
     str_max_loop = "∞"
     while _run_thread:
@@ -196,7 +200,7 @@ def socket_sender(fc_conf: dict) -> None:
                 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
                 fw_controller.set_sock_disconnected()
-                while _run_thread and not fw_controller.get_sock_connected():
+                while _run_thread and not fw_controller.get_sock_connected(): # type: ignore[redundant-expr] # hello
                     msg = (
                         f"Connecting to socket: {fc_conf['app']['socket_address']}:{fc_conf['app']['socket_port']}"
                         f" Attempt: {loop_count + 1}/{str_max_loop}"
@@ -239,8 +243,11 @@ def socket_sender(fc_conf: dict) -> None:
         logger.info("PyTest stopped socket_sender")
 
 
-def colour_player_id(player_id: str) -> str:
+def colour_player_id(player_id: str | None) -> str:
     """Fun coloured player names."""
+    if not player_id:
+        return ""
+
     player_id = player_id[:6]
     player_id = player_id.ljust(6, " ")
 

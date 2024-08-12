@@ -15,7 +15,7 @@ from flaskcontroller import create_app
 from flaskcontroller.config import ConfigValidationError
 
 
-def test_instance_path_check(get_test_config: dict):
+def test_instance_path_check(get_test_config):
     """TEST: When passed a dictionary as a config, the instance path must be specified."""
     with pytest.raises(AttributeError):
         (
@@ -24,7 +24,7 @@ def test_instance_path_check(get_test_config: dict):
         )
 
 
-def test_config_validate_test_instance_path(get_test_config: dict):
+def test_config_validate_test_instance_path(get_test_config):
     """My boilerplate catches when you forget to use tmp_path in testing.
 
     This test exists because I spent so much time troubleshooting why some tests are using the default instance path.

@@ -1,7 +1,6 @@
 """Test launching the app and config."""
 
 import logging
-import os
 
 import pytest
 
@@ -20,14 +19,9 @@ def test_config_valid(tmp_path, get_test_config):
     assert not app.testing, "Flask testing config item not being set correctly."
 
 
-def test_config_file_loading(tmp_path, caplog: pytest.LogCaptureFixture):
+def test_config_file_loading(tmp_path, place_test_config, caplog: pytest.LogCaptureFixture):
     """Test config file loading, use tmp_path."""
-    with open(os.path.join(pytest.TEST_CONFIGS_LOCATION, "testing_true_valid.toml")) as f:
-        config_contents = f.read()
-
-    tmp_f = tmp_path / "config.toml"
-
-    tmp_f.write_text(config_contents)
+    place_test_config("testing_true_valid.toml", tmp_path)
 
     # TEST: Config file is created when no test_config is provided.
     caplog.set_level(logging.INFO)

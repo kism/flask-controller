@@ -2,16 +2,16 @@
 
 import logging
 import os
+from collections.abc import Generator
 
 import pytest
-import pytest_mock
 from flask import Flask
 
 import flaskcontroller.logger
 
 
 @pytest.fixture()
-def logger() -> any:
+def logger() -> Generator:
     """Logger to use in unit tests, including cleanup."""
     logger = logging.getLogger("TEST_LOGGER")
 
@@ -25,7 +25,7 @@ def logger() -> any:
         handler.close()
 
 
-def test_logging_permissions_error(logger, tmp_path, mocker: pytest_mock.plugin.MockerFixture):
+def test_logging_permissions_error(logger, tmp_path, mocker):
     """Test logging, mock a permission error."""
     from flaskcontroller.logger import _add_file_handler
 
