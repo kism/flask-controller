@@ -51,7 +51,6 @@ input_queue = []
 client_dict = {}
 
 
-
 class FlaskWebController:
     """Object definition for the status of the socket."""
 
@@ -176,10 +175,11 @@ def process_user_input(da_input: str) -> tuple[str, int]:
 
         # Save some latency and do this last
         message = "VALID KEYPRESS"
-        if "client-id" not in request.headers:
+        client_id = request.headers.get("client-id")
+        if not client_id:
             return "No client ID", HTTPStatus.BAD_REQUEST
 
-        player_id_coloured = colour_player_id(request.headers.get("client-id"))
+        player_id_coloured = colour_player_id(client_id)
 
         if "D_GBA_" in da_input:
             msg = "Player: " + player_id_coloured + " " + da_input.replace("D_GBA_", "")
@@ -200,7 +200,7 @@ def socket_sender(fc_conf: dict) -> None:
                 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
                 fw_controller.set_sock_disconnected()
-                while _run_thread and not fw_controller.get_sock_connected(): # type: ignore[redundant-expr] # hello
+                while _run_thread and not fw_controller.get_sock_connected():  # type: ignore[redundant-expr] # hello
                     msg = (
                         f"Connecting to socket: {fc_conf['app']['socket_address']}:{fc_conf['app']['socket_port']}"
                         f" Attempt: {loop_count + 1}/{str_max_loop}"
@@ -243,11 +243,8 @@ def socket_sender(fc_conf: dict) -> None:
         logger.info("PyTest stopped socket_sender")
 
 
-def colour_player_id(player_id: str | None) -> str:
+def colour_player_id(player_id: str) -> str:
     """Fun coloured player names."""
-    if not player_id:
-        return ""
-
     player_id = player_id[:6]
     player_id = player_id.ljust(6, " ")
 

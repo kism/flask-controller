@@ -5,12 +5,16 @@ Fixtures defined in a conftest.py can be used by any test in that package withou
 
 import os
 import shutil
+import sys
 from collections.abc import Callable
 
 import pytest
 import tomlkit
 from flask import Flask
 from flask.testing import FlaskClient, FlaskCliRunner
+
+# This is so cooked
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from flaskcontroller import create_app
 
