@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 
-[dependency-groups]
+[project.optional-dependencies]
 lint = ["ruff>=0.15.21"]
 test = [
     "detect-test-pollution>=1.2.0",

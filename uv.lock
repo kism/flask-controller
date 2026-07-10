@@ -155,7 +155,7 @@ dependencies = [
     { name = "waitress" },
 ]
 
-[package.dev-dependencies]
+[package.optional-dependencies]
 lint = [
     { name = "ruff" },
 ]
@@ -174,25 +174,22 @@ type = [
 [package.metadata]
 requires-dist = [
     { name = "colorama", specifier = ">=0.4.6" },
+    { name = "detect-test-pollution", marker = "extra == 'test'", specifier = ">=1.2.0" },
     { name = "flask", specifier = ">=3.1.3" },
+    { name = "jinja2", marker = "extra == 'test'", specifier = ">=3.1.6" },
     { name = "pyautogui", specifier = ">=0.9.54" },
     { name = "pydirectinput", specifier = ">=1.0.4" },
+    { name = "pytest", marker = "extra == 'test'", specifier = ">=9.1.1" },
+    { name = "pytest-cov", marker = "extra == 'test'", specifier = ">=7.1.0" },
+    { name = "pytest-mock", marker = "extra == 'test'", specifier = ">=3.15.1" },
+    { name = "pytest-random-order", marker = "extra == 'test'", specifier = ">=1.2.0" },
     { name = "requests", specifier = ">=2.34.2" },
+    { name = "ruff", marker = "extra == 'lint'", specifier = ">=0.15.21" },
     { name = "tomlkit", specifier = ">=0.15.0" },
+    { name = "ty", marker = "extra == 'type'", specifier = ">=0.0.58" },
     { name = "waitress", specifier = ">=3.0.2" },
 ]
-
-[package.metadata.requires-dev]
-lint = [{ name = "ruff", specifier = ">=0.15.21" }]
-test = [
-    { name = "detect-test-pollution", specifier = ">=1.2.0" },
-    { name = "jinja2", specifier = ">=3.1.6" },
-    { name = "pytest", specifier = ">=9.1.1" },
-    { name = "pytest-cov", specifier = ">=7.1.0" },
-    { name = "pytest-mock", specifier = ">=3.15.1" },
-    { name = "pytest-random-order", specifier = ">=1.2.0" },
-]
-type = [{ name = "ty", specifier = ">=0.0.58" }]
+provides-extras = ["lint", "test", "type"]
 
 [[package]]
 name = "idna"
