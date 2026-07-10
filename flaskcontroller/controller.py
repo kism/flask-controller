@@ -233,10 +233,10 @@ def socket_sender(fc_conf: dict) -> None:
                         logger.error("Disconnected from socket, cringe")  # noqa: TRY400 Don't want this one too noisy
                         fw_controller.set_sock_disconnected()
         except OSError:
-            logging.exception("OSError when trying to create socket")
+            logger.exception("OSError when trying to create socket")
 
         loop_count += 1
-        logging.info("Trying again...")
+        logger.info("Trying again...")
         time.sleep(1)
 
     if not _run_thread:
