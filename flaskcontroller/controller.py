@@ -5,22 +5,23 @@ import socket
 import threading
 import time
 from http import HTTPStatus
+from typing import TextIO
 
 import colorama
 from flask import Blueprint, Response, current_app, jsonify, request
 
 # Main logger
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(name=__name__)
 
 # Input logger, just show message
-input_logger = logging.getLogger("controller.input_logger")
-input_logger.setLevel(logging.INFO)
+input_logger: logging.Logger = logging.getLogger(name="controller.input_logger")
+input_logger.setLevel(level=logging.INFO)
 input_logger.propagate = False
-console_handler = logging.StreamHandler()
-console_handler.setLevel(logging.INFO)  # Set the logging level for the handler
-formatter = logging.Formatter("%(message)s")
-console_handler.setFormatter(formatter)
-input_logger.addHandler(console_handler)
+console_handler: logging.StreamHandler[TextIO] = logging.StreamHandler()
+console_handler.setLevel(level=logging.INFO)  # Set the logging level for the handler
+formatter = logging.Formatter(fmt="%(message)s")
+console_handler.setFormatter(fmt=formatter)
+input_logger.addHandler(hdlr=console_handler)
 
 TESTING_MAX_LOOP = 3
 _run_thread: bool = True  # This is a kill switch used in pytest specifically
@@ -47,7 +48,7 @@ bg_colours = [
     colorama.Back.WHITE,
 ]
 
-input_queue = []
+input_queue: list[int] = []
 client_dict = {}
 
 
@@ -80,11 +81,11 @@ class FlaskWebController:
         self.sock_connected = False
 
 
-bp = Blueprint("flaskcontroller", __name__)
+bp = Blueprint(name="flaskcontroller", import_name=__name__)
 fw_controller: FlaskWebController | None = None  # The object that keeps track of the input queue and status
 
 
-@bp.route("/GetStatus", methods=["GET"])
+@bp.route(rule="/GetStatus", methods=["GET"])
 def get_status() -> Response:
     """Return the status of the app."""
     assert fw_controller is not None  # noqa: S101 Appease mypy
@@ -100,11 +101,14 @@ def get_status() -> Response:
             del client_dict[client]
 
     # Also returns the status of the mGBA socket connection
-    result = {"sock_connected": fw_controller.get_sock_connected(), "players_connected": len(client_dict)}
+    result: dict[str, int] = {
+        "sock_connected": fw_controller.get_sock_connected(),
+        "players_connected": len(client_dict),
+    }
     return jsonify(result)
 
 
-@bp.route("/input/<string:da_input>", methods=["POST"])
+@bp.route(rule="/input/<string:da_input>", methods=["POST"])
 def process_user_input(da_input: str) -> tuple[str, int]:
     """Flask Process User Input (From Javascript)."""
     assert fw_controller is not None  # noqa: S101 Appease mypy
@@ -152,34 +156,34 @@ def process_user_input(da_input: str) -> tuple[str, int]:
     if da_input not in valid_inputs:
         message = "INVALID KEYPRESS, DROPPING"
     else:
-        new_input = fw_controller.get_current_input()
+        new_input: int = fw_controller.get_current_input()
         if da_input[:2] == "D_":
-            msg = "Input! Down: " + da_input[2:]
+            msg: str = "Input! Down: " + da_input[2:]
             logger.debug(msg)
             new_input = new_input | button_code_dict[da_input[2:]]
         elif da_input[:2] == "U_":
-            msg = "Input! Up: " + da_input[2:]
+            msg: str = "Input! Up: " + da_input[2:]
             logger.debug(msg)
             new_input = new_input & ~(button_code_dict[da_input[2:]])
 
         else:
-            logger.warning("How did we get here?")  # pragma: no cover
+            logger.warning(msg="How did we get here?")  # pragma: no cover
 
         fw_controller.set_current_input(new_input)
 
         # print input as bytes
-        msg = f"{button_code_dict[da_input[2:]]:b}".rjust(10, "0")
+        msg: str = f"{button_code_dict[da_input[2:]]:b}".rjust(10, "0")
         logger.debug(msg)
 
         input_queue.append(fw_controller.get_current_input())
 
         # Save some latency and do this last
         message = "VALID KEYPRESS"
-        client_id = request.headers.get("client-id")
+        client_id: str | None = request.headers.get("client-id")
         if not client_id:
             return "No client ID", HTTPStatus.BAD_REQUEST
 
-        player_id_coloured = colour_player_id(client_id)
+        player_id_coloured: str = colour_player_id(player_id=client_id)
 
         if "D_GBA_" in da_input:
             msg = "Player: " + player_id_coloured + " " + da_input.replace("D_GBA_", "")
@@ -245,8 +249,8 @@ def socket_sender(fc_conf: dict) -> None:
 
 def colour_player_id(player_id: str) -> str:
     """Fun coloured player names."""
-    player_id = player_id[:6]
-    player_id = player_id.ljust(6, " ")
+    player_id: str = player_id[:6]
+    player_id: str = player_id.ljust(6, " ")
 
     new_player_id = ""
     split_player_id = [""]
