@@ -3,15 +3,21 @@
 Fixtures defined in a conftest.py can be used by any test in that package without needing to import them.
 """
 
+from __future__ import annotations
+
 import os
 import shutil
 import sys
-from collections.abc import Callable
+from typing import TYPE_CHECKING
 
 import pytest
 import tomlkit
-from flask import Flask
-from flask.testing import FlaskClient, FlaskCliRunner
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from flask import Flask
+    from flask.testing import FlaskClient, FlaskCliRunner
 
 # This is so cooked
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -21,30 +27,25 @@ from flaskcontroller import create_app
 TEST_CONFIGS_LOCATION = os.path.join(os.getcwd(), "tests", "configs")
 
 
-def pytest_configure():
-    """This is a magic function for adding things to pytest?"""
-    pytest.TEST_CONFIGS_LOCATION = TEST_CONFIGS_LOCATION
-
-
-@pytest.fixture()
+@pytest.fixture
 def app(tmp_path, get_test_config) -> Flask:
     """This fixture uses the default config within the flask app."""
     return create_app(test_config=get_test_config("testing_true_valid.toml"), instance_path=tmp_path)
 
 
-@pytest.fixture()
+@pytest.fixture
 def client(app: Flask) -> FlaskClient:
     """This returns a test client for the default app()."""
     return app.test_client()
 
 
-@pytest.fixture()
+@pytest.fixture
 def runner(app: Flask) -> FlaskCliRunner:
     """TODO?????"""
     return app.test_cli_runner()
 
 
-@pytest.fixture()
+@pytest.fixture
 def get_test_config() -> Callable:
     """Function returns a function, which is how it needs to be."""
 
@@ -58,7 +59,7 @@ def get_test_config() -> Callable:
     return _get_test_config
 
 
-@pytest.fixture()
+@pytest.fixture
 def place_test_config() -> Callable:
     """Fixture that places a config in the tmp_path.
 

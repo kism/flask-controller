@@ -1,9 +1,16 @@
 """Unit testing for the config module."""
 
+from __future__ import annotations
+
+from collections.abc import ItemsView
+from typing import TYPE_CHECKING
+
 import pytest
-import pytest_mock
 
 import flaskcontroller
+
+if TYPE_CHECKING:
+    import pytest_mock
 
 DEFAULT_CONFIG = flaskcontroller.config.DEFAULT_CONFIG
 
@@ -52,8 +59,6 @@ def test_dictionary_functions_of_config(tmp_path, place_test_config):
 
     # TEST: __getitem__ method.
     assert isinstance(conf["app"], dict), "__getitem__ method of config object doesn't work"
-
-    from collections.abc import ItemsView
 
     # TEST: .items() method.
     assert isinstance(conf.items(), ItemsView), ".items() method of config object doesn't work"

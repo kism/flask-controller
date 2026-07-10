@@ -1,16 +1,21 @@
 """PyTest, Tests the controller module in full."""
 
+from __future__ import annotations
+
 import logging
 import os
 import socket
 import threading
 import time
 from http import HTTPStatus
+from typing import TYPE_CHECKING
 
 import pytest
-from flask.testing import FlaskClient
 
 import flaskcontroller
+
+if TYPE_CHECKING:
+    from flask.testing import FlaskClient
 
 
 class TCPServer:
@@ -32,8 +37,6 @@ class TCPServer:
 
     def listen_for_traffic(self):
         """Loop for socket listener."""
-        import logging
-
         logger = logging.getLogger(__name__)
         while True:
             try:
@@ -46,7 +49,7 @@ class TCPServer:
                 pass
 
 
-@pytest.fixture()
+@pytest.fixture
 def dummy_tcp_server():
     """Dummy TCP Server for pretending to be an emulator."""
     tcp_server = TCPServer()

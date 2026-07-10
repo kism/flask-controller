@@ -1,10 +1,14 @@
 """Test launching the app and config."""
 
-import logging
+from __future__ import annotations
 
-import pytest
+import logging
+from typing import TYPE_CHECKING
 
 from flaskcontroller import create_app
+
+if TYPE_CHECKING:
+    import pytest
 
 
 def test_config_valid(tmp_path, get_test_config):

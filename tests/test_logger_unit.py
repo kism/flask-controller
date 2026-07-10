@@ -1,16 +1,22 @@
 """Logger unit tests."""
 
+from __future__ import annotations
+
 import logging
 import os
-from collections.abc import Generator
+from typing import TYPE_CHECKING
 
 import pytest
-from flask import Flask
 
 import flaskcontroller.logger
 
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
-@pytest.fixture()
+    from flask import Flask
+
+
+@pytest.fixture
 def logger() -> Generator:
     """Logger to use in unit tests, including cleanup."""
     logger = logging.getLogger("TEST_LOGGER")
@@ -27,8 +33,6 @@ def logger() -> Generator:
 
 def test_logging_permissions_error(logger, tmp_path, mocker):
     """Test logging, mock a permission error."""
-    from flaskcontroller.logger import _add_file_handler
-
     mock_open_func = mocker.mock_open(read_data="")
     mock_open_func.side_effect = PermissionError("Permission denied")
 
@@ -36,15 +40,13 @@ def test_logging_permissions_error(logger, tmp_path, mocker):
 
     # TEST: That a permissions error is raised when open() results in a permissions error.
     with pytest.raises(PermissionError):
-        _add_file_handler(logger, str(tmp_path))
+        flaskcontroller.logger._add_file_handler(logger, str(tmp_path))
 
 
 def test_config_logging_to_dir(logger, tmp_path):
     """TEST: Correct exception is caught when you try log to a folder."""
-    from flaskcontroller.logger import _add_file_handler
-
     with pytest.raises(IsADirectoryError):
-        _add_file_handler(logger, tmp_path)
+        flaskcontroller.logger._add_file_handler(logger, tmp_path)
 
 
 def test_handler_console_added(logger, app: Flask):
@@ -84,8 +86,6 @@ def test_handler_file_added(logger, tmp_path, app: Flask):
 )
 def test_set_log_level(log_level_in: str | int, log_level_expected: int, logger):
     """Test if _set_log_level results in correct log_level."""
-    from flaskcontroller.logger import _set_log_level
-
     # TEST: Logger ends up with correct values
-    _set_log_level(logger, log_level_in)
+    flaskcontroller.logger._set_log_level(logger, log_level_in)
     assert logger.getEffectiveLevel() == log_level_expected

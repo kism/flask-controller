@@ -1,11 +1,16 @@
 """Test the logger of the app."""
 
-import logging
-from types import FunctionType
+from __future__ import annotations
 
-import pytest
+import logging
+from typing import TYPE_CHECKING
 
 from flaskcontroller import create_app
+
+if TYPE_CHECKING:
+    from types import FunctionType
+
+    import pytest
 
 
 def test_config_invalid_log_level(tmp_path, get_test_config: FunctionType, caplog: pytest.LogCaptureFixture):

@@ -29,14 +29,13 @@ server_socket.bind((HOST, PORT))
 # Set the maximum number of queued connections
 server_socket.listen(5)
 
-logging.info("Server listening on %s:%s", HOST, PORT)
+logger.info("Server listening on %s:%s", HOST, PORT)
 
 
 def iterate_bits(num: int) -> list:
     """Make a gross dict representing 10 bits."""
     input_array = []
-    binary_representation = bin(num)[2:]  # Convert the integer to binary and remove the '0b' prefix
-    binary_representation = binary_representation.zfill(10)  # Assuming 32-bit integers for illustration
+    binary_representation = f"{num:b}".zfill(10)  # Assuming 32-bit integers for illustration
 
     for _bit_position, bit_value in enumerate(binary_representation[::-1]):
         logger.debug("Bit at position: %s:%s", _bit_position, bit_value)
@@ -64,12 +63,12 @@ def press_buttons(in_data: bytes) -> None:
         if input_array[n] != last_input_array[n]:
             if input_array[n]:
                 if DUMMY_SERVER:
-                    logging.info("Pressing %s", key)
+                    logger.info("Pressing %s", key)
                 else:
                     pydirectinput.keyDown(key)
             else:  # noqa: PLR5501 HUH?
                 if DUMMY_SERVER:
-                    logging.info("Releasing %s", key)
+                    logger.info("Releasing %s", key)
                 else:
                     pydirectinput.keyUp(key)
         n = n + 1
@@ -80,7 +79,7 @@ def press_buttons(in_data: bytes) -> None:
 while True:
     # Wait for a client to connect
     client_socket, client_address = server_socket.accept()
-    logging.info("Connection from: %s", client_address)
+    logger.info("Connection from: %s", client_address)
 
     try:
         while True:
@@ -88,7 +87,7 @@ while True:
             data = client_socket.recv(2)
             press_buttons(data)
     except Exception:
-        logging.exception("Restarting Socket Client")
+        logger.exception("Restarting Socket Client")
 
     # Close the connection with the client
     client_socket.close()

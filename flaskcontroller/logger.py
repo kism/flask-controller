@@ -1,9 +1,13 @@
 """Setup the logger functionality for flaskcontroller."""
 
+from __future__ import annotations
+
 import logging
 from logging.handlers import RotatingFileHandler
+from typing import TYPE_CHECKING
 
-from flask import Flask
+if TYPE_CHECKING:
+    from flask import Flask
 
 LOG_LEVELS = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]  # Valid str logging levels.
 LOG_FORMAT = "%(asctime)s:%(levelname)s:%(name)s:%(message)s"  # This is the logging message format that I like.

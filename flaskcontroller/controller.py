@@ -23,7 +23,7 @@ console_handler.setFormatter(formatter)
 input_logger.addHandler(console_handler)
 
 TESTING_MAX_LOOP = 3
-_run_thread = True  # This is a kill switch used in pytest specifically
+_run_thread: bool = True  # This is a kill switch used in pytest specifically
 
 
 fg_colours = [

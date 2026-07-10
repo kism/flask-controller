@@ -7,6 +7,7 @@ import string
 import threading
 import time
 
+import flaskcontroller
 from flaskcontroller import controller
 
 
@@ -81,8 +82,6 @@ def test_connection_refused_error(tmp_path, get_test_config, mocker, caplog):
     """Test connection refused error."""
     mocker.patch.object(socket, "socket", MockSocketConnectionRefusedError)
 
-    import flaskcontroller
-
     test_config = get_test_config("testing_true_valid.toml")
 
     flaskcontroller.create_app(test_config=test_config, instance_path=tmp_path)
@@ -132,8 +131,6 @@ class MockSocketBrokenPipeError:
 def test_connection_broken_pipe_error(tmp_path, get_test_config, mocker, caplog):
     """Test Broken Pipe Error exception."""
     mocker.patch.object(socket, "socket", MockSocketBrokenPipeError)
-
-    import flaskcontroller
 
     test_config = get_test_config("testing_true_valid.toml")
 

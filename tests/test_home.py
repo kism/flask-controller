@@ -1,8 +1,12 @@
 """PyTest, Tests the hello API endpoint."""
 
-from http import HTTPStatus
+from __future__ import annotations
 
-from flask.testing import FlaskClient
+from http import HTTPStatus
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from flask.testing import FlaskClient
 
 
 def test_home(client: FlaskClient):
