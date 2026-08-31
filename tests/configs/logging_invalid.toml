@@ -1,9 +1,0 @@
-[app]
-
-[app.testing]
-dont_run_socket = true
-
-[logging]
-
-[flask]
-TESTING = true

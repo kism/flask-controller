@@ -5,9 +5,9 @@
     <title>🎧🎙️🎮📺</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="X-Clacks-Overhead" content="GNU Terry Pratchett" />
-    <link rel="stylesheet" href="static/normalise.css" />
-    <link rel="stylesheet" href="static/zy.css" />
-    <script src="static/flaskcontroller.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='normalise.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='zy.css') }}" />
+    <script src="{{ url_for('static', filename='flaskcontroller.js') }}"></script>
 </head>
 
 <body>
@@ -58,6 +58,7 @@
                 </div>
             </div>
         </div>
+        <footer><small>{{ version }}</small></footer>
     </main>
 </body>
 

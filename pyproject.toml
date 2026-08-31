@@ -1,88 +1,94 @@
 [project]
 name = "flaskcontroller"
-version = "0.1.1"
+version = "0.2.0"
 description = "Flask webapp to send input to emulators"
 license = "MIT"
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.14.0,<4"
 dependencies = [
     "colorama>=0.4.6",
     "flask>=3.1.3",
-    "pyautogui>=0.9.54",
-    "pydirectinput>=1.0.4", # Windows only
-    "requests>=2.34.2",
-    "tomlkit>=0.15.0",
+    "pydantic>=2.12",
     "waitress>=3.0.2",
 ]
 
-
 [project.optional-dependencies]
-lint = ["ruff>=0.15.21"]
-test = [
-    "detect-test-pollution>=1.2.0",
-    "jinja2>=3.1.6",
-    "pytest>=9.1.1",
-    "pytest-cov>=7.1.0",
-    "pytest-mock>=3.15.1",
-    "pytest-random-order>=1.2.0",
-]
-type = ["ty>=0.0.58"]
+keyboard = ["pydirectinput>=1.0.4"] # For _emulator/generic_keyboard, Windows only
 
+type = ["ty>=0.0.69"]
+
+lint = ["ruff>=0.16.2"]
+
+test = [
+    "pytest>=9.1.1",
+    "coverage>=7.15.4",
+    "pytest-mock",
+    "pytest-random-order",
+    "detect-test-pollution",
+]
+
+[project.urls]
+Repository = "https://github.com/kism/flask-controller"
+
+[project.scripts]
+flaskcontroller = "flaskcontroller.__main__:main"
 
 [build-system]
-requires = ["uv_build>=0.11.0,<0.12.0"]
+requires = ["uv_build>=0.12.4,<0.13.0"]
 build-backend = "uv_build"
-
-[tool.uv.build-backend]
-module-root = ""
-
 
 [tool.ruff]
 cache-dir = "~/.cache/ruff"
-target-version = "py314"
 line-length = 120
 
 [tool.ruff.lint]
-extend-fixable = ["B", "I001"] # KG I think this means something...
-extend-unsafe-fixes = [
-    "F401",
-] # KG I don't like that this is fixed automatically (this doesnt work?)
-select = ["ALL"] # KG Include absolutely all of Ruff's rules.
+preview = true          # Optional, these can be unstable, many of these rules exist.
+select = ["ALL"]        # Include absolutely all of Ruff's rules.
 ignore = [
     # Modules
-    "DJ",  # KG Django not required
-    "PTH", # KG builtin 'open' is fine, not going to use pathlib
-    "DTZ", # KG no need to specify timezone for time objects
+    "DJ",  # Django not required
+    "AIR", # Airflow not required
+    "DTZ", # no need to specify timezone for time objects
 
     # Specific rules
-    "TD002",  # KG Verbose TODO, only I work on this project
-    "TD003",  # KG Verbose TODO, only I work on this project
-    "ISC001", # KG conflict in the formatter
-    "COM812", # KG conflict in the formatter
+    "missing-todo-author",                       # Verbose TODO, only I work on this project
+    "missing-todo-link",                         # Verbose TODO, only I work on this project
+    "single-line-implicit-string-concatenation", # conflict in the formatter
+    "missing-trailing-comma",                    # conflict in the formatter
+    "missing-copyright-notice",                  # Copyright lives in pyproject.toml
+    "DOC",                                       # Docstrings yes, Args/Returns/Raises sections only where they help
 ]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*.py" = [
     # Modules
-    "ARG", # KG Unused function args -> fixtures nevertheless are functionally relevant
-    "FBT", # KG Don't care about booleans as positional arguments in tests, e.g. via @pytest.mark.parametrize()
+    "ARG", # Unused function args -> fixtures nevertheless are functionally relevant
+    "FBT", # Don't care about booleans as positional arguments in tests, e.g. via @pytest.mark.parametrize()
+    "ANN", # Don't care about annotations in tests
+    "D",   # Don't care about docstrings in tests
+    "DOC", # Don't care about docstrings in tests
 
     # Specific rules
-    "S101",   # KG asserts allowed in tests.
-    "ANN201", # KG Not really needed for pytest.
-    "SLF001", # KG Accessing private members is needed for testing.
-    "INP001", # KG __init__.py not needed for PyTest.
-    "PT004",  # KG monkeypatches don't return.
-    "ANN001", # KG Tests don't need type hints.
-    "S311",   # KG I'll assume no real crypto will be done in PyTest.
-    "ANN204", # KG Python 3.10 doesn't have from types import self
-    "ANN002", # KG args/kwargs throwawayu in testing
-    "ANN003", # KG args/kwargs throwawayu in testing
+    "assert",                                    # asserts allowed in tests.
+    "private-member-access",                     # Accessing private members is needed for testing.
+    "implicit-namespace-package",                # __init__.py not needed for PyTest.
+    "pytest-missing-fixture-name-underscore",    # monkeypatch doesn't return.
+    "suspicious-non-cryptographic-random-usage", # Regular RNG is fine in tests.
+    "hardcoded-password-string",                 # Hardcoded fake passwords are fine in tests.
+    "too-many-arguments",                        # Tests can have as many arguments as they want.
+    "blind-except",                              # Tests can use BaseException.
+    "import-private-name",                       # Tests can import private members.
+    "magic-value-comparison",                    # Magic values are the point of a test.
+    "no-self-use",                               # Mock objects need methods that take self.
 ]
-"create_my_new_project.py" = [ # If you have used this boilerplate to start making your app, you can delete this.
-    # Specific rules
-    "T201", # KG print() is fine for the scale of this file
+"_emulator/**/*.py" = [
+    "print",       # print() is fine for the scale of these scripts
+    "implicit-namespace-package",     # Standalone scripts, not part of the package
+    "blind-except", # The socket client should never die
 ]
+
+[tool.ruff.lint.flake8-pytest-style]
+fixture-parentheses = false
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
@@ -94,14 +100,17 @@ docstring-code-format = true
 docstring-code-line-length = 40
 
 [tool.pytest.ini_options]
-addopts = [
-    "--import-mode=importlib",
-    "--cov-context=test",
-    "--cov=flaskcontroller",
-    "--cov-report=term",
-    "--cov-report=html",
-]
 testpaths = ["tests"]
+
+[tool.coverage.run]
+command_line = ".venv/bin/pytest -q"
+source = ["flaskcontroller"]
+context = "test"
+
+[tool.coverage.report]
+show_missing = false
+format = "text"
+sort = "-Miss"
 
 [tool.coverage.html]
 show_contexts = true

@@ -1,75 +1,37 @@
 """The conftest.py file serves as a means of providing fixtures for an entire directory.
 
 Fixtures defined in a conftest.py can be used by any test in that package without needing to import them.
+
+Tests should always use the tmp_path fixture as an instance_path so they don't pollute each other.
 """
 
-from __future__ import annotations
-
-import os
-import shutil
-import sys
 from typing import TYPE_CHECKING
 
 import pytest
-import tomlkit
-
-if TYPE_CHECKING:
-    from collections.abc import Callable
-
-    from flask import Flask
-    from flask.testing import FlaskClient, FlaskCliRunner
-
-# This is so cooked
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from flaskcontroller import create_app
+from flaskcontroller.config import AppConf, Config
 
-TEST_CONFIGS_LOCATION = os.path.join(os.getcwd(), "tests", "configs")
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from flask import Flask
+    from flask.testing import FlaskClient
 
 
 @pytest.fixture
-def app(tmp_path, get_test_config) -> Flask:
-    """This fixture uses the default config within the flask app."""
-    return create_app(test_config=get_test_config("testing_true_valid.toml"), instance_path=tmp_path)
+def config() -> Config:
+    """Default config, with the socket sender thread disabled."""
+    return Config(app=AppConf(run_socket=False), flask={"TESTING": True})
+
+
+@pytest.fixture
+def app(tmp_path: Path, config: Config) -> Flask:
+    """App with the default config, in a tmp_path instance directory."""
+    return create_app(config=config, instance_path=tmp_path)
 
 
 @pytest.fixture
 def client(app: Flask) -> FlaskClient:
-    """This returns a test client for the default app()."""
+    """Test client for the app."""
     return app.test_client()
-
-
-@pytest.fixture
-def runner(app: Flask) -> FlaskCliRunner:
-    """TODO?????"""
-    return app.test_cli_runner()
-
-
-@pytest.fixture
-def get_test_config() -> Callable:
-    """Function returns a function, which is how it needs to be."""
-
-    def _get_test_config(config_name: str) -> dict:
-        """Load all the .toml configs into a single dict."""
-        filepath = os.path.join(TEST_CONFIGS_LOCATION, config_name)
-
-        with open(filepath) as file:
-            return tomlkit.load(file)
-
-    return _get_test_config
-
-
-@pytest.fixture
-def place_test_config() -> Callable:
-    """Fixture that places a config in the tmp_path.
-
-    Returns: a function to place a config in the tmp_path.
-    """
-
-    def _place_test_config(config_name: str, path: str) -> None:
-        """Place config in tmp_path by name."""
-        filepath = os.path.join(TEST_CONFIGS_LOCATION, config_name)
-
-        shutil.copyfile(filepath, os.path.join(path, "config.toml"))
-
-    return _place_test_config

@@ -35,7 +35,7 @@ logger.info("Server listening on %s:%s", HOST, PORT)
 
 def press_buttons(in_data: bytes) -> None:
     """Press/release keys whose bits changed since the last packet."""
-    global last_state  # noqa: PLW0603 fine for this program/scale
+    global last_state  # ruff: ignore[global-statement] fine for this program/scale
 
     state = int.from_bytes(in_data, "little")
     logger.debug("New input: %010b", state)

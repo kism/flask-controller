@@ -9,69 +9,52 @@ Javascript -> HTTP POST -> Flask -> TCP Socket -> mGBA Lua
 
 Javascript -> HTTP POST -> Flask -> TCP Socket -> Bizhawk Lua
 
-Javascript -> HTTP POST -> Flask -> TCP Socket -> Python Client that presses keyboard keys
+Javascript -> HTTP POST -> Flask -> TCP Socket -> Python client that presses keyboard keys
 
 ## Prerequisites
 
-Install pipx <https://pipx.pypa.io/stable/>
-
-Install poetry with pipx `pipx install poetry`
+Install uv <https://docs.astral.sh/uv/getting-started/installation/>
 
 ## Run
+
+### Run Prod
+
+Serves with waitress, config is read from (and created in) `./instance/config.json`.
+
+```bash
+uv sync --no-dev
+.venv/bin/flaskcontroller --host 127.0.0.1 --port 5000
+```
 
 ### Run Dev
 
 ```bash
-poetry install
-poetry shell
-flask --app flaskcontroller run --port 5000
+uv sync
+.venv/bin/flask --app flaskcontroller run --port 5000 --debug
 ```
 
-### Run Prod
+### Test
 
 ```bash
-poetry install --only main
-.venv/bin/waitress-serve \
-    --listen "127.0.0.1:5000" \
-    --trusted-proxy '*' \
-    --trusted-proxy-headers 'x-forwarded-for x-forwarded-proto x-forwarded-port' \
-    --log-untrusted-proxy-headers \
-    --clear-untrusted-proxy-headers \
-    --threads 4 \
-    --call flaskcontroller:create_app
+uv sync --extra test --extra lint --extra type
+./scripts/run-ci-local.sh
+./scripts/run-coverage.sh
 ```
 
-## 🪟 Windows
+## Configuration
 
-### 🪟 First time setup
+`instance/config.json`, written with defaults on first run.
 
-```bash
-python -m poetry install
-```
-
-### 🪟 Activate environment (optional)
-
-```bash
-python -m poetry shell
-```
-
-### 🪟 Run App
-
-```bash
-python -m poetry run python controller.py
-```
-
-Leaving this in for myself
-
-```bash
-cd .\src\flaskcontroller\ ; python -m poetry run python controller.py
-```
-
-And if you activated the environment
-
-```bash
-python controller.py
-```
+| Key                   | Default       | Description                                        |
+| --------------------- | ------------- | -------------------------------------------------- |
+| `app.socket_address`  | `127.0.0.1`   | Where the emulator's lua script is listening.       |
+| `app.socket_port`     | `5001`        | ditto.                                              |
+| `app.tick_rate`       | `120`         | Inputs per second sent to the emulator.             |
+| `app.run_socket`      | `true`        | Set false to run the web app without the socket.    |
+| `logging.level`       | `INFO`        | Log level.                                          |
+| `logging.path`        | `null`        | Log to this file as well as the console.            |
+| `flask.DEBUG`         | `false`       | Flask's own config.                                 |
+| `flask.TESTING`       | `false`       | ditto.                                              |
 
 ## 🎮 mGBA
 
@@ -79,7 +62,7 @@ Tools -> Scripting
 
 File -> Load script
 
-`flaskcontroller/_emulator/mgba/mgba_grab_web_input.lua`
+`_emulator/mgba/mgba_grab_web_input.lua`
 
 Client/Server automatically reconnects well.
 
@@ -89,6 +72,16 @@ Tools -> Lua Console
 
 Script -> Open Script
 
-`flaskcontroller/_emulator/bizhawk/bizhawk_gba_grab_web_input.lua`
+`_emulator/bizhawk/bizhawk_gba_grab_web_input.lua`
 
 If the python web server exits/closes you will need to reboot the core for it to reconnect, so save in your game and reboot core.
+
+## ⌨️ Generic keyboard client
+
+Instead of an emulator lua script, press real keyboard keys on the machine running the client.
+
+```bash
+uv run --extra keyboard _emulator/generic_keyboard/generic_keyboard.py
+```
+
+Set `DUMMY_SERVER = False` in that script to actually send key presses.

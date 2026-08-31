@@ -1,0 +1,151 @@
+"""Keeps the input state and ships it down a TCP socket to the emulator."""
+
+import enum
+import logging
+import queue
+import socket
+import threading
+import time
+from typing import TYPE_CHECKING
+
+import colorama
+
+if TYPE_CHECKING:
+    from flaskcontroller.config import AppConf
+
+logger = logging.getLogger(__name__)
+
+# Input logger, message only, so the player input scroll stays readable.
+input_logger = logging.getLogger("flaskcontroller.input")
+input_logger.propagate = False
+input_logger.setLevel(logging.INFO)
+_input_handler = logging.StreamHandler()
+_input_handler.setFormatter(logging.Formatter("%(message)s"))
+input_logger.addHandler(_input_handler)
+
+CLIENT_TIMEOUT_S = 7  # Drop a client from the player count if it hasn't pinged in this long.
+RECONNECT_DELAY_S = 1
+
+COLOUR_NAMES = ("BLACK", "RED", "GREEN", "YELLOW", "BLUE", "MAGENTA", "CYAN", "WHITE")
+FG_COLOURS = [getattr(colorama.Fore, name) for name in COLOUR_NAMES]
+BG_COLOURS = [getattr(colorama.Back, name) for name in COLOUR_NAMES]
+
+
+class Button(enum.IntFlag):
+    """Button bitmask, these values match up with the button codes in mGBA."""
+
+    GBA_A = 1
+    GBA_B = 2
+    GBA_SELECT = 4
+    GBA_START = 8
+    GBA_RIGHT = 16
+    GBA_LEFT = 32
+    GBA_UP = 64
+    GBA_DOWN = 128
+    GBA_R = 256
+    GBA_L = 512
+
+
+def log_player_input(client_id: str, button: Button) -> None:
+    """Log a button press with the player's coloured id."""
+    input_logger.info("Player: %s %s", colour_player_id(client_id), str(button.name).removeprefix("GBA_"))
+
+
+def colour_player_id(player_id: str) -> str:
+    """Fun coloured player names, the same id always gets the same colours."""
+    padded = player_id[:6].ljust(6)
+    chunks = [padded[i : i + 3] for i in range(0, 6, 3)]
+
+    coloured = ""
+    for chunk in chunks:
+        # Colour each chunk based on the sum of its characters, so a chunk is always coloured the same way.
+        fun_number = sum(bytearray(chunk, "ascii"))
+        fg_idx = (fun_number * 2) % len(FG_COLOURS)
+        bg_idx = fun_number % len(BG_COLOURS)
+        if fg_idx == bg_idx:  # Don't render a chunk invisible
+            bg_idx = (bg_idx + 1) % len(BG_COLOURS)
+
+        coloured += colorama.Style.BRIGHT + FG_COLOURS[fg_idx] + BG_COLOURS[bg_idx] + chunk + colorama.Style.RESET_ALL
+
+    return coloured
+
+
+class Controller:
+    """Current button state, connected players, and the socket sender thread."""
+
+    def __init__(self, app_conf: AppConf) -> None:
+        """Init the controller, does not start the socket sender thread."""
+        self._conf = app_conf
+        self._state = Button(0)
+        self._queue: queue.SimpleQueue[Button] = queue.SimpleQueue()
+        self._stop = threading.Event()
+        self.sock_connected = False
+        self.clients: dict[str, float] = {}
+
+    # --- Input -------------------------------------------------------------
+
+    def press(self, button: Button, *, down: bool) -> None:
+        """Set/clear a button in the state and queue the new state for the emulator."""
+        self._state = (self._state | button) if down else (self._state & ~button)
+        logger.debug("Input! %s: %s -> %010b", "Down" if down else "Up", button.name, self._state)
+        self._queue.put(self._state)
+
+    # --- Players -----------------------------------------------------------
+
+    def ping(self, client_id: str) -> None:
+        """Record that a client is still around, and drop the ones that aren't."""
+        now = time.monotonic()
+        self.clients[client_id] = now
+        self.clients = {cid: last for cid, last in self.clients.items() if now - last < CLIENT_TIMEOUT_S}
+
+    # --- Socket sender -----------------------------------------------------
+
+    def start(self) -> None:
+        """Start the socket sender thread, unless the config says not to."""
+        if not self._conf.run_socket:
+            logger.warning("Not starting socket sender thread.")
+            return
+
+        logger.info("Starting socket sender thread!")
+        threading.Thread(target=self._run, daemon=True, name="socket_sender").start()
+
+    def stop(self) -> None:
+        """Ask the socket sender thread to exit."""
+        self._stop.set()
+
+    def _run(self) -> None:
+        """Connect to the emulator's socket and send whatever lands in the queue, reconnecting forever."""
+        address = (self._conf.socket_address, self._conf.socket_port)
+
+        while not self._stop.is_set():
+            try:
+                logger.info("Connecting to socket: %s:%s", *address)
+                with socket.create_connection(address, timeout=RECONNECT_DELAY_S) as sock:
+                    logger.info("Connected to socket!")
+                    self.sock_connected = True
+                    self._send_loop(sock)
+            except OSError as exc:  # ConnectionRefusedError, timeouts, no route, ...
+                logger.error("Socket connection failed: %s", exc)  # ruff: ignore[error-instead-of-exception] Don't want this one too noisy
+            finally:
+                self.sock_connected = False
+
+            logger.info("Trying again...")
+            self._stop.wait(RECONNECT_DELAY_S)
+
+        logger.info("Socket sender stopped")
+
+    def _send_loop(self, sock: socket.socket) -> None:
+        """Drain the input queue to the socket at the configured tick rate."""
+        tick = 1 / self._conf.tick_rate
+
+        while not self._stop.wait(tick):  # The tick rate is a rate limit, don't flood the emulator.
+            try:
+                state = self._queue.get_nowait()
+            except queue.Empty:
+                continue
+
+            try:
+                sock.sendall(int(state).to_bytes(2, "little"))
+            except OSError:  # BrokenPipeError and friends
+                logger.error("Disconnected from socket, cringe")  # ruff: ignore[error-instead-of-exception] Don't want this one too noisy
+                return
