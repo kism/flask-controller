@@ -3,7 +3,7 @@
 import tomllib
 from pathlib import Path
 
-from flaskcontroller import PROGRAM_NAME, PROGRAM_REPO_URL, PROGRAM_VERSION, constants
+from webcontroller import PROGRAM_NAME, PROGRAM_REPO_URL, PROGRAM_VERSION, constants
 
 
 def test_version_pyproject() -> None:

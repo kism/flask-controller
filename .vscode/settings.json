@@ -28,8 +28,10 @@
   ],
   "cSpell.words": [
     "REUSEADDR",
-    "waitress",
-    "flaskcontroller",
+    "uvicorn",
+    "webcontroller",
+    "openapi",
+    "hey-api",
     "biomejs"
   ]
 }

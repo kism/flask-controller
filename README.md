@@ -1,4 +1,4 @@
-# Flask to mGBA/Bizhawk Lua
+# Web Controller
 
 ![Check](https://github.com/kism/flask-controller/actions/workflows/check.yml/badge.svg)
 ![Check](https://github.com/kism/flask-controller/actions/workflows/check_types.yml/badge.svg)
@@ -6,11 +6,11 @@
 ![Test](https://github.com/kism/flask-controller/actions/workflows/test.yml/badge.svg)
 [![codecov](https://codecov.io/gh/kism/flask-controller/graph/badge.svg?token=9R9ZI99GLP)](https://codecov.io/gh/kism/flask-controller)
 
-Javascript -> HTTP POST -> Flask -> TCP Socket -> mGBA Lua
+Browser -> HTTP POST -> FastAPI -> TCP Socket -> mGBA Lua
 
-Javascript -> HTTP POST -> Flask -> TCP Socket -> Bizhawk Lua
+Browser -> HTTP POST -> FastAPI -> TCP Socket -> Bizhawk Lua
 
-Javascript -> HTTP POST -> Flask -> TCP Socket -> Python client that presses keyboard keys
+Browser -> HTTP POST -> FastAPI -> TCP Socket -> Python client that presses keyboard keys
 
 ## Prerequisites
 
@@ -23,18 +23,18 @@ committed.
 
 ### Run Prod
 
-Serves with waitress, config is read from (and created in) `./instance/config.json`.
+Serves with uvicorn, config is read from (and created in) `./instance/config.json`.
 
 ```bash
 uv sync --no-dev
-.venv/bin/flaskcontroller --host 127.0.0.1 --port 5000
+.venv/bin/webcontroller --host 127.0.0.1 --port 5000
 ```
 
 ### Run Dev
 
 ```bash
 uv sync
-.venv/bin/flask --app flaskcontroller run --port 5000 --debug
+.venv/bin/uvicorn --factory webcontroller:create_app --port 5000 --reload
 ```
 
 ### Test
@@ -49,16 +49,24 @@ uv sync --extra test --extra lint --extra type
 
 The page is rendered server side with Jinja, only the script is TypeScript, bundled with bun. One entrypoint per
 template: `frontend/pages/home.ts` builds to `static/home.js`, which `home.html.j2` loads with
-`<script type="module">`. The bundle is committed, since the package ships `src/flaskcontroller/static/` and prod
-installs won't have bun, so don't hand edit it, CI rebuilds it and fails on a diff.
+`<script type="module">`. The bundle is committed, since the package ships `src/webcontroller/static/` and prod
+installs won't have bun.
+
+The api is at `/status` and `/input`, browse it at `/docs`.
 
 ```bash
 bun install
-bun run check  # tsc --noEmit, then biome check, bun build strips types without checking them
-bun run fix    # biome check --write, format and autofix
-bun run build  # Bundle each frontend/pages/*.ts to src/flaskcontroller/static/, minified
-bun run all    # check then build
+bun run codegen # Dump the app's OpenAPI schema to frontend/openapi.json, generate frontend/generated/ from it
+bun run check   # tsc --noEmit, then biome check, bun build strips types without checking them
+bun run fix     # biome check --write, format and autofix
+bun run build   # Bundle each frontend/pages/*.ts to src/webcontroller/static/, minified
+bun run all     # All three, in order
 ```
+
+Run `bun run all` after any api change, the typed client in `frontend/generated/` (@hey-api/openapi-ts, configured
+in openapi-ts.config.ts) is what makes a renamed endpoint or a new button a compile error instead of an `undefined`
+at runtime. `frontend/openapi.json` and `frontend/generated/` are committed too, CI regenerates them and fails on a
+diff, so don't hand edit them.
 
 ## Configuration
 
@@ -72,8 +80,6 @@ bun run all    # check then build
 | `app.run_socket`      | `true`        | Set false to run the web app without the socket.    |
 | `logging.level`       | `INFO`        | Log level.                                          |
 | `logging.path`        | `null`        | Log to this file as well as the console.            |
-| `flask.DEBUG`         | `false`       | Flask's own config.                                 |
-| `flask.TESTING`       | `false`       | ditto.                                              |
 
 ## 🎮 mGBA
 

@@ -8,16 +8,17 @@ from http import HTTPStatus
 from typing import TYPE_CHECKING, cast
 
 import pytest
+from fastapi.testclient import TestClient
 
-from flaskcontroller import create_app
-from flaskcontroller.config import AppConf, Config
-from flaskcontroller.services.controller import Button, Controller, colour_player_id
+from webcontroller import create_app
+from webcontroller.config import AppConf, Config
+from webcontroller.services.controller import Button, Controller, colour_player_id
 
 if TYPE_CHECKING:
     from collections.abc import Generator
     from pathlib import Path
 
-    from flask.testing import FlaskClient
+    from fastapi import FastAPI
 
 HEADERS = {"client-id": "TEST01"}
 
@@ -32,54 +33,71 @@ def wait_for(predicate, timeout: float = 5.0) -> bool:
     return False
 
 
+def press(client: TestClient, button: str, *, down: bool):
+    """POST a button press/release."""
+    return client.post("/input", headers=HEADERS, json={"button": button, "down": down})
+
+
 # --- Routes ----------------------------------------------------------------
 
 
-def test_get_status(client: FlaskClient) -> None:
-    """TEST: GetStatus reports the socket state and counts the pinging client."""
-    response = client.get("/GetStatus", headers=HEADERS)
+def test_get_status(client: TestClient) -> None:
+    """TEST: /status reports the socket state and counts the pinging client."""
+    response = client.get("/status", headers=HEADERS)
 
     assert response.status_code == HTTPStatus.OK
-    assert response.get_json() == {"sock_connected": False, "players_connected": 1}
+    assert response.json() == {"sock_connected": False, "players_connected": 1}
 
 
-def test_input_no_client_id(client: FlaskClient) -> None:
+def test_status_no_client_id(client: TestClient) -> None:
+    """TEST: The client-id header is required."""
+    assert client.get("/status").status_code == HTTPStatus.UNPROCESSABLE_ENTITY
+
+
+def test_input_no_client_id(client: TestClient) -> None:
     """TEST: An input without a client id is rejected."""
-    response = client.post("/input/D_GBA_START")
+    response = client.post("/input", json={"button": "GBA_START", "down": True})
 
-    assert response.status_code == HTTPStatus.BAD_REQUEST
-
-
-@pytest.mark.parametrize("da_input", ["INVALID", "X_GBA_A", "D_GBA_NOPE", "D_"])
-def test_input_invalid(client: FlaskClient, da_input: str) -> None:
-    """TEST: An unparseable input is dropped, not an error."""
-    response = client.post(f"/input/{da_input}", headers=HEADERS)
-
-    assert response.status_code == HTTPStatus.OK
-    assert response.data == b"INVALID KEYPRESS, DROPPING"
+    assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
 
-def test_input_updates_state(client: FlaskClient, app) -> None:
+@pytest.mark.parametrize(
+    "body",
+    [{"button": "GBA_NOPE", "down": True}, {"button": "GBA_A"}, {"down": True}, {}],
+)
+def test_input_invalid(client: TestClient, body: dict) -> None:
+    """TEST: An unknown button or a missing field is rejected by FastAPI's validation."""
+    response = client.post("/input", headers=HEADERS, json=body)
+
+    assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
+
+
+def test_input_updates_state(client: TestClient, app: FastAPI) -> None:
     """TEST: Down sets the button's bit, up clears it, both get queued."""
-    controller = app.extensions["controller"]
+    controller = app.state.controller
 
-    assert client.post("/input/D_GBA_A", headers=HEADERS).status_code == HTTPStatus.OK
-    assert controller._state == Button.GBA_A
+    assert press(client, "GBA_A", down=True).status_code == HTTPStatus.NO_CONTENT
+    assert controller._state == Button.GBA_A.bit
 
-    assert client.post("/input/D_GBA_START", headers=HEADERS).status_code == HTTPStatus.OK
-    assert controller._state == Button.GBA_A | Button.GBA_START
+    assert press(client, "GBA_START", down=True).status_code == HTTPStatus.NO_CONTENT
+    assert controller._state == Button.GBA_A.bit | Button.GBA_START.bit
 
-    assert client.post("/input/U_GBA_A", headers=HEADERS).status_code == HTTPStatus.OK
-    assert controller._state == Button.GBA_START
+    assert press(client, "GBA_A", down=False).status_code == HTTPStatus.NO_CONTENT
+    assert controller._state == Button.GBA_START.bit
 
     assert [controller._queue.get_nowait() for _ in range(3)] == [
-        Button.GBA_A,
-        Button.GBA_A | Button.GBA_START,
-        Button.GBA_START,
+        Button.GBA_A.bit,
+        Button.GBA_A.bit | Button.GBA_START.bit,
+        Button.GBA_START.bit,
     ]
 
 
 # --- Controller unit -------------------------------------------------------
+
+
+def test_button_bits() -> None:
+    """TEST: The bits match mGBA's button codes, the lua scripts depend on these exact values."""
+    assert [button.bit for button in Button] == [1, 2, 4, 8, 16, 32, 64, 128, 256, 512]
 
 
 def test_client_timeout(config: Config) -> None:
@@ -102,10 +120,10 @@ def test_colour_player_id(player_id: str) -> None:
     assert re.sub(r"\x1b\[[0-9;]*m", "", coloured) == player_id[:6].ljust(6)
 
 
-def test_no_socket_thread(app) -> None:
+def test_no_socket_thread(app: FastAPI) -> None:
     """TEST: run_socket=False means no socket sender thread."""
     assert not any(thread.name == "socket_sender" for thread in threading.enumerate())
-    assert app.extensions["controller"].sock_connected is False
+    assert app.state.controller.sock_connected is False
 
 
 # --- Socket sender ---------------------------------------------------------
@@ -140,19 +158,19 @@ def dummy_emulator() -> Generator[tuple[int, list[bytes]]]:
 def test_socket_sender(dummy_emulator, tmp_path: Path) -> None:
     """TEST: The sender connects, ships queued input as little endian bytes, and stops when asked."""
     port, received = dummy_emulator
-    config = Config(app=AppConf(socket_port=port, run_socket=True), flask={"TESTING": True})
+    config = Config(app=AppConf(socket_port=port, run_socket=True))
 
     app = create_app(config=config, instance_path=tmp_path)
-    controller = app.extensions["controller"]
+    controller = app.state.controller
 
     try:
         assert wait_for(lambda: controller.sock_connected), "Never connected to the dummy emulator"
 
-        client = app.test_client()
-        assert client.post("/input/D_GBA_L", headers=HEADERS).status_code == HTTPStatus.OK
+        with TestClient(app) as client:
+            assert press(client, "GBA_L", down=True).status_code == HTTPStatus.NO_CONTENT
 
         assert wait_for(lambda: received), "Nothing arrived at the dummy emulator"
-        assert received[0] == int(Button.GBA_L).to_bytes(2, "little")
+        assert received[0] == Button.GBA_L.bit.to_bytes(2, "little")
     finally:
         controller.stop()
 
@@ -163,10 +181,10 @@ def test_socket_sender(dummy_emulator, tmp_path: Path) -> None:
 
 def test_socket_sender_reconnects(tmp_path: Path, caplog) -> None:
     """TEST: A refused connection is logged and retried rather than killing the thread."""
-    config = Config(app=AppConf(socket_port=1, run_socket=True), flask={"TESTING": True})
+    config = Config(app=AppConf(socket_port=1, run_socket=True))
 
     app = create_app(config=config, instance_path=tmp_path)
-    controller = app.extensions["controller"]
+    controller = app.state.controller
 
     try:
         assert wait_for(lambda: caplog.text.count("Trying again...") >= 2), "Did not retry the connection"

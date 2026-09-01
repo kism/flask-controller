@@ -19,17 +19,25 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: Set up Python
+        uses: actions/setup-python@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.0.1
+
       - name: Install bun
         uses: oven-sh/setup-bun@v2
 
-      - name: Install the frontend deps
-        run: bun install --frozen-lockfile
+      - name: Install the project
+        run: |
+          uv sync
+          bun install --frozen-lockfile
 
       - name: Type check and lint the frontend
         run: bun run check
 
-      - name: Rebuild the bundle
-        run: bun run build
+      - name: Regenerate the api client and the bundle
+        run: bun run codegen && bun run build
 
-      - name: Check the committed bundle is up to date
+      - name: Check the committed generated files are up to date
         run: git diff --exit-code

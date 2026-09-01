@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 import pytest
 from pydantic import ValidationError
 
-from flaskcontroller.config import CONFIG_FILE_NAME, Config
+from webcontroller.config import CONFIG_FILE_NAME, Config
 
 if TYPE_CHECKING:
     from pathlib import Path

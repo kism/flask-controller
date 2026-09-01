@@ -8,30 +8,32 @@ Tests should always use the tmp_path fixture as an instance_path so they don't p
 from typing import TYPE_CHECKING
 
 import pytest
+from fastapi.testclient import TestClient
 
-from flaskcontroller import create_app
-from flaskcontroller.config import AppConf, Config
+from webcontroller import create_app
+from webcontroller.config import AppConf, Config
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
     from pathlib import Path
 
-    from flask import Flask
-    from flask.testing import FlaskClient
+    from fastapi import FastAPI
 
 
 @pytest.fixture
 def config() -> Config:
     """Default config, with the socket sender thread disabled."""
-    return Config(app=AppConf(run_socket=False), flask={"TESTING": True})
+    return Config(app=AppConf(run_socket=False))
 
 
 @pytest.fixture
-def app(tmp_path: Path, config: Config) -> Flask:
+def app(tmp_path: Path, config: Config) -> FastAPI:
     """App with the default config, in a tmp_path instance directory."""
     return create_app(config=config, instance_path=tmp_path)
 
 
 @pytest.fixture
-def client(app: Flask) -> FlaskClient:
+def client(app: FastAPI) -> Generator[TestClient]:
     """Test client for the app."""
-    return app.test_client()
+    with TestClient(app) as test_client:
+        yield test_client

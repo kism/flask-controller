@@ -38,19 +38,11 @@ class LoggingConf(BaseModel):
     path: Path | None = None
 
 
-class FlaskConf(BaseModel):
-    """Flask's own config, https://flask.palletsprojects.com/en/stable/config/."""
-
-    DEBUG: bool = False
-    TESTING: bool = False
-
-
 class Config(BaseModel):
     """Settings loaded from a JSON file in the instance directory."""
 
     app: AppConf = Field(default_factory=AppConf)
     logging: LoggingConf = Field(default_factory=LoggingConf)
-    flask: FlaskConf = Field(default_factory=FlaskConf)
 
     @classmethod
     def load(cls, instance_path: Path) -> Self:

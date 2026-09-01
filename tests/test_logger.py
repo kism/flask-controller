@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from flaskcontroller.utils.logger import setup_logger
+from webcontroller.utils.logger import setup_logger
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -55,7 +55,7 @@ def test_log_to_dir(logger: logging.Logger, tmp_path: Path) -> None:
 def test_log_no_permission(logger: logging.Logger, tmp_path: Path, mocker: MockerFixture) -> None:
     """TEST: Correct exception when you can't write to the log file."""
     # ponytail: mocked, real chmod 000 doesn't raise when the tests run as root
-    mocker.patch("flaskcontroller.utils.logger.RotatingFileHandler", side_effect=PermissionError)
+    mocker.patch("webcontroller.utils.logger.RotatingFileHandler", side_effect=PermissionError)
     with pytest.raises(PermissionError):
         setup_logger(log_path=tmp_path / "test.log", in_logger=logger)
 

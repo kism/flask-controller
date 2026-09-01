@@ -1,6 +1,7 @@
-export {}; // Makes this a module, so the global augmentation below is legal.
-
 // One entrypoint per template, home.html.j2 loads the bundle this builds to as static/home.js.
+// The sdk in ../generated is generated from the running app's OpenAPI schema, regenerate with `bun run codegen`
+// after any api change. A renamed endpoint, a new button or a changed response model then fails `bun run check`.
+import { type Button, getStatus, postInput } from "../generated";
 
 // The console is the ui for renaming yourself, so clientid lives on window rather than in module scope.
 declare global {
@@ -9,31 +10,27 @@ declare global {
   }
 }
 
-interface Button {
-  id: string; // The <td> id in home.html.j2, and the name the api expects.
-  held: boolean; // Windows repeats keydown while held, this stops the duplicate POSTs.
-}
-
-// KeyboardEvent.keyCode -> button.
-const buttons: Record<number, Button> = {
-  65: { id: "GBA_L", held: false },
-  83: { id: "GBA_R", held: false },
-  68: { id: "GBA_START", held: false },
-  90: { id: "GBA_B", held: false },
-  88: { id: "GBA_A", held: false },
-  67: { id: "GBA_SELECT", held: false },
-  38: { id: "GBA_UP", held: false },
-  40: { id: "GBA_DOWN", held: false },
-  37: { id: "GBA_LEFT", held: false },
-  39: { id: "GBA_RIGHT", held: false },
-};
+// KeyboardEvent.keyCode -> the button it sends, and whether it's currently held. Windows repeats keydown while a
+// key is held, the flag stops the duplicate POSTs.
+const keymap = new Map<number, { button: Button; held: boolean }>([
+  [65, { button: "GBA_L", held: false }],
+  [83, { button: "GBA_R", held: false }],
+  [68, { button: "GBA_START", held: false }],
+  [90, { button: "GBA_B", held: false }],
+  [88, { button: "GBA_A", held: false }],
+  [67, { button: "GBA_SELECT", held: false }],
+  [38, { button: "GBA_UP", held: false }],
+  [40, { button: "GBA_DOWN", held: false }],
+  [37, { button: "GBA_LEFT", held: false }],
+  [39, { button: "GBA_RIGHT", held: false }],
+]);
 
 const GREEN = "#CCFFCC";
 const RED = "#FFCCCC";
 const GREY = "#C8C8C8";
 
 const latency = document.getElementById("HTTP_LATENCY")!;
-const sockStatus = document.getElementById("FLASK_MGBA_STATS")!;
+const sockStatus = document.getElementById("SOCKET_STATUS")!;
 const playerCount = document.getElementById("PLAYER_COUNT")!;
 
 function set(element: HTMLElement, text: string, color: string): void {
@@ -54,37 +51,47 @@ function unreachable(): void {
   set(playerCount, "???", GREY);
 }
 
-async function postKey(button: Button, down: boolean): Promise<void> {
+async function sendInput(button: Button, down: boolean): Promise<void> {
   const start = performance.now();
-  const key = `${down ? "D_" : "U_"}${button.id}`;
 
   try {
-    const response = await fetch(`input/${key}`, { method: "POST", headers: { "client-id": window.clientid } });
-    console.log("Sent:", key, "| Response code:", response.status);
+    // AbortSignal.timeout() is native, no AbortController/setTimeout/clearTimeout dance needed.
+    const { error, response } = await postInput({
+      body: { button, down },
+      headers: { "client-id": window.clientid },
+      signal: AbortSignal.timeout(1000),
+    });
 
-    if (!response.ok) {
-      set(latency, "Something is wrong", RED);
+    if (error || !response?.ok) {
+      set(latency, response ? "Something is wrong" : "Cannot reach webserver", RED);
       return;
     }
 
     const frames = Math.round((performance.now() - start) * (1 / 60));
     set(latency, latencyText(frames), frames < 4 ? GREEN : RED);
   } catch (error) {
-    console.error("Could not ProcessUserInput to webserver: ", error);
+    console.error("Could not send input to the webserver: ", error); // Belt and braces, the client returns rather than throws.
     unreachable();
   }
 }
 
-async function getUpdate(): Promise<void> {
+async function poll(): Promise<void> {
   try {
-    const response = await fetch("GetStatus", { method: "GET", headers: { "client-id": window.clientid } });
-    if (!response.ok) throw new Error(`Network response was not ok: ${response.status}`);
+    const { data } = await getStatus({
+      headers: { "client-id": window.clientid },
+      signal: AbortSignal.timeout(1000),
+    });
 
-    const data: { sock_connected: boolean; players_connected: number } = await response.json();
+    if (!data) {
+      unreachable(); // Non 2xx leaves data undefined, so do network failures and the timeout.
+      return;
+    }
+
+    // data is typed as StatusResponse, so these fields are checked against the app's pydantic model.
     set(sockStatus, data.sock_connected ? "Connected" : "Disconnected", data.sock_connected ? GREEN : RED);
     playerCount.textContent = `${data.players_connected}`;
   } catch (error) {
-    console.error("Could not GetStatus from webserver: ", error);
+    console.error("Could not get status from the webserver: ", error);
     unreachable();
   }
 }
@@ -95,22 +102,19 @@ function makeId(): string {
 }
 
 document.addEventListener("keydown", (event) => {
-  const button = buttons[event.keyCode];
-  if (!button || button.held) {
-    console.log("Ignoring duplicate or invalid input");
-    return;
-  }
-  button.held = true;
-  document.getElementById(button.id)!.style.backgroundColor = "#003F87";
-  void postKey(button, true);
+  const key = keymap.get(event.keyCode);
+  if (!key || key.held) return;
+  key.held = true;
+  document.getElementById(key.button)!.style.backgroundColor = "#003F87";
+  void sendInput(key.button, true);
 });
 
 document.addEventListener("keyup", (event) => {
-  const button = buttons[event.keyCode];
-  if (!button) return;
-  button.held = false;
-  document.getElementById(button.id)!.style.backgroundColor = "#222222";
-  void postKey(button, false);
+  const key = keymap.get(event.keyCode);
+  if (!key) return;
+  key.held = false;
+  document.getElementById(key.button)!.style.backgroundColor = "#222222";
+  void sendInput(key.button, false);
 });
 
 document.getElementById("CHANGE_USERNAME")!.addEventListener("click", (event) => {
@@ -119,5 +123,5 @@ document.getElementById("CHANGE_USERNAME")!.addEventListener("click", (event) =>
 });
 
 window.clientid = makeId(); // Not a const, it's fun to let players rename themselves from the js console.
-void getUpdate(); // Call on page load, setInterval waits for the interval before its first call.
-setInterval(getUpdate, 5000);
+void poll(); // Call on page load, setInterval waits for the interval before its first call.
+setInterval(poll, 5000);

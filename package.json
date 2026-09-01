@@ -1,16 +1,18 @@
 {
-  "name": "flaskcontroller-frontend",
+  "name": "webcontroller-frontend",
   "packageManager": "bun@1.4.0",
   "devDependencies": {
     "@biomejs/biome": "^2",
+    "@hey-api/openapi-ts": "^0.99.0",
     "typescript": "^6"
   },
   "private": true,
   "scripts": {
+    "codegen": "uv run webcontroller --dump-openapi > frontend/openapi.json && openapi-ts",
     "check": "tsc --noEmit && biome check frontend",
     "fix": "biome check --write frontend",
-    "build": "bun build frontend/pages/*.ts --outdir src/flaskcontroller/static/ --minify",
-    "all": "bun run check && bun run build"
+    "build": "bun build frontend/pages/*.ts --outdir src/webcontroller/static/ --minify",
+    "all": "bun run codegen && bun run check && bun run build"
   },
   "type": "module"
 }

@@ -11,12 +11,12 @@ from typing import TYPE_CHECKING
 import colorama
 
 if TYPE_CHECKING:
-    from flaskcontroller.config import AppConf
+    from webcontroller.config import AppConf
 
 logger = logging.getLogger(__name__)
 
 # Input logger, message only, so the player input scroll stays readable.
-input_logger = logging.getLogger("flaskcontroller.input")
+input_logger = logging.getLogger("webcontroller.input")
 input_logger.propagate = False
 input_logger.setLevel(logging.INFO)
 _input_handler = logging.StreamHandler()
@@ -31,24 +31,33 @@ FG_COLOURS = [getattr(colorama.Fore, name) for name in COLOUR_NAMES]
 BG_COLOURS = [getattr(colorama.Back, name) for name in COLOUR_NAMES]
 
 
-class Button(enum.IntFlag):
-    """Button bitmask, these values match up with the button codes in mGBA."""
+class Button(enum.StrEnum):
+    """The buttons, declaration order is mGBA's button bitmask order, don't reorder these.
 
-    GBA_A = 1
-    GBA_B = 2
-    GBA_SELECT = 4
-    GBA_START = 8
-    GBA_RIGHT = 16
-    GBA_LEFT = 32
-    GBA_UP = 64
-    GBA_DOWN = 128
-    GBA_R = 256
-    GBA_L = 512
+    A StrEnum rather than an IntFlag so the api takes and the OpenAPI schema documents the names, which is what
+    makes the generated typescript client useful.
+    """
+
+    GBA_A = "GBA_A"
+    GBA_B = "GBA_B"
+    GBA_SELECT = "GBA_SELECT"
+    GBA_START = "GBA_START"
+    GBA_RIGHT = "GBA_RIGHT"
+    GBA_LEFT = "GBA_LEFT"
+    GBA_UP = "GBA_UP"
+    GBA_DOWN = "GBA_DOWN"
+    GBA_R = "GBA_R"
+    GBA_L = "GBA_L"
+
+    @property
+    def bit(self) -> int:
+        """The bit this button sets in the state sent to the emulator."""
+        return 1 << list(Button).index(self)
 
 
 def log_player_input(client_id: str, button: Button) -> None:
     """Log a button press with the player's coloured id."""
-    input_logger.info("Player: %s %s", colour_player_id(client_id), str(button.name).removeprefix("GBA_"))
+    input_logger.info("Player: %s %s", colour_player_id(client_id), button.name.removeprefix("GBA_"))
 
 
 def colour_player_id(player_id: str) -> str:
@@ -76,8 +85,8 @@ class Controller:
     def __init__(self, app_conf: AppConf) -> None:
         """Init the controller, does not start the socket sender thread."""
         self._conf = app_conf
-        self._state = Button(0)
-        self._queue: queue.SimpleQueue[Button] = queue.SimpleQueue()
+        self._state = 0  # Bitmask of the currently held buttons, in Button declaration order.
+        self._queue: queue.SimpleQueue[int] = queue.SimpleQueue()
         self._stop = threading.Event()
         self.sock_connected = False
         self.clients: dict[str, float] = {}
@@ -86,7 +95,7 @@ class Controller:
 
     def press(self, button: Button, *, down: bool) -> None:
         """Set/clear a button in the state and queue the new state for the emulator."""
-        self._state = (self._state | button) if down else (self._state & ~button)
+        self._state = (self._state | button.bit) if down else (self._state & ~button.bit)
         logger.debug("Input! %s: %s -> %010b", "Down" if down else "Up", button.name, self._state)
         self._queue.put(self._state)
 
@@ -145,7 +154,7 @@ class Controller:
                 continue
 
             try:
-                sock.sendall(int(state).to_bytes(2, "little"))
+                sock.sendall(state.to_bytes(2, "little"))
             except OSError:  # BrokenPipeError and friends
                 logger.error("Disconnected from socket, cringe")  # ruff: ignore[error-instead-of-exception] Don't want this one too noisy
                 return

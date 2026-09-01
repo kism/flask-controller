@@ -37,4 +37,4 @@ jobs:
         run: uv build
 
       - name: Run the built project to check it works
-        run: .venv/bin/flaskcontroller --help
+        run: .venv/bin/webcontroller --help

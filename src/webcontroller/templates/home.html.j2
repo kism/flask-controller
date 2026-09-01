@@ -5,14 +5,15 @@
     <title>🎧🎙️🎮📺</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="X-Clacks-Overhead" content="GNU Terry Pratchett" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='normalise.css') }}" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='zy.css') }}" />
+    <link rel="stylesheet" href="/static/normalise.css" />
+    <link rel="stylesheet" href="/static/zy.css" />
 </head>
 
 <body>
     <main>
         <h1 id="TITLE">Discord Plays GBA!</h1>
-        <p>Use your keyboard to send input to the emulator! If you are experiencing a high http latency, try Firefox. <a href="#" id="CHANGE_USERNAME">Change
+        <p>Use your keyboard to send input to the emulator! If you are experiencing a high http latency, try Firefox.
+            <a href="/docs">API docs (Swagger UI)</a>. <a href="#" id="CHANGE_USERNAME">Change
             username</a>.
         </p>
         <div class="container">
@@ -46,8 +47,8 @@
                             <td class="compact-table" id="PLAYER_COUNT">?</td>
                         </tr>
                         <tr>
-                            <td class="compact-table">Flask to emulator:</td>
-                            <td class="compact-table" id="FLASK_MGBA_STATS">No one knows</td>
+                            <td class="compact-table">App to emulator:</td>
+                            <td class="compact-table" id="SOCKET_STATUS">No one knows</td>
                         </tr>
                         <tr>
                             <td class="compact-table">HTTP latency:</td>
@@ -60,7 +61,7 @@
         <footer><small>{{ version }}</small></footer>
     </main>
     <!-- One entrypoint per template, built from frontend/pages/home.ts by `bun run build`, don't edit the .js. -->
-    <script src="{{ url_for('static', filename='home.js') }}" type="module"></script>
+    <script src="/static/home.js" type="module"></script>
 </body>
 
 </html>

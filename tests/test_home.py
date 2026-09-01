@@ -3,18 +3,21 @@
 from http import HTTPStatus
 from typing import TYPE_CHECKING
 
+from webcontroller.constants import PROGRAM_NAME_WITH_FULL_VERSION
+
 if TYPE_CHECKING:
-    from flask.testing import FlaskClient
+    from fastapi.testclient import TestClient
 
 
-def test_home(client: FlaskClient) -> None:
-    """TEST: The home page renders."""
+def test_home(client: TestClient) -> None:
+    """TEST: The home page renders, with the version on it."""
     response = client.get("/")
     assert response.status_code == HTTPStatus.OK
-    assert response.content_type == "text/html; charset=utf-8"
-    assert b"<!doctype html>" in response.data
+    assert response.headers["content-type"].startswith("text/html")
+    assert "<!doctype html>" in response.text
+    assert PROGRAM_NAME_WITH_FULL_VERSION in response.text
 
 
-def test_static_js_exists(client: FlaskClient) -> None:
-    """TEST: The javascript that the home page loads is served."""
+def test_static_js_exists(client: TestClient) -> None:
+    """TEST: The home page's script bundle loads, one entrypoint per template lives in static/."""
     assert client.get("/static/home.js").status_code == HTTPStatus.OK

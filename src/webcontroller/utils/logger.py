@@ -25,7 +25,7 @@ def setup_logger(
         in_logger: Logger to configure, the root logger if None. Useful for testing.
     """
     if in_logger is None:
-        in_logger = logging.getLogger()  # The root logger, flask/waitress loggers propagate to it.
+        in_logger = logging.getLogger()  # The root logger, uvicorn's loggers propagate to it.
 
     if isinstance(log_level, str):
         log_level = logging.getLevelNamesMapping().get(log_level.upper(), logging.INFO)
@@ -53,5 +53,4 @@ def setup_logger(
         logger.info("Logging to file: %s", log_path)
 
     # Modules that are noisy or have useful info at a level of their own.
-    logging.getLogger("waitress").setLevel(logging.INFO)  # Prod web server, info has useful info.
-    logging.getLogger("werkzeug").setLevel(logging.DEBUG)  # Only used in dev, debug logs incoming requests.
+    logging.getLogger("uvicorn.access").setLevel(logging.INFO)  # Info logs incoming requests.

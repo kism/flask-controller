@@ -1,4 +1,4 @@
-"""Flask webapp flaskcontroller."""
+"""FastAPI webapp webcontroller."""
 
 from .app import create_app
 from .constants import PROGRAM_NAME, PROGRAM_REPO_URL, PROGRAM_VERSION
