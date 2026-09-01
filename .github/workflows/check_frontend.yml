@@ -1,5 +1,5 @@
 ---
-name: Check Frontend (tsc, biome)
+name: Check Frontend
 
 on:
   push:
