@@ -1,29 +1,40 @@
-"""Test launching the app and config."""
+"""Tests config loading and writing."""
 
-import logging
+import json
+from typing import TYPE_CHECKING
 
 import pytest
+from pydantic import ValidationError
 
-from flaskcontroller import create_app
+from flaskcontroller.config import CONFIG_FILE_NAME, Config
 
-
-def test_config_valid(tmp_path, get_test_config):
-    """Test that the app can load config and the testing attribute is set."""
-    # TEST: Testing attribute set
-    app = create_app(get_test_config("testing_true_valid.toml"), instance_path=tmp_path)
-    assert app.testing, "Flask testing config item not being set correctly."
-
-    # TEST: Testing attribute not set.
-    # The config loaded sets testing to False, do not use this config for any other test.
-    app = create_app(get_test_config("testing_false_valid.toml"), instance_path=tmp_path)
-    assert not app.testing, "Flask testing config item not being set correctly."
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
-def test_config_file_loading(tmp_path, place_test_config, caplog: pytest.LogCaptureFixture):
-    """Test config file loading, use tmp_path."""
-    place_test_config("testing_true_valid.toml", tmp_path)
+def test_load_missing_config(tmp_path: Path) -> None:
+    """TEST: A missing config file results in defaults, written out to the instance directory."""
+    config = Config.load(tmp_path)
+    assert config.app.socket_port == 5001
 
-    # TEST: Config file is created when no test_config is provided.
-    caplog.set_level(logging.INFO)
-    create_app(test_config=None, instance_path=tmp_path)
-    assert "Using this path as it's the first one that was found" in caplog.text
+    config_path = tmp_path / CONFIG_FILE_NAME
+    assert config_path.is_file()
+    assert json.loads(config_path.read_text())["app"]["socket_port"] == 5001
+
+
+def test_load_existing_config(tmp_path: Path) -> None:
+    """TEST: An existing config file is loaded, missing fields are filled in and written back."""
+    config_path = tmp_path / CONFIG_FILE_NAME
+    config_path.write_text('{"app": {"socket_port": 9999}}')
+
+    config = Config.load(tmp_path)
+    assert config.app.socket_port == 9999
+    assert json.loads(config_path.read_text())["logging"]["level"] == "INFO"
+
+
+def test_invalid_tick_rate(tmp_path: Path) -> None:
+    """TEST: A tick rate of zero fails validation, it would be a divide by zero later."""
+    (tmp_path / CONFIG_FILE_NAME).write_text('{"app": {"tick_rate": 0}}')
+
+    with pytest.raises(ValidationError, match="tick_rate must be greater than zero"):
+        Config.load(tmp_path)

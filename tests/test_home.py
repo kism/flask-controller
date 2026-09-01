@@ -1,23 +1,20 @@
-"""PyTest, Tests the hello API endpoint."""
+"""Tests the home page and static files."""
 
 from http import HTTPStatus
+from typing import TYPE_CHECKING
 
-from flask.testing import FlaskClient
+if TYPE_CHECKING:
+    from flask.testing import FlaskClient
 
 
-def test_home(client: FlaskClient):
-    """Test the hello API endpoint. This one uses the fixture in conftest.py."""
+def test_home(client: FlaskClient) -> None:
+    """TEST: The home page renders."""
     response = client.get("/")
-    # TEST: HTTP OK
     assert response.status_code == HTTPStatus.OK
-    # TEST: Content type
     assert response.content_type == "text/html; charset=utf-8"
-    # TEST: It is a webpage that we get back
     assert b"<!doctype html>" in response.data
 
 
-def test_static_js_exists(client: FlaskClient):
-    """Check that /static/flaskcontroller.js exists."""
-    response = client.get("/static/flaskcontroller.js")
-    # TEST: That the javascript loads
-    assert response.status_code == HTTPStatus.OK
+def test_static_js_exists(client: FlaskClient) -> None:
+    """TEST: The javascript that the home page loads is served."""
+    assert client.get("/static/home.js").status_code == HTTPStatus.OK
