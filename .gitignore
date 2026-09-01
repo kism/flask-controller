@@ -1,6 +1,6 @@
 
-# Javascript, if we want to use eslint/scss-lintbiome for checking the html/css/javascript
-node_modules
+# Bun
+node_modules/
 
 # Python
 # Byte-compiled / optimized / DLL files

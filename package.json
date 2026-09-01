@@ -1,0 +1,16 @@
+{
+  "name": "flaskcontroller-frontend",
+  "packageManager": "bun@1.4.0",
+  "devDependencies": {
+    "@biomejs/biome": "^2",
+    "typescript": "^6"
+  },
+  "private": true,
+  "scripts": {
+    "check": "tsc --noEmit && biome check frontend",
+    "fix": "biome check --write frontend",
+    "build": "bun build frontend/pages/*.ts --outdir src/flaskcontroller/static/ --minify",
+    "all": "bun run check && bun run build"
+  },
+  "type": "module"
+}

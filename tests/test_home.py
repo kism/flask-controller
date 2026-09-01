@@ -17,4 +17,4 @@ def test_home(client: FlaskClient) -> None:
 
 def test_static_js_exists(client: FlaskClient) -> None:
     """TEST: The javascript that the home page loads is served."""
-    assert client.get("/static/flaskcontroller.js").status_code == HTTPStatus.OK
+    assert client.get("/static/home.js").status_code == HTTPStatus.OK

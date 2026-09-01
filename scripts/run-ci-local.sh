@@ -17,5 +17,8 @@ print_heading "ruff"
 ruff format
 ruff check --fix
 
+print_heading "bun (tsc, biome, build)"
+bun run all
+
 print_heading "PyTest"
 pytest -q --tb=short

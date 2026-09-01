@@ -3,6 +3,10 @@
   "[python]": {
     "editor.defaultFormatter": "charliermarsh.ruff"
   },
+  "[javascript][typescript][json][jsonc]": {
+    "editor.defaultFormatter": "biomejs.biome",
+    "editor.formatOnSave": true
+  },
   "[markdown]": {
     "editor.formatOnSave": true,
     "editor.formatOnPaste": true
@@ -25,6 +29,7 @@
   "cSpell.words": [
     "REUSEADDR",
     "waitress",
-    "flaskcontroller"
+    "flaskcontroller",
+    "biomejs"
   ]
 }

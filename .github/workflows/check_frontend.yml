@@ -1,0 +1,35 @@
+---
+name: Check Frontend (tsc, biome)
+
+on:
+  push:
+    branches:
+      - main
+      - test
+    paths-ignore:
+      - "**/README*"
+      - ".github/workflows/check.yml"
+      - ".github/workflows/check_types.yml"
+      - ".github/workflows/test.yml"
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install the frontend deps
+        run: bun install --frozen-lockfile
+
+      - name: Type check and lint the frontend
+        run: bun run check
+
+      - name: Rebuild the bundle
+        run: bun run build
+
+      - name: Check the committed bundle is up to date
+        run: git diff --exit-code

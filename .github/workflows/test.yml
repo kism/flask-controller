@@ -1,5 +1,5 @@
 ---
-name: Test (PyTest)
+name: Test
 
 on:
   push:
@@ -8,6 +8,7 @@ on:
       - test
     paths-ignore:
       - "**/README*"
+      - ".github/workflows/check_frontend.yml"
       - ".github/workflows/check.yml"
       - ".github/workflows/check_types.yml"
 

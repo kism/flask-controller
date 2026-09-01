@@ -2,6 +2,7 @@
 
 ![Check](https://github.com/kism/flask-controller/actions/workflows/check.yml/badge.svg)
 ![Check](https://github.com/kism/flask-controller/actions/workflows/check_types.yml/badge.svg)
+![CheckFrontend](https://github.com/kism/flask-controller/actions/workflows/check_frontend.yml/badge.svg)
 ![Test](https://github.com/kism/flask-controller/actions/workflows/test.yml/badge.svg)
 [![codecov](https://codecov.io/gh/kism/flask-controller/graph/badge.svg?token=9R9ZI99GLP)](https://codecov.io/gh/kism/flask-controller)
 
@@ -14,6 +15,9 @@ Javascript -> HTTP POST -> Flask -> TCP Socket -> Python client that presses key
 ## Prerequisites
 
 Install uv <https://docs.astral.sh/uv/getting-started/installation/>
+
+Install bun <https://bun.com/docs/installation>, only needed to change the frontend, the built javascript is
+committed.
 
 ## Run
 
@@ -39,6 +43,21 @@ uv sync
 uv sync --extra test --extra lint --extra type
 ./scripts/run-ci-local.sh
 ./scripts/run-coverage.sh
+```
+
+## Frontend
+
+The page is rendered server side with Jinja, only the script is TypeScript, bundled with bun. One entrypoint per
+template: `frontend/pages/home.ts` builds to `static/home.js`, which `home.html.j2` loads with
+`<script type="module">`. The bundle is committed, since the package ships `src/flaskcontroller/static/` and prod
+installs won't have bun, so don't hand edit it, CI rebuilds it and fails on a diff.
+
+```bash
+bun install
+bun run check  # tsc --noEmit, then biome check, bun build strips types without checking them
+bun run fix    # biome check --write, format and autofix
+bun run build  # Bundle each frontend/pages/*.ts to src/flaskcontroller/static/, minified
+bun run all    # check then build
 ```
 
 ## Configuration
