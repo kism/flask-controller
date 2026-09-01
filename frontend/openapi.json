@@ -1,6 +1,6 @@
 {
   "openapi": "3.1.0",
-  "info": { "title": "webcontroller", "version": "webcontroller v0.2.0-main/00fd9a1" },
+  "info": { "title": "webcontroller", "version": "0.2.0" },
   "paths": {
     "/status": {
       "get": {

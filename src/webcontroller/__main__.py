@@ -9,7 +9,7 @@ import uvicorn
 
 from .app import create_app
 from .config import Config
-from .constants import PROGRAM_NAME, PROGRAM_NAME_WITH_FULL_VERSION
+from .constants import PROGRAM_NAME, PROGRAM_NAME_WITH_FULL_VERSION, PROGRAM_VERSION
 
 
 def _get_args() -> argparse.Namespace:
@@ -33,7 +33,10 @@ def main() -> None:
         # Default Config() so the instance directory is never touched, and run_socket=False so no thread is started.
         config = Config()
         config.app.run_socket = False
-        sys.stdout.write(json.dumps(create_app(config=config).openapi()))
+        schema = create_app(config=config).openapi()
+        # The app's version has the branch and commit hash in it, which would churn the committed openapi.json.
+        schema["info"]["version"] = PROGRAM_VERSION
+        sys.stdout.write(json.dumps(schema))
         return
 
     app = create_app(instance_path=args.instance_path)
