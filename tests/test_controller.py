@@ -1,13 +1,12 @@
 """Tests the controller routes and the socket sender."""
 
 import re
-import socket
 import threading
-import time
 from http import HTTPStatus
 from typing import TYPE_CHECKING, cast
 
 import pytest
+from conftest import wait_for
 from fastapi.testclient import TestClient
 
 from webcontroller import create_app
@@ -15,22 +14,12 @@ from webcontroller.config import AppConf, Config
 from webcontroller.services.controller import Button, Controller, colour_player_id
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    import socket
     from pathlib import Path
 
     from fastapi import FastAPI
 
 HEADERS = {"client-id": "TEST01"}
-
-
-def wait_for(predicate, timeout: float = 5.0) -> bool:
-    """Poll a predicate until it's true or we give up."""
-    deadline = time.monotonic() + timeout
-    while time.monotonic() < deadline:
-        if predicate():
-            return True
-        time.sleep(0.05)
-    return False
 
 
 def press(client: TestClient, button: str, *, down: bool):
@@ -129,48 +118,21 @@ def test_no_socket_thread(app: FastAPI) -> None:
 # --- Socket sender ---------------------------------------------------------
 
 
-@pytest.fixture
-def dummy_emulator() -> Generator[tuple[int, list[bytes]]]:
-    """A TCP server pretending to be mGBA, yields its port and the bytes it received."""
-    received: list[bytes] = []
-    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    server.bind(("127.0.0.1", 0))
-    server.listen(1)
-
-    def serve() -> None:
-        while True:
-            try:
-                connection, _ = server.accept()
-            except OSError:
-                return
-            with connection:
-                while data := connection.recv(2):
-                    received.append(data)
-
-    threading.Thread(target=serve, daemon=True).start()
-
-    yield server.getsockname()[1], received
-
-    server.close()
-
-
-def test_socket_sender(dummy_emulator, tmp_path: Path) -> None:
+def test_socket_sender(fake_gba, tmp_path: Path) -> None:
     """TEST: The sender connects, ships queued input as little endian bytes, and stops when asked."""
-    port, received = dummy_emulator
-    config = Config(app=AppConf(socket_port=port, run_socket=True))
+    config = Config(app=AppConf(socket_port=fake_gba.port, run_socket=True))
 
     app = create_app(config=config, instance_path=tmp_path)
     controller = app.state.controller
 
     try:
-        assert wait_for(lambda: controller.sock_connected), "Never connected to the dummy emulator"
+        assert wait_for(lambda: controller.sock_connected), "Never connected to the fake GBA client"
 
         with TestClient(app) as client:
             assert press(client, "GBA_L", down=True).status_code == HTTPStatus.NO_CONTENT
 
-        assert wait_for(lambda: received), "Nothing arrived at the dummy emulator"
-        assert received[0] == Button.GBA_L.bit.to_bytes(2, "little")
+        # fake_gba decodes as little endian, so a wrong byte order in the app decodes to the wrong button.
+        assert fake_gba.wait_for_states([Button.GBA_L.bit]), f"Got {fake_gba.states}"
     finally:
         controller.stop()
 

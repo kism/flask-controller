@@ -8,7 +8,7 @@ import threading
 import time
 from typing import TYPE_CHECKING
 
-import colorama
+from rich.style import Style
 
 if TYPE_CHECKING:
     from webcontroller.config import AppConf
@@ -26,9 +26,7 @@ input_logger.addHandler(_input_handler)
 CLIENT_TIMEOUT_S = 7  # Drop a client from the player count if it hasn't pinged in this long.
 RECONNECT_DELAY_S = 1
 
-COLOUR_NAMES = ("BLACK", "RED", "GREEN", "YELLOW", "BLUE", "MAGENTA", "CYAN", "WHITE")
-FG_COLOURS = [getattr(colorama.Fore, name) for name in COLOUR_NAMES]
-BG_COLOURS = [getattr(colorama.Back, name) for name in COLOUR_NAMES]
+COLOURS = ("black", "red", "green", "yellow", "blue", "magenta", "cyan", "white")
 
 
 class Button(enum.StrEnum):
@@ -69,12 +67,13 @@ def colour_player_id(player_id: str) -> str:
     for chunk in chunks:
         # Colour each chunk based on the sum of its characters, so a chunk is always coloured the same way.
         fun_number = sum(bytearray(chunk, "ascii"))
-        fg_idx = (fun_number * 2) % len(FG_COLOURS)
-        bg_idx = fun_number % len(BG_COLOURS)
+        fg_idx = (fun_number * 2) % len(COLOURS)
+        bg_idx = fun_number % len(COLOURS)
         if fg_idx == bg_idx:  # Don't render a chunk invisible
-            bg_idx = (bg_idx + 1) % len(BG_COLOURS)
+            bg_idx = (bg_idx + 1) % len(COLOURS)
 
-        coloured += colorama.Style.BRIGHT + FG_COLOURS[fg_idx] + BG_COLOURS[bg_idx] + chunk + colorama.Style.RESET_ALL
+        # Style.render() rather than a Console, the log handler wants a plain string with the escapes already in it.
+        coloured += Style(color=COLOURS[fg_idx], bgcolor=COLOURS[bg_idx], bold=True).render(chunk)
 
     return coloured
 

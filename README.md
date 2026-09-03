@@ -45,6 +45,18 @@ uv sync --extra test --extra lint --extra type
 ./scripts/run-coverage.sh
 ```
 
+### Test End to End
+
+`tests/test_e2e.py` drives a real browser with Playwright, against a real uvicorn server, wired to a fake GBA
+client (a TCP server that records the button bitmasks the app sends). It skips itself unless the `e2e` extra is
+installed.
+
+```bash
+uv sync --extra test --extra e2e
+.venv/bin/playwright install chromium
+.venv/bin/pytest
+```
+
 ## Frontend
 
 The page is rendered server side with Jinja, only the script is TypeScript, bundled with bun. One entrypoint per

@@ -6,10 +6,10 @@ license = "MIT"
 readme = "README.md"
 requires-python = ">=3.14.0,<4"
 dependencies = [
-    "colorama>=0.4.6",
     "fastapi>=0.121",
     "jinja2>=3.1",
     "pydantic>=2.12",
+    "rich>=15.0.0",
     "uvicorn>=0.40",
 ]
 
@@ -19,6 +19,8 @@ keyboard = ["pydirectinput>=1.0.4"] # For _emulator/generic_keyboard, Windows on
 type = ["ty>=0.0.69"]
 
 lint = ["ruff>=0.16.2"]
+
+e2e = ["pytest-playwright"] # Browser tests, needs `playwright install chromium`
 
 test = [
     "pytest>=9.1.1",
@@ -62,7 +64,7 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*.py" = [
+"tests*/*.py" = [ # tests/ and tests_e2e/
     # Modules
     "ARG", # Unused function args -> fixtures nevertheless are functionally relevant
     "FBT", # Don't care about booleans as positional arguments in tests, e.g. via @pytest.mark.parametrize()
