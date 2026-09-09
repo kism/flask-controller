@@ -16,6 +16,7 @@ dependencies = [
 [project.optional-dependencies]
 keyboard = ["pydirectinput>=1.0.4"] # For _emulator/generic_keyboard, Windows only
 
+[dependency-groups]
 type = ["ty>=0.0.69"]
 
 lint = ["ruff>=0.16.2"]

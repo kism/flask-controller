@@ -40,7 +40,7 @@ uv sync
 ### Test
 
 ```bash
-uv sync --extra test --extra lint --extra type
+uv sync --group test --group lint --group type
 ./scripts/run-ci-local.sh
 ./scripts/run-coverage.sh
 ```
@@ -48,11 +48,11 @@ uv sync --extra test --extra lint --extra type
 ### Test End to End
 
 `tests/test_e2e.py` drives a real browser with Playwright, against a real uvicorn server, wired to a fake GBA
-client (a TCP server that records the button bitmasks the app sends). It skips itself unless the `e2e` extra is
+client (a TCP server that records the button bitmasks the app sends). It skips itself unless the `e2e` group is
 installed.
 
 ```bash
-uv sync --extra test --extra e2e
+uv sync --group test --group e2e
 .venv/bin/playwright install chromium
 .venv/bin/pytest
 ```
