@@ -1,10 +1,10 @@
 # Web Controller
 
-[![Check](https://github.com/kism/flask-controller/actions/workflows/check.yml/badge.svg)](https://github.com/kism/flask-controller/actions/workflows/check.yml)
-[![Check](https://github.com/kism/flask-controller/actions/workflows/check_types.yml/badge.svg)](https://github.com/kism/flask-controller/actions/workflows/check_types.yml)
-[![CheckFrontend](https://github.com/kism/flask-controller/actions/workflows/check_frontend.yml/badge.svg)](https://github.com/kism/flask-controller/actions/workflows/check_frontend.yml)
-[![Test](https://github.com/kism/flask-controller/actions/workflows/test.yml/badge.svg)](https://github.com/kism/flask-controller/actions/workflows/test.yml)
-[![codecov](https://codecov.io/gh/kism/flask-controller/graph/badge.svg?token=9R9ZI99GLP)](https://codecov.io/gh/kism/flask-controller)
+[![Check](https://github.com/kism/fastapi-controller/actions/workflows/check.yml/badge.svg)](https://github.com/kism/fastapi-controller/actions/workflows/check.yml)
+[![Check](https://github.com/kism/fastapi-controller/actions/workflows/check_types.yml/badge.svg)](https://github.com/kism/fastapi-controller/actions/workflows/check_types.yml)
+[![CheckFrontend](https://github.com/kism/fastapi-controller/actions/workflows/check_frontend.yml/badge.svg)](https://github.com/kism/fastapi-controller/actions/workflows/check_frontend.yml)
+[![Test](https://github.com/kism/fastapi-controller/actions/workflows/test.yml/badge.svg)](https://github.com/kism/fastapi-controller/actions/workflows/test.yml)
+[![codecov](https://codecov.io/gh/kism/fastapi-controller/graph/badge.svg?token=9R9ZI99GLP)](https://codecov.io/gh/kism/fastapi-controller)
 
 Browser -> HTTP POST -> FastAPI -> TCP Socket -> mGBA Lua
 
